@@ -3,8 +3,8 @@ PSD-REQ-PLATFORM-000001,PSD-PEP-130,,,,,tests/security/README.md,planned
 PSD-REQ-SEC-000001,PSD-PEP-120,audit,docs/api/audit.yaml,docs/asyncapi/audit-events.yaml,,tests/security/README.md,planned
 PSD-REQ-IDENTITY-000001,PSD-PEP-140,identity,services/identity/api.yaml,services/identity/asyncapi.yaml,,services/identity/testing.md,planned
 PSD-REQ-ORG-000001,PSD-PEP-130,organization,docs/api/organization.yaml,,,tests/security/README.md,planned
-PSD-REQ-AI-000001,PSD-PEP-150,ai,docs/api/ai.yaml,,,tests/security/README.md,planned
-PSD-REQ-AI-000002,PSD-PEP-150,ai,docs/api/ai.yaml,,,tests/security/README.md,planned
+PSD-REQ-AI-000001,PSD-PEP-150,ai,docs/api/ai.yaml,docs/asyncapi/ai-events.yaml,database/ai/schema.sql,services/ai/testing.md,planned
+PSD-REQ-AI-000002,PSD-PEP-150,ai,services/ai/api.yaml,services/ai/asyncapi.yaml,database/ai/schema.sql,services/ai/testing.md,planned
 PSD-REQ-DATA-000001,PSD-PEP-120,,,,,tests/security/README.md,planned
 PSD-REQ-IDENTITY-000002,PSD-PEP-210,identity,services/identity/api.yaml,services/identity/asyncapi.yaml,,services/identity/testing.md,planned
 PSD-REQ-ORG-000002,PSD-PEP-220,organization,services/organization/api.yaml,services/organization/asyncapi.yaml,,services/organization/testing.md,planned
@@ -22,3 +22,11 @@ PSD-REQ-HR-CRED-000001,PSD-PEP-304,credentials,services/credentials/api.yaml,ser
 PSD-REQ-HR-TRAIN-000001,PSD-PEP-304,credentials,services/credentials/api.yaml,services/credentials/asyncapi.yaml,,services/credentials/testing.md,planned
 PSD-REQ-HR-CASE-000001,PSD-PEP-305,hr-cases,services/hr-cases/api.yaml,services/hr-cases/asyncapi.yaml,,services/hr-cases/testing.md,planned
 PSD-REQ-HR-UI-000001,PSD-PEP-306,hr,,,,tests/acceptance/README.md,planned
+PSD-REQ-AI-CONV-000001,PSD-PEP-401,ai,services/ai/api.yaml,services/ai/asyncapi.yaml,database/ai/schema.sql,services/ai/testing.md,planned
+PSD-REQ-AI-GROUND-000001,PSD-PEP-402,ai,services/ai/api.yaml,services/ai/asyncapi.yaml,database/ai/schema.sql,services/ai/testing.md,planned
+PSD-REQ-AI-TOOL-000001,PSD-PEP-403,ai,services/ai/api.yaml,services/ai/asyncapi.yaml,database/ai/schema.sql,services/ai/testing.md,planned
+PSD-REQ-AI-APPROVAL-000001,PSD-PEP-403,ai,services/ai/api.yaml,services/ai/asyncapi.yaml,database/ai/schema.sql,services/ai/testing.md,planned
+PSD-REQ-AI-MEMORY-000001,PSD-PEP-404,ai,services/ai/api.yaml,docs/asyncapi/ai-events.yaml,database/ai/schema.sql,services/ai/testing.md,planned
+PSD-REQ-AI-FOUNDER-000001,PSD-PEP-405,ai,docs/api/ai.yaml,,,services/ai/testing.md,planned
+PSD-REQ-AI-VOICE-000001,PSD-PEP-406,ai,,,,services/ai/testing.md,planned
+PSD-REQ-AI-SEC-000001,PSD-PEP-407,ai,services/ai/api.yaml,services/ai/asyncapi.yaml,,services/ai/testing.md,planned

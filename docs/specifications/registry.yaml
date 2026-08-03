@@ -1,5 +1,5 @@
 registry:
-  version: 1.3.0
+  version: 1.4.0
   status: Approved
 
 specifications:
@@ -90,6 +90,38 @@ specifications:
     title: HR User Experience and Dashboards
     status: Approved
     path: docs/specifications/PSD-PEP-306-hr-experience.md
+  - id: PSD-PEP-400
+    title: Domonique 2.0 AI Platform
+    status: Approved
+    path: docs/specifications/PSD-PEP-400-domonique-ai-platform.md
+  - id: PSD-PEP-401
+    title: Conversation Engine and Prompt Builder
+    status: Approved
+    path: docs/specifications/PSD-PEP-401-conversation-prompt-engine.md
+  - id: PSD-PEP-402
+    title: Knowledge Retrieval, Grounding, and Policy Engine
+    status: Approved
+    path: docs/specifications/PSD-PEP-402-retrieval-grounding-policy.md
+  - id: PSD-PEP-403
+    title: AI Tool Registry and Approval Framework
+    status: Approved
+    path: docs/specifications/PSD-PEP-403-tools-approvals.md
+  - id: PSD-PEP-404
+    title: Domonique 2.0 Memory Vault
+    status: Approved
+    path: docs/specifications/PSD-PEP-404-memory-vault.md
+  - id: PSD-PEP-405
+    title: Assistant Modes and Founder Brief
+    status: Approved
+    path: docs/specifications/PSD-PEP-405-assistant-modes.md
+  - id: PSD-PEP-406
+    title: Voice and Wake-Phrase
+    status: Approved
+    path: docs/specifications/PSD-PEP-406-voice-interface.md
+  - id: PSD-PEP-407
+    title: AI Security, Safety, and Evaluation
+    status: Approved
+    path: docs/specifications/PSD-PEP-407-ai-security-evaluation.md
   - id: PSD-PEP-3010
     title: Worker Service Specification
     status: Foundation

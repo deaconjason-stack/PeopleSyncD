@@ -1,6 +1,6 @@
 registry:
   id: PSD-REQ-000001
-  version: 1.3.0
+  version: 1.4.0
   status: Approved
 
 requirements:
@@ -96,3 +96,35 @@ requirements:
     title: Role-Aware HR Workspaces
     status: Approved
     path: docs/requirements/hr/PSD-REQ-HR-UI-000001.yaml
+  - requirement_id: PSD-REQ-AI-CONV-000001
+    title: Tenant-Scoped Permission-Aware Conversations
+    status: Approved
+    path: docs/requirements/ai/PSD-REQ-AI-CONV-000001.yaml
+  - requirement_id: PSD-REQ-AI-GROUND-000001
+    title: Source-Grounded Answers With Provenance
+    status: Approved
+    path: docs/requirements/ai/PSD-REQ-AI-GROUND-000001.yaml
+  - requirement_id: PSD-REQ-AI-TOOL-000001
+    title: Versioned Permission-Aware AI Tools
+    status: Approved
+    path: docs/requirements/ai/PSD-REQ-AI-TOOL-000001.yaml
+  - requirement_id: PSD-REQ-AI-APPROVAL-000001
+    title: Human Approval for High-Impact AI Actions
+    status: Approved
+    path: docs/requirements/ai/PSD-REQ-AI-APPROVAL-000001.yaml
+  - requirement_id: PSD-REQ-AI-MEMORY-000001
+    title: Tenant-Isolated Governed AI Memory
+    status: Approved
+    path: docs/requirements/ai/PSD-REQ-AI-MEMORY-000001.yaml
+  - requirement_id: PSD-REQ-AI-FOUNDER-000001
+    title: Source-Linked Founder Brief
+    status: Approved
+    path: docs/requirements/ai/PSD-REQ-AI-FOUNDER-000001.yaml
+  - requirement_id: PSD-REQ-AI-VOICE-000001
+    title: Privacy-Preserving Voice Activation
+    status: Approved
+    path: docs/requirements/ai/PSD-REQ-AI-VOICE-000001.yaml
+  - requirement_id: PSD-REQ-AI-SEC-000001
+    title: Prompt-Injection and Tool-Abuse Defense
+    status: Approved
+    path: docs/requirements/ai/PSD-REQ-AI-SEC-000001.yaml
