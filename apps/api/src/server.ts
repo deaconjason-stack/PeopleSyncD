@@ -7,7 +7,8 @@ import type { Permission, SessionClaims, WorkerSummary } from "@peoplesyncd/shar
 import type { ApiConfig } from "./config";
 import { readConfig } from "./config";
 import { requestContext } from "./security";
-import { InMemoryPlatformStore } from "./store";
+import type { PlatformStore } from "./store";
+import { createPlatformStore } from "./store";
 
 const FOUNDER_PERMISSIONS: Permission[] = [
   "founder.dashboard.read",
@@ -24,9 +25,10 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "Unknown error";
 }
 
-export function buildServer(config: ApiConfig = readConfig(), store = new InMemoryPlatformStore()) {
+export function buildServer(config: ApiConfig = readConfig(), store: PlatformStore = createPlatformStore(config)) {
   const app = Fastify({ logger: false, trustProxy: false, bodyLimit: 1024 * 1024 });
   void app.register(cors, { origin: config.corsOrigin, credentials: false });
+  app.addHook("onClose", async () => store.close());
 
   app.setErrorHandler((error, _request, reply) => {
     const message = errorMessage(error);
@@ -39,8 +41,15 @@ export function buildServer(config: ApiConfig = readConfig(), store = new InMemo
     return reply.status(500).send({ error: "Internal server error" });
   });
 
-  app.get("/health/live", async () => ({ status: "live", release: "0.2.0-internal-alpha" }));
-  app.get("/health/ready", async () => ({ status: "ready", storage: "in-memory", certified: false }));
+  app.get("/health/live", async () => ({ status: "live", release: "0.3.0-production-beta" }));
+  app.get("/health/ready", async (_request, reply) => {
+    const ready = await store.health();
+    return reply.status(ready ? 200 : 503).send({
+      status: ready ? "ready" : "not-ready",
+      storage: store.kind,
+      certified: false
+    });
+  });
 
   app.post("/v1/auth/dev-session", async (_request, reply) => {
     if (!config.devAuthEnabled) return reply.status(404).send({ error: "Not found" });
@@ -69,11 +78,11 @@ export function buildServer(config: ApiConfig = readConfig(), store = new InMemo
   app.post<{ Body: { displayName?: string; preferredName?: string } }>("/v1/persons", async (request, reply) => {
     const context = requestContext(request, config, "person.create");
     if (!request.body?.displayName?.trim()) throw new Error("displayName is required");
-    const person = store.createPerson(context.organizationId, {
+    const person = await store.createPerson(context.organizationId, {
       displayName: request.body.displayName,
       preferredName: request.body.preferredName
     });
-    store.audit.append({
+    await store.audit.append({
       organizationId: context.organizationId,
       actorId: context.claims.subject,
       action: "person.create",
@@ -96,13 +105,13 @@ export function buildServer(config: ApiConfig = readConfig(), store = new InMemo
     if (!body.personId || !body.workerType || !body.employmentStatus || !body.startDate) {
       throw new Error("personId, workerType, employmentStatus, and startDate are required");
     }
-    const worker = store.createWorker(context.organizationId, {
+    const worker = await store.createWorker(context.organizationId, {
       personId: body.personId,
       workerType: body.workerType,
       employmentStatus: body.employmentStatus,
       startDate: body.startDate
     });
-    store.audit.append({
+    await store.audit.append({
       organizationId: context.organizationId,
       actorId: context.claims.subject,
       action: "worker.create",
@@ -119,7 +128,7 @@ export function buildServer(config: ApiConfig = readConfig(), store = new InMemo
     if (!request.body?.action || !request.body.resourceType || !request.body.outcome) {
       throw new Error("action, resourceType, and outcome are required");
     }
-    const event = store.audit.append({
+    const event = await store.audit.append({
       organizationId: context.organizationId,
       actorId: context.claims.subject,
       action: request.body.action,
@@ -155,8 +164,8 @@ export function buildServer(config: ApiConfig = readConfig(), store = new InMemo
   app.post<{ Params: { toolId: string } }>("/v1/ai/tools/:toolId/invoke", async (request, reply) => {
     const context = requestContext(request, config, "ai.tool.founder.get_brief");
     if (request.params.toolId !== "founder.get_brief") return reply.status(404).send({ error: "Tool not registered" });
-    const result = store.dashboard(context.organizationId);
-    store.audit.append({
+    const result = await store.dashboard(context.organizationId);
+    await store.audit.append({
       organizationId: context.organizationId,
       actorId: context.claims.subject,
       action: "ai.tool.invoke",

@@ -8,7 +8,8 @@ const config: ApiConfig = {
   nodeEnv: "test",
   sessionSecret: "test-secret-at-least-sixteen-characters",
   devAuthEnabled: true,
-  corsOrigin: "http://localhost:5173"
+  corsOrigin: "http://localhost:5173",
+  storageMode: "memory"
 };
 
 async function session(app: ReturnType<typeof buildServer>) {
@@ -23,6 +24,7 @@ describe("PeopleSyncD API", () => {
     const response = await app.inject({ method: "GET", url: "/health/ready" });
     expect(response.statusCode).toBe(200);
     expect(response.json().certified).toBe(false);
+    expect(response.json().storage).toBe("in-memory");
     await app.close();
   });
 
