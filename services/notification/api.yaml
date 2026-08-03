@@ -1,0 +1,41 @@
+openapi: 3.1.0
+info:
+  title: PeopleSyncD Notification Service API
+  version: 0.1.0
+  description: Recipient-scoped notification and delivery-status contract.
+  license:
+    name: Proprietary
+servers:
+  - url: https://api.peoplesyncd.example
+security:
+  - bearerAuth: []
+paths:
+  /v1/notifications:
+    get:
+      operationId: listMyNotifications
+      summary: List notifications visible to the caller
+      responses:
+        '200': { description: Caller-scoped notifications }
+        '403': { description: Access denied }
+    post:
+      operationId: requestNotification
+      summary: Request an authorized notification delivery
+      responses:
+        '202': { description: Delivery request accepted }
+        '400': { description: Invalid delivery request }
+        '403': { description: Delivery request denied }
+  /v1/notifications/{notificationId}/read:
+    post:
+      operationId: markNotificationRead
+      summary: Mark an in-app notification as read
+      parameters:
+        - in: path
+          name: notificationId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Notification marked read }
+        '404': { description: Notification not found in caller scope }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

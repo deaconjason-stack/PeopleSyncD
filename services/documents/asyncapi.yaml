@@ -1,0 +1,32 @@
+asyncapi: 2.6.0
+info:
+  title: PeopleSyncD Document Events
+  version: 0.1.0
+channels:
+  document.version_created.v1:
+    publish:
+      operationId: publishDocumentVersionCreated
+      message:
+        payload:
+          type: object
+          required: [eventId, organizationId, documentId, versionId, classification, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            organizationId: { type: string, format: uuid }
+            documentId: { type: string, format: uuid }
+            versionId: { type: string, format: uuid }
+            classification: { type: string }
+            occurredAt: { type: string, format: date-time }
+  document.status_changed.v1:
+    publish:
+      operationId: publishDocumentStatusChanged
+      message:
+        payload:
+          type: object
+          required: [eventId, organizationId, documentId, status, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            organizationId: { type: string, format: uuid }
+            documentId: { type: string, format: uuid }
+            status: { type: string }
+            occurredAt: { type: string, format: date-time }
