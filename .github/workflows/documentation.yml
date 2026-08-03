@@ -1,0 +1,62 @@
+name: Engineering Corpus
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  corpus-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Markdown
+        run: npx --yes markdownlint-cli2 "**/*.md" "#node_modules"
+      - name: Validate registries and identifiers
+        shell: python
+        run: |
+          import re
+          from pathlib import Path
+          import yaml
+
+          ids = {}
+          errors = []
+          id_pattern = re.compile(r'^PSD-[A-Z0-9-]+$')
+
+          for path in Path('.').rglob('*.yaml'):
+              if '.git' in path.parts:
+                  continue
+              try:
+                  data = yaml.safe_load(path.read_text(encoding='utf-8'))
+              except Exception as exc:
+                  errors.append(f'{path}: invalid YAML: {exc}')
+                  continue
+              def visit(value):
+                  if isinstance(value, dict):
+                      candidate = value.get('id')
+                      if isinstance(candidate, str) and candidate.startswith('PSD-'):
+                          if not id_pattern.match(candidate):
+                              errors.append(f'{path}: invalid id {candidate}')
+                          if candidate in ids and ids[candidate] != str(path):
+                              errors.append(f'duplicate id {candidate}: {ids[candidate]} and {path}')
+                          ids[candidate] = str(path)
+                      for child in value.values(): visit(child)
+                  elif isinstance(value, list):
+                      for child in value: visit(child)
+              visit(data)
+
+          required = [
+            'docs/governance/PSD-GOV-001-engineering-governance-charter.md',
+            'docs/standards/PSD-STD-001-documentation-standard.md',
+            'docs/requirements/PSD-REQ-000001-master-requirement-registry.md',
+            'docs/specifications/PSD-PEP-100-product-charter.md',
+            'docs/requirements/registry.yaml',
+            'docs/specifications/registry.yaml'
+          ]
+          for item in required:
+              if not Path(item).is_file(): errors.append(f'missing required artifact: {item}')
+          if errors: raise SystemExit('\n'.join(errors))
+          print(f'Validated {len(ids)} machine-readable identifiers.')

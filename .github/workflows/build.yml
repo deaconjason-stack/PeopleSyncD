@@ -1,0 +1,33 @@
+name: Software Foundation
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-foundation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify product-factory structure
+        shell: bash
+        run: |
+          set -euo pipefail
+          for path in apps/web apps/desktop apps/mobile services/hr packages/ui packages/auth packages/permissions infrastructure/docker infrastructure/kubernetes database/migrations tests/unit tests/integration tests/security tests/performance tests/acceptance; do
+            test -d "$path" || { echo "Missing $path" >&2; exit 1; }
+          done
+      - name: Build and test when implementation manifests exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f package.json ]; then
+            npm ci
+            npm run build --if-present
+            npm test --if-present
+          else
+            echo 'No executable package manifest yet; foundation structure validated.'
+          fi

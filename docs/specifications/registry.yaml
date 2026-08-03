@@ -1,0 +1,38 @@
+registry:
+  version: 1.0.0
+  status: Approved
+
+specifications:
+  - id: PSD-PEP-100
+    title: Product Charter
+    status: Approved
+    path: docs/specifications/PSD-PEP-100-product-charter.md
+
+  - id: PSD-PEP-110
+    title: Domain Ontology
+    status: Planned
+
+  - id: PSD-PEP-120
+    title: Security Architecture
+    status: Planned
+
+  - id: PSD-PEP-130
+    title: Tenant Architecture
+    status: Planned
+
+  - id: PSD-PEP-140
+    title: Identity Architecture
+    status: Planned
+
+  - id: PSD-PEP-150
+    title: AI Governance
+    status: Planned
+
+  - id: PSD-PEP-200
+    title: System Architecture
+    status: Planned
+
+  - id: PSD-PEP-3010
+    title: Worker Service Specification
+    status: Foundation
+    path: services/worker/README.md

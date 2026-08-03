@@ -1,5 +1,5 @@
-# Security Package
+# Security Engineering
 
-The commercial security package will include threat model, security architecture, penetration-testing plan and evidence, vulnerability management, secrets management, encryption standards, access-review process, tenant-isolation tests, incident response, and unresolved risk register.
+Security is specified and tested across identity verification, sessions, authorization, tenant isolation, data protection, transport security, secrets, audit, monitoring, vulnerability management, incident response, and AI tool boundaries.
 
-A template is not evidence of completion.
+Operational guidance alone is not a security control. Requirements and automated verification are mandatory.

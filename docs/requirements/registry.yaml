@@ -1,0 +1,32 @@
+registry:
+  id: PSD-REQ-000001
+  version: 1.0.0
+  status: Approved
+
+requirements:
+  - id: PSD-REQ-PLATFORM-000001
+    title: Multi-Tenant Architecture
+    status: Approved
+    priority: Critical
+    owner: Enterprise Architecture Office
+    specification:
+      - PSD-PEP-130
+    implementation_status: Planned
+
+  - id: PSD-REQ-SEC-000001
+    title: Immutable Audit Logging
+    status: Approved
+    priority: Critical
+    owner: Security Office
+    specification:
+      - PSD-PEP-120
+    implementation_status: Planned
+
+  - id: PSD-REQ-HR-WORKER-000001
+    title: Worker Management
+    status: Approved
+    priority: High
+    owner: HR Domain
+    specification:
+      - PSD-PEP-3010
+    implementation_status: Planned
