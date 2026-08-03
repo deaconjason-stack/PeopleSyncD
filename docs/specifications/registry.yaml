@@ -1,5 +1,5 @@
 registry:
-  version: 1.1.0
+  version: 1.2.0
   status: Approved
 
 specifications:
@@ -7,36 +7,61 @@ specifications:
     title: Product Charter
     status: Approved
     path: docs/specifications/PSD-PEP-100-product-charter.md
-
   - id: PSD-PEP-110
     title: Domain Ontology
     status: Approved
     path: docs/specifications/PSD-PEP-110-domain-ontology.md
-
   - id: PSD-PEP-120
     title: Security Architecture
     status: Approved
     path: docs/specifications/PSD-PEP-120-security-architecture.md
-
   - id: PSD-PEP-130
     title: Multi-Tenant Architecture
     status: Approved
     path: docs/specifications/PSD-PEP-130-tenant-architecture.md
-
   - id: PSD-PEP-140
     title: Identity Architecture
     status: Approved
     path: docs/specifications/PSD-PEP-140-identity-architecture.md
-
   - id: PSD-PEP-150
     title: Domonique 2.0 AI Governance
     status: Approved
     path: docs/specifications/PSD-PEP-150-ai-governance.md
-
   - id: PSD-PEP-200
     title: System Architecture
     status: Planned
-
+  - id: PSD-PEP-210
+    title: Identity Service Specification
+    status: Approved
+    path: docs/specifications/PSD-PEP-210-identity-service.md
+  - id: PSD-PEP-220
+    title: Organization Service Specification
+    status: Approved
+    path: docs/specifications/PSD-PEP-220-organization-service.md
+  - id: PSD-PEP-230
+    title: Permissions Service Specification
+    status: Approved
+    path: docs/specifications/PSD-PEP-230-permissions-service.md
+  - id: PSD-PEP-240
+    title: Audit Service Specification
+    status: Approved
+    path: docs/specifications/PSD-PEP-240-audit-service.md
+  - id: PSD-PEP-250
+    title: Documents Service Specification
+    status: Approved
+    path: docs/specifications/PSD-PEP-250-documents-service.md
+  - id: PSD-PEP-260
+    title: Workflow Service Specification
+    status: Approved
+    path: docs/specifications/PSD-PEP-260-workflow-service.md
+  - id: PSD-PEP-270
+    title: Notification Service Specification
+    status: Approved
+    path: docs/specifications/PSD-PEP-270-notification-service.md
+  - id: PSD-PEP-280
+    title: Licensing Service Specification
+    status: Approved
+    path: docs/specifications/PSD-PEP-280-licensing-service.md
   - id: PSD-PEP-3010
     title: Worker Service Specification
     status: Foundation

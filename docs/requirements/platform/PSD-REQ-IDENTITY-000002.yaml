@@ -1,0 +1,11 @@
+id: PSD-REQ-IDENTITY-000002
+title: Federated Identity Lifecycle
+status: Approved
+priority: High
+owner: Identity Domain
+specification: PSD-PEP-210
+acceptance_criteria:
+  - OIDC, SAML, and SCIM configurations are tenant-scoped and versioned.
+  - Provisioning and deprovisioning are auditable and idempotent.
+  - Federation cannot bypass account state, MFA policy, or organization membership.
+implementation_status: Planned

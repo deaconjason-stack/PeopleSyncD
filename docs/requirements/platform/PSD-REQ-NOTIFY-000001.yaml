@@ -1,0 +1,11 @@
+id: PSD-REQ-NOTIFY-000001
+title: Authorized and Privacy-Safe Notifications
+status: Approved
+priority: High
+owner: Notification Domain
+specification: PSD-PEP-270
+acceptance_criteria:
+  - Recipients receive only content they are authorized to view.
+  - Restricted titles are not exposed in previews.
+  - Delivery is idempotent, retryable, and observable.
+implementation_status: Planned

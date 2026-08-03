@@ -1,161 +1,118 @@
 registry:
   id: PSD-REQ-000001
-  version: 1.1.0
+  version: 1.2.0
   status: Approved
 
 requirements:
   - id: PSD-REQ-PLATFORM-000001
     title: Multi-Tenant Architecture
-    hierarchy: Platform
     status: Approved
     priority: Critical
     owner: Enterprise Architecture Office
-    business_value: Prevent customer data exposure and support multiple deployment models.
-    specification:
-      - PSD-PEP-130
-    acceptance_criteria:
-      - Every tenant-owned record contains an immutable organization identifier.
-      - Cross-tenant API, database, file, search, event, cache, export, and AI access is denied.
-      - Automated tenant-isolation tests pass for every release candidate.
-    security_impact: Critical
-    compliance_impact: Foundational
+    specification: [PSD-PEP-130]
     implementation_status: Planned
-
   - id: PSD-REQ-SEC-000001
     title: Immutable Audit Logging
-    hierarchy: Platform
     status: Approved
     priority: Critical
     owner: Security Office
-    business_value: Preserve trustworthy evidence for operations, investigations, customers, and certification.
-    specification:
-      - PSD-PEP-120
-    api:
-      - docs/api/audit.yaml
-    events:
-      - docs/asyncapi/audit-events.yaml
-    acceptance_criteria:
-      - Ordinary APIs cannot update or delete audit events.
-      - Successful, denied, failed, canceled, and approval-pending actions can be recorded.
-      - Integrity controls and authorized retrieval are verified.
-    security_impact: Critical
-    compliance_impact: Foundational
+    specification: [PSD-PEP-120, PSD-PEP-240]
     implementation_status: Planned
-
   - id: PSD-REQ-IDENTITY-000001
     title: Strong Authentication and Session Control
-    hierarchy: Platform
     status: Approved
     priority: Critical
     owner: Identity Domain
-    business_value: Protect enterprise access while supporting modern authentication and federation.
-    specification:
-      - PSD-PEP-140
-    acceptance_criteria:
-      - Privileged roles require multi-factor authentication.
-      - Sessions are revocable and refresh credentials rotate.
-      - Sensitive actions require recent authentication.
-      - Account disablement revokes active sessions.
-    security_impact: Critical
-    compliance_impact: Foundational
+    specification: [PSD-PEP-140, PSD-PEP-210]
     implementation_status: Planned
-
+  - id: PSD-REQ-IDENTITY-000002
+    title: Federated Identity Lifecycle
+    status: Approved
+    priority: High
+    owner: Identity Domain
+    specification: [PSD-PEP-210]
+    implementation_status: Planned
   - id: PSD-REQ-ORG-000001
     title: Explicit Organization Context
-    hierarchy: Platform
     status: Approved
     priority: Critical
     owner: Organization Domain
-    business_value: Ensure every request executes within a verified customer boundary.
-    specification:
-      - PSD-PEP-130
-      - PSD-PEP-140
-    api:
-      - docs/api/organization.yaml
-    acceptance_criteria:
-      - A user can enter only organizations with active membership.
-      - Organization switching creates a new explicit context and audit event.
-      - Client-supplied organization identifiers are validated server-side.
-    security_impact: Critical
-    compliance_impact: Foundational
+    specification: [PSD-PEP-130, PSD-PEP-220]
     implementation_status: Planned
-
-  - id: PSD-REQ-AI-000001
-    title: Human Approval for High-Impact AI Actions
-    hierarchy: Platform
+  - id: PSD-REQ-ORG-000002
+    title: Governed Organization Hierarchy and Membership
     status: Approved
-    priority: Critical
-    owner: AI Platform Office
-    business_value: Enable useful automation without surrendering accountable human authority.
-    specification:
-      - PSD-PEP-150
-    api:
-      - docs/api/ai.yaml
-    acceptance_criteria:
-      - Domonique 2.0 cannot execute defined high-impact actions without authorized approval.
-      - Approval identity, scope, time, and outcome are audited.
-      - Stale, expired, canceled, or unauthorized approvals cannot execute.
-    security_impact: Critical
-    compliance_impact: High
+    priority: High
+    owner: Organization Domain
+    specification: [PSD-PEP-220]
     implementation_status: Planned
-
-  - id: PSD-REQ-AI-000002
-    title: Permission-Aware AI Tool Invocation
-    hierarchy: Platform
-    status: Approved
-    priority: Critical
-    owner: AI Platform Office
-    business_value: Allow role-aware assistance without creating an alternate access path.
-    specification:
-      - PSD-PEP-150
-      - PSD-PEP-120
-    api:
-      - docs/api/ai.yaml
-    acceptance_criteria:
-      - Every AI tool call uses the requesting user's verified organization and permissions.
-      - Unauthorized tools and records are refused without disclosure.
-      - AI remains disabled from direct unrestricted database access.
-    security_impact: Critical
-    compliance_impact: High
-    implementation_status: Planned
-
-  - id: PSD-REQ-DATA-000001
-    title: Protected Data Encryption
-    hierarchy: Platform
+  - id: PSD-REQ-PERM-000001
+    title: Default-Deny Authorization
     status: Approved
     priority: Critical
     owner: Security Office
-    business_value: Reduce exposure of confidential enterprise and workforce information.
-    specification:
-      - PSD-PEP-120
-    acceptance_criteria:
-      - Approved encryption protects data in transit, at rest, in backup, and in export.
-      - Highly confidential fields receive additional protection where required.
-      - Keys are separated from data and never committed to source.
-    security_impact: Critical
-    compliance_impact: Foundational
+    specification: [PSD-PEP-230]
     implementation_status: Planned
-
+  - id: PSD-REQ-AUDIT-000002
+    title: Audit Evidence Integrity and Retention
+    status: Approved
+    priority: Critical
+    owner: Security Office
+    specification: [PSD-PEP-240]
+    implementation_status: Planned
+  - id: PSD-REQ-DOCUMENT-000001
+    title: Versioned Private Document Management
+    status: Approved
+    priority: Critical
+    owner: Documents Domain
+    specification: [PSD-PEP-250]
+    implementation_status: Planned
+  - id: PSD-REQ-WORKFLOW-000001
+    title: Deterministic Workflow State Transitions
+    status: Approved
+    priority: High
+    owner: Workflow Domain
+    specification: [PSD-PEP-260]
+    implementation_status: Planned
+  - id: PSD-REQ-NOTIFY-000001
+    title: Authorized and Privacy-Safe Notifications
+    status: Approved
+    priority: High
+    owner: Notification Domain
+    specification: [PSD-PEP-270]
+    implementation_status: Planned
+  - id: PSD-REQ-LICENSE-000001
+    title: Tenant-Scoped Feature Entitlements
+    status: Approved
+    priority: High
+    owner: Licensing Domain
+    specification: [PSD-PEP-280]
+    implementation_status: Planned
+  - id: PSD-REQ-AI-000001
+    title: Human Approval for High-Impact AI Actions
+    status: Approved
+    priority: Critical
+    owner: AI Platform Office
+    specification: [PSD-PEP-150]
+    implementation_status: Planned
+  - id: PSD-REQ-AI-000002
+    title: Permission-Aware AI Tool Invocation
+    status: Approved
+    priority: Critical
+    owner: AI Platform Office
+    specification: [PSD-PEP-150, PSD-PEP-230]
+    implementation_status: Planned
+  - id: PSD-REQ-DATA-000001
+    title: Protected Data Encryption
+    status: Approved
+    priority: Critical
+    owner: Security Office
+    specification: [PSD-PEP-120]
+    implementation_status: Planned
   - id: PSD-REQ-HR-WORKER-000001
     title: Worker Management
-    hierarchy: Module
     status: Approved
     priority: High
     owner: HR Domain
-    business_value: Maintain complete, tenant-scoped workforce relationships and history.
-    specification:
-      - PSD-PEP-3010
-      - PSD-PEP-110
-    api:
-      - docs/api/worker.yaml
-    events:
-      - docs/asyncapi/worker-events.yaml
-    database_objects:
-      - worker_assignments
-    acceptance_criteria:
-      - Authorized users can create and retrieve tenant-scoped worker assignments.
-      - Historical assignments are preserved.
-      - Directory views exclude highly confidential fields.
-    security_impact: High
-    compliance_impact: High
+    specification: [PSD-PEP-3010, PSD-PEP-110]
     implementation_status: Planned

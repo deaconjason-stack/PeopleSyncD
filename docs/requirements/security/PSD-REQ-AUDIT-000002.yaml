@@ -1,0 +1,11 @@
+id: PSD-REQ-AUDIT-000002
+title: Audit Evidence Integrity and Retention
+status: Approved
+priority: Critical
+owner: Security Office
+specification: PSD-PEP-240
+acceptance_criteria:
+  - Ordinary interfaces cannot modify or delete audit evidence.
+  - Integrity verification and authorized export are testable.
+  - Retention and legal holds are enforced without unrestricted sensitive duplication.
+implementation_status: Planned

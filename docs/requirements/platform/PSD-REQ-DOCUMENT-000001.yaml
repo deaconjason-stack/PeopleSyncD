@@ -1,0 +1,11 @@
+id: PSD-REQ-DOCUMENT-000001
+title: Versioned Private Document Management
+status: Approved
+priority: Critical
+owner: Documents Domain
+specification: PSD-PEP-250
+acceptance_criteria:
+  - Files are private and tenant-scoped by default.
+  - Signed versions are immutable.
+  - Download authorization is short-lived and audited.
+implementation_status: Planned

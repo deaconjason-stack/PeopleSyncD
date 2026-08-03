@@ -1,0 +1,11 @@
+id: PSD-REQ-ORG-000002
+title: Governed Organization Hierarchy and Membership
+status: Approved
+priority: High
+owner: Organization Domain
+specification: PSD-PEP-220
+acceptance_criteria:
+  - Organization hierarchies reject cycles.
+  - Membership grants and endings are effective-dated and audited.
+  - Parent-child relationships do not automatically grant record access.
+implementation_status: Planned
