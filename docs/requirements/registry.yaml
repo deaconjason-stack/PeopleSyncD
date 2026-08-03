@@ -1,115 +1,115 @@
 registry:
   id: PSD-REQ-000001
-  version: 1.2.0
+  version: 1.2.1
   status: Approved
 
 requirements:
-  - id: PSD-REQ-PLATFORM-000001
+  - requirement_id: PSD-REQ-PLATFORM-000001
     title: Multi-Tenant Architecture
     status: Approved
     priority: Critical
     owner: Enterprise Architecture Office
     specification: [PSD-PEP-130]
     implementation_status: Planned
-  - id: PSD-REQ-SEC-000001
+  - requirement_id: PSD-REQ-SEC-000001
     title: Immutable Audit Logging
     status: Approved
     priority: Critical
     owner: Security Office
     specification: [PSD-PEP-120, PSD-PEP-240]
     implementation_status: Planned
-  - id: PSD-REQ-IDENTITY-000001
+  - requirement_id: PSD-REQ-IDENTITY-000001
     title: Strong Authentication and Session Control
     status: Approved
     priority: Critical
     owner: Identity Domain
     specification: [PSD-PEP-140, PSD-PEP-210]
     implementation_status: Planned
-  - id: PSD-REQ-IDENTITY-000002
+  - requirement_id: PSD-REQ-IDENTITY-000002
     title: Federated Identity Lifecycle
     status: Approved
     priority: High
     owner: Identity Domain
     specification: [PSD-PEP-210]
     implementation_status: Planned
-  - id: PSD-REQ-ORG-000001
+  - requirement_id: PSD-REQ-ORG-000001
     title: Explicit Organization Context
     status: Approved
     priority: Critical
     owner: Organization Domain
     specification: [PSD-PEP-130, PSD-PEP-220]
     implementation_status: Planned
-  - id: PSD-REQ-ORG-000002
+  - requirement_id: PSD-REQ-ORG-000002
     title: Governed Organization Hierarchy and Membership
     status: Approved
     priority: High
     owner: Organization Domain
     specification: [PSD-PEP-220]
     implementation_status: Planned
-  - id: PSD-REQ-PERM-000001
+  - requirement_id: PSD-REQ-PERM-000001
     title: Default-Deny Authorization
     status: Approved
     priority: Critical
     owner: Security Office
     specification: [PSD-PEP-230]
     implementation_status: Planned
-  - id: PSD-REQ-AUDIT-000002
+  - requirement_id: PSD-REQ-AUDIT-000002
     title: Audit Evidence Integrity and Retention
     status: Approved
     priority: Critical
     owner: Security Office
     specification: [PSD-PEP-240]
     implementation_status: Planned
-  - id: PSD-REQ-DOCUMENT-000001
+  - requirement_id: PSD-REQ-DOCUMENT-000001
     title: Versioned Private Document Management
     status: Approved
     priority: Critical
     owner: Documents Domain
     specification: [PSD-PEP-250]
     implementation_status: Planned
-  - id: PSD-REQ-WORKFLOW-000001
+  - requirement_id: PSD-REQ-WORKFLOW-000001
     title: Deterministic Workflow State Transitions
     status: Approved
     priority: High
     owner: Workflow Domain
     specification: [PSD-PEP-260]
     implementation_status: Planned
-  - id: PSD-REQ-NOTIFY-000001
+  - requirement_id: PSD-REQ-NOTIFY-000001
     title: Authorized and Privacy-Safe Notifications
     status: Approved
     priority: High
     owner: Notification Domain
     specification: [PSD-PEP-270]
     implementation_status: Planned
-  - id: PSD-REQ-LICENSE-000001
+  - requirement_id: PSD-REQ-LICENSE-000001
     title: Tenant-Scoped Feature Entitlements
     status: Approved
     priority: High
     owner: Licensing Domain
     specification: [PSD-PEP-280]
     implementation_status: Planned
-  - id: PSD-REQ-AI-000001
+  - requirement_id: PSD-REQ-AI-000001
     title: Human Approval for High-Impact AI Actions
     status: Approved
     priority: Critical
     owner: AI Platform Office
     specification: [PSD-PEP-150]
     implementation_status: Planned
-  - id: PSD-REQ-AI-000002
+  - requirement_id: PSD-REQ-AI-000002
     title: Permission-Aware AI Tool Invocation
     status: Approved
     priority: Critical
     owner: AI Platform Office
     specification: [PSD-PEP-150, PSD-PEP-230]
     implementation_status: Planned
-  - id: PSD-REQ-DATA-000001
+  - requirement_id: PSD-REQ-DATA-000001
     title: Protected Data Encryption
     status: Approved
     priority: Critical
     owner: Security Office
     specification: [PSD-PEP-120]
     implementation_status: Planned
-  - id: PSD-REQ-HR-WORKER-000001
+  - requirement_id: PSD-REQ-HR-WORKER-000001
     title: Worker Management
     status: Approved
     priority: High
