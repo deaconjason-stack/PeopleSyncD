@@ -14,7 +14,11 @@ const base: FounderDashboard = {
 };
 
 describe("dashboard status", () => {
-  it("prioritizes onboarding attention", () => {
+  it("uses singular onboarding grammar", () => {
     expect(dashboardStatus({ ...base, onboardingWorkers: 1 })).toBe("1 onboarding item needs attention");
+  });
+
+  it("uses plural onboarding grammar", () => {
+    expect(dashboardStatus({ ...base, onboardingWorkers: 2 })).toBe("2 onboarding items need attention");
   });
 });
