@@ -12,7 +12,7 @@ updated: 2026-08-03
 supersedes: null
 references:
   - PSD-PEP-300
-  - PSD-PEP-3200
+  - PEP-2030
   - PSD-PEP-400
 ---
 

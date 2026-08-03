@@ -1,14 +1,13 @@
 # Domonique 2.0 AI Service
 
-The AI service orchestrates permission-aware conversations, source-grounded retrieval, narrowly scoped tools, approvals, memory controls, safety behavior, and AI audit evidence.
+The AI service implements `PSD-PEP-400` through `PSD-PEP-407` and orchestrates permission-aware conversations, prompt construction, source-grounded retrieval, narrow tools, approvals, memory, voice requests, safety behavior, and AI audit evidence.
 
-Domonique 2.0 has no unrestricted database access and no independent authority.
+## Evidence chain
 
-## Governing artifacts
+`PSD-REQ-AI-* → PSD-PEP-400..407 → services/ai/api.yaml and asyncapi.yaml → database/ai/* → services/ai/testing.md → certification`
 
-- `PSD-PEP-150` Domonique 2.0 AI Governance
-- `PSD-REQ-AI-000001` Human Approval for High-Impact AI Actions
-- `PSD-REQ-AI-000002` Permission-Aware AI Tool Invocation
-- `docs/api/ai.yaml`
+## Authority boundary
 
-Current status: specification foundation. No production implementation is claimed.
+Domonique 2.0 has no unrestricted database access and no independent authority. Core PeopleSyncD operations remain available when AI is disabled or unavailable.
+
+Status: specification complete; implementation not yet started.

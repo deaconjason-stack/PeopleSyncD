@@ -2,9 +2,10 @@ openapi: 3.1.0
 info:
   title: PeopleSyncD Domonique 2.0 API
   version: 0.1.0
-  description: Draft permission-aware AI orchestration contract.
+  description: Platform-facing permission-aware AI orchestration contract.
   license:
-    name: Proprietary
+    name: PeopleSyncD Proprietary License
+    url: https://github.com/deaconjason-stack/PeopleSyncD/blob/main/LICENSE
 servers:
   - url: https://api.peoplesyncd.example
 security:
@@ -16,11 +17,11 @@ paths:
       summary: Start a permission-aware AI conversation
       responses:
         '201':
-          description: Permission-aware conversation started
+          description: Conversation started
         '400':
-          description: Invalid conversation request
+          description: Invalid request
         '403':
-          description: AI access is not authorized
+          description: AI access denied
   /v1/ai/conversations/{conversationId}/messages:
     post:
       operationId: sendAiMessage
@@ -34,11 +35,9 @@ paths:
             format: uuid
       responses:
         '200':
-          description: Grounded response, refusal, or approval-required draft
-        '400':
-          description: Invalid message request
+          description: Governed response, refusal, or approval-required action
         '403':
-          description: Requested data or tool is not authorized
+          description: Requested capability or context denied
         '404':
           description: Conversation not found in authorized scope
   /v1/ai/actions/{actionId}/approve:
@@ -56,9 +55,18 @@ paths:
         '200':
           description: Authorized action executed and audited
         '403':
-          description: Caller cannot approve this action
+          description: Approval denied
         '409':
           description: Approval is missing, expired, canceled, or stale
+  /v1/ai/memory:
+    get:
+      operationId: listMyAiMemory
+      summary: List governed memory visible to the caller
+      responses:
+        '200':
+          description: Authorized memory records
+        '403':
+          description: Memory access denied
 components:
   securitySchemes:
     bearerAuth:
