@@ -1,13 +1,5 @@
-# PeopleSyncD Organization Service
+# Organization Service
 
-The Organization service owns tenants, organization hierarchy, memberships, locations, settings, branding, and verified organization-selection context.
+Implements `PSD-PEP-220` and provides the authoritative tenant and company hierarchy model.
 
-It is the root tenant boundary but does not independently grant Worker, Board, Document, or administrative permissions.
-
-## Governing artifacts
-
-- `PSD-PEP-130` Multi-Tenant Architecture
-- `PSD-PEP-140` Identity Architecture
-- `PSD-REQ-ORG-000001` Explicit Organization Context
-
-Current status: specification foundation. No production implementation is claimed.
+The service owns organizations, divisions, departments, teams, locations, cost centers, business units, memberships, settings, and active-organization context.

@@ -1,13 +1,7 @@
-# PeopleSyncD Identity Service
+# Identity Service
 
-The Identity service owns User accounts, authentication methods, sessions, federation, recovery, account lifecycle, and verified authentication context.
+Implements `PSD-PEP-210` and the identity controls in `PSD-PEP-140`.
 
-It does not own Person records, Worker Assignments, Board Appointments, or authorization policy decisions.
+The service owns user accounts, authenticators, credentials, sessions, identity providers, recovery artifacts, account state, and authentication events. It proves identity but does not grant application permissions.
 
-## Governing artifacts
-
-- `PSD-PEP-140` Identity Architecture
-- `PSD-PEP-120` Security Architecture
-- `PSD-REQ-IDENTITY-000001` Strong Authentication and Session Control
-
-Current status: specification foundation. No production implementation is claimed.
+Traceability: `Requirement → PSD-PEP-210 → services/identity/api.yaml → services/identity/asyncapi.yaml → services/identity/database.md → services/identity/testing.md → certification`.

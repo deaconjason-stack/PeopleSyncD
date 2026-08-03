@@ -1,0 +1,30 @@
+asyncapi: 2.6.0
+info:
+  title: PeopleSyncD Permission Events
+  version: 0.1.0
+channels:
+  permission.policy_changed.v1:
+    publish:
+      operationId: publishPolicyChanged
+      message:
+        payload:
+          type: object
+          required: [eventId, organizationId, policyVersion, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            organizationId: { type: string, format: uuid }
+            policyVersion: { type: string }
+            occurredAt: { type: string, format: date-time }
+  permission.grant_changed.v1:
+    publish:
+      operationId: publishGrantChanged
+      message:
+        payload:
+          type: object
+          required: [eventId, organizationId, grantId, status, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            organizationId: { type: string, format: uuid }
+            grantId: { type: string, format: uuid }
+            status: { type: string }
+            occurredAt: { type: string, format: date-time }

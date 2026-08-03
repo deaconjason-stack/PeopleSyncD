@@ -1,0 +1,30 @@
+asyncapi: 2.6.0
+info:
+  title: PeopleSyncD Identity Events
+  version: 0.1.0
+channels:
+  identity.session_created.v1:
+    publish:
+      operationId: publishSessionCreated
+      message:
+        payload:
+          type: object
+          required: [eventId, organizationId, userId, sessionId, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            organizationId: { type: [string, 'null'], format: uuid }
+            userId: { type: string, format: uuid }
+            sessionId: { type: string, format: uuid }
+            occurredAt: { type: string, format: date-time }
+  identity.session_revoked.v1:
+    publish:
+      operationId: publishSessionRevoked
+      message:
+        payload:
+          type: object
+          required: [eventId, userId, sessionId, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            userId: { type: string, format: uuid }
+            sessionId: { type: string, format: uuid }
+            occurredAt: { type: string, format: date-time }
