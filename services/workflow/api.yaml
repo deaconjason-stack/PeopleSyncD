@@ -5,6 +5,7 @@ info:
   description: Workflow definitions, instances, tasks, approvals, and transitions.
   license:
     name: Proprietary
+    identifier: LicenseRef-Proprietary
 servers:
   - url: https://api.peoplesyncd.example
 security:
@@ -30,7 +31,8 @@ paths:
       responses:
         '200': { description: Transition committed }
         '403': { description: Transition denied }
-        '409': { description: Invalid, stale, or approval-blocked transition }
+        '409':
+          description: "Invalid, stale, or approval-blocked transition"
 components:
   securitySchemes:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

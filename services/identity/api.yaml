@@ -5,6 +5,7 @@ info:
   description: Authentication and session foundation contract.
   license:
     name: Proprietary
+    identifier: LicenseRef-Proprietary
 servers:
   - url: https://api.peoplesyncd.example
 paths:
@@ -12,6 +13,7 @@ paths:
     post:
       operationId: createSession
       summary: Authenticate and create a session
+      security: []
       responses:
         '201': { description: Session created or MFA challenge returned }
         '400': { description: Invalid authentication request }
@@ -21,6 +23,8 @@ paths:
     post:
       operationId: revokeSession
       summary: Revoke an active session
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: sessionId
@@ -30,3 +34,9 @@ paths:
         '204': { description: Session revoked }
         '403': { description: Revocation denied }
         '404': { description: Session not found }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
