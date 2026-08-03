@@ -1,0 +1,16 @@
+erDiagram
+    ORGANIZATION ||--o{ WORKER_ASSIGNMENT : contains
+    PERSON ||--o{ WORKER_ASSIGNMENT : holds
+    WORKER_ASSIGNMENT o|--o{ WORKER_ASSIGNMENT : supervises
+
+    WORKER_ASSIGNMENT {
+      uuid id PK
+      uuid organization_id
+      uuid person_id
+      uuid supervisor_assignment_id
+      string worker_type
+      string employment_status
+      date start_date
+      date end_date
+      bigint row_version
+    }
