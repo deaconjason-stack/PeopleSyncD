@@ -1,0 +1,3 @@
+requirement_id,pep,service,api,event,database,test,release_status
+PSD-REQ-RUNTIME-000002,PSD-PEP-700,,apps/api/src/server.ts,,database/migrations/0002_phase7_postgres_runtime.sql,apps/api/src/postgres.integration.test.ts,production-beta-foundation
+PSD-REQ-TENANT-000001,PSD-PEP-700,,apps/api/src/store.ts,,database/migrations/0002_phase7_postgres_runtime.sql,apps/api/src/postgres.integration.test.ts,production-beta-foundation

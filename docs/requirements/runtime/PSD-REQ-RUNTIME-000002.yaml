@@ -1,0 +1,24 @@
+requirement_id: PSD-REQ-RUNTIME-000002
+title: PostgreSQL Production Runtime Repository
+status: Implemented
+priority: Critical
+specification: PSD-PEP-700
+statement: >-
+  The production API shall persist Person, Worker, and Audit records through a
+  PostgreSQL repository and shall reject production startup when PostgreSQL
+  storage is not configured.
+acceptance_criteria:
+  - Production configuration fails closed when storage is not postgres.
+  - Person and Worker records survive beyond a single API process lifetime.
+  - Audit events are stored in the append-only audit_events table.
+  - Readiness returns HTTP 503 when PostgreSQL is unavailable.
+implementation:
+  - apps/api/src/config.ts
+  - apps/api/src/store.ts
+  - apps/api/src/server.ts
+  - database/migrations/0001_phase6_runtime.sql
+  - database/migrations/0002_phase7_postgres_runtime.sql
+tests:
+  - apps/api/src/postgres.integration.test.ts
+  - apps/api/src/server.test.ts
+release_status: production-beta-foundation
