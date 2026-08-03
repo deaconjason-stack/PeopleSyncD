@@ -1,0 +1,13 @@
+id: PSD-REQ-AI-VOICE-000001
+title: Privacy-Preserving Voice Activation
+version: 1.0.0
+status: Approved
+hierarchy: Component
+owner: AI Platform Team
+priority: High
+specification: [PSD-PEP-406]
+acceptance_criteria:
+  - Wake detection does not continuously transmit ambient audio.
+  - Microphone state and cancellation are clear.
+  - High-impact voice requests require screen confirmation and authorization.
+implementation_status: Planned

@@ -1,0 +1,13 @@
+id: PSD-REQ-AI-MEMORY-000001
+title: Tenant-Isolated Governed AI Memory
+version: 1.0.0
+status: Approved
+hierarchy: Service
+owner: AI Platform Team
+priority: Critical
+specification: [PSD-PEP-404]
+acceptance_criteria:
+  - Memory records include source, classification, confidence, retention, and owner.
+  - Retrieval rechecks current authorization.
+  - Users can review and correct permitted memory.
+implementation_status: Planned

@@ -1,0 +1,13 @@
+id: PSD-REQ-AI-GROUND-000001
+title: Source-Grounded Answers With Provenance
+version: 1.0.0
+status: Approved
+hierarchy: Service
+owner: AI Platform Team
+priority: Critical
+specification: [PSD-PEP-402]
+acceptance_criteria:
+  - Material factual answers identify authorized source evidence.
+  - Conflicting or insufficient evidence produces uncertainty or escalation.
+  - Retrieved content cannot override platform policy.
+implementation_status: Planned

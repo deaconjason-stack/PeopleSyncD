@@ -1,0 +1,13 @@
+id: PSD-REQ-AI-CONV-000001
+title: Tenant-Scoped Permission-Aware Conversations
+version: 1.0.0
+status: Approved
+hierarchy: Service
+owner: AI Platform Team
+priority: Critical
+specification: [PSD-PEP-401]
+acceptance_criteria:
+  - Every conversation binds to an authenticated user and active organization.
+  - Prompt assembly excludes unauthorized and unrelated tenant data.
+  - Conversation actions produce AI audit evidence.
+implementation_status: Planned

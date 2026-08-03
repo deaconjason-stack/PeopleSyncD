@@ -1,0 +1,13 @@
+id: PSD-REQ-AI-TOOL-000001
+title: Versioned Permission-Aware AI Tools
+version: 1.0.0
+status: Approved
+hierarchy: Service
+owner: AI Platform Team
+priority: Critical
+specification: [PSD-PEP-403]
+acceptance_criteria:
+  - Every tool declares schema, permission, risk, approval, audit, and timeout.
+  - Tool invocation revalidates tenant and authorization.
+  - Unregistered tools cannot execute.
+implementation_status: Planned

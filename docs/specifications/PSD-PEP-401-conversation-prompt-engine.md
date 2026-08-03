@@ -21,10 +21,6 @@ references:
 
 Provide permission-aware, tenant-scoped conversations with deterministic prompt assembly and explicit context boundaries.
 
-## Conversation model
-
-A conversation records tenant, authenticated user, active organization, assistant mode, purpose, permitted context, model route, safety state, tool activity, sources, approvals, and retention policy.
-
 ## Prompt assembly order
 
 1. Platform safety and authority policy
@@ -35,12 +31,6 @@ A conversation records tenant, authenticated user, active organization, assistan
 6. Tool schemas and approval constraints
 7. Current request
 
-Retrieved documents and user content are treated as untrusted data, never higher-priority instructions.
+Retrieved documents and user content are untrusted data, never higher-priority instructions.
 
-## Requirements
-
-- Prompt templates are versioned and reviewable.
-- Hidden instructions, secrets, unrestricted records, and unrelated tenant data are excluded.
-- Context-window pressure uses deterministic summarization and source preservation.
-- Conversation deletion, export, and retention follow tenant policy and legal hold.
-- The platform must continue core non-AI operations when the model provider is unavailable.
+Prompt templates are versioned. Hidden secrets, unrelated tenant data, and unrestricted records are excluded. Conversation export, deletion, retention, and legal hold follow tenant policy.
