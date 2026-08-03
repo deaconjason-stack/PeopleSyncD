@@ -2,6 +2,8 @@
   "name": "@peoplesyncd/desktop",
   "version": "0.2.0",
   "private": true,
+  "description": "PeopleSyncD Genesis unsigned internal Windows alpha",
+  "author": "MediSyncD Technologies, LLC",
   "main": "dist/main.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -10,12 +12,13 @@
     "package:windows": "npm run build && electron-builder --win nsis --publish never"
   },
   "devDependencies": {
-    "electron": "^34.0.0",
-    "electron-builder": "^25.1.8"
+    "electron": "34.0.0",
+    "electron-builder": "25.1.8"
   },
   "build": {
     "appId": "com.medisyncd.peoplesyncd",
     "productName": "PeopleSyncD Genesis",
+    "electronVersion": "34.0.0",
     "artifactName": "PeopleSyncD-Genesis-${version}-unsigned.${ext}",
     "directories": {
       "output": "dist-installer"
