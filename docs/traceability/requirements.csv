@@ -44,3 +44,8 @@ PSD-REQ-PERF-000001,PSD-PEP-506,,,,,docs/testing/deployment-certification-test-s
 PSD-REQ-A11Y-000001,PSD-PEP-506,,,,,docs/testing/deployment-certification-test-strategy.md,planned
 PSD-REQ-CERT-000001,PSD-PEP-507,,,,,docs/testing/deployment-certification-test-strategy.md,planned
 PSD-REQ-INSTALL-000001,PSD-PEP-507,,,,,docs/testing/deployment-certification-test-strategy.md,planned
+PSD-REQ-RUNTIME-000001,PSD-PEP-600,,apps/api/src/server.ts,,database/migrations/0001_phase6_runtime.sql,apps/api/src/server.test.ts,internal-alpha
+PSD-REQ-API-000001,PSD-PEP-600,,apps/api/src/server.ts,,database/migrations/0001_phase6_runtime.sql,apps/api/src/server.test.ts,internal-alpha
+PSD-REQ-WEB-000001,PSD-PEP-600,,apps/web/src/App.tsx,,,apps/web/src/status.test.ts,internal-alpha
+PSD-REQ-DESKTOP-000001,PSD-PEP-600,,apps/desktop/src/main.ts,,,.github/workflows/windows-internal-installer.yml,internal-alpha
+PSD-REQ-TEST-000001,PSD-PEP-600,,apps/api/src/server.ts,,database/migrations/0001_phase6_runtime.sql,apps/api/src/server.test.ts,internal-alpha

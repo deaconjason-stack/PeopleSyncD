@@ -1,6 +1,6 @@
 registry:
   id: PSD-REQ-000001
-  version: 1.5.0
+  version: 1.6.0
   status: Approved
 
 requirements:
@@ -184,3 +184,23 @@ requirements:
     title: Customer Installation and Upgrade Guidance
     status: Approved
     path: docs/requirements/deployment/PSD-REQ-INSTALL-000001.yaml
+  - requirement_id: PSD-REQ-RUNTIME-000001
+    title: Executable TypeScript Platform Monorepo
+    status: Approved
+    path: docs/requirements/runtime/PSD-REQ-RUNTIME-000001.yaml
+  - requirement_id: PSD-REQ-API-000001
+    title: Authenticated Tenant-Scoped Runtime API
+    status: Approved
+    path: docs/requirements/runtime/PSD-REQ-API-000001.yaml
+  - requirement_id: PSD-REQ-WEB-000001
+    title: Accessible Founder Dashboard Shell
+    status: Approved
+    path: docs/requirements/runtime/PSD-REQ-WEB-000001.yaml
+  - requirement_id: PSD-REQ-DESKTOP-000001
+    title: Unsigned Internal Windows Installer
+    status: Approved
+    path: docs/requirements/runtime/PSD-REQ-DESKTOP-000001.yaml
+  - requirement_id: PSD-REQ-TEST-000001
+    title: Executable Runtime Verification
+    status: Approved
+    path: docs/requirements/runtime/PSD-REQ-TEST-000001.yaml

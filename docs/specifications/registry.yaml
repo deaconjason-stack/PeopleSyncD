@@ -1,5 +1,5 @@
 registry:
-  version: 1.5.0
+  version: 1.6.0
   status: Approved
 
 specifications:
@@ -154,6 +154,10 @@ specifications:
     title: Release Certification and Customer Operations
     status: Approved
     path: docs/specifications/PSD-PEP-507-certification-customer-operations.md
+  - id: PSD-PEP-600
+    title: First Executable Platform Build
+    status: Approved
+    path: docs/specifications/PSD-PEP-600-first-executable-platform.md
   - id: PSD-PEP-3010
     title: Worker Service Specification
     status: Foundation
