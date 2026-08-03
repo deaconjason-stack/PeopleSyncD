@@ -1,0 +1,13 @@
+id: PSD-REQ-PERF-000001
+title: Verified Performance Budgets
+version: 1.0.0
+status: Approved
+hierarchy: Release
+owner: Quality Office
+priority: High
+specification: [PSD-PEP-506]
+acceptance_criteria:
+  - Critical workflows have approved measurable budgets.
+  - Reports identify environment, workload, percentiles, and limitations.
+  - Unresolved critical regressions block certification.
+implementation_status: Planned

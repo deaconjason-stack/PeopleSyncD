@@ -1,0 +1,13 @@
+id: PSD-REQ-DR-000001
+title: Tested Disaster Recovery
+version: 1.0.0
+status: Approved
+hierarchy: Platform
+owner: DevSecOps Office
+priority: Critical
+specification: [PSD-PEP-503]
+acceptance_criteria:
+  - Recovery objectives are declared per deployment model.
+  - Exercises cover failover, security, reconciliation, communications, and return to service.
+  - Unresolved critical recovery failures block certification.
+implementation_status: Planned

@@ -1,0 +1,13 @@
+id: PSD-REQ-INSTALL-000001
+title: Customer Installation and Upgrade Guidance
+version: 1.0.0
+status: Approved
+hierarchy: Release
+owner: Customer Success Office
+priority: High
+specification: [PSD-PEP-507]
+acceptance_criteria:
+  - Supported deployment models have installation, verification, backup, upgrade, and rollback instructions.
+  - Guides identify prerequisites, compatibility, security, and known limitations.
+  - Customer-specific secrets are never included in documentation.
+implementation_status: Planned

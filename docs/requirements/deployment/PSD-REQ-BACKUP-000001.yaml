@@ -1,0 +1,13 @@
+id: PSD-REQ-BACKUP-000001
+title: Encrypted Restorable Backups
+version: 1.0.0
+status: Approved
+hierarchy: Platform
+owner: DevSecOps Office
+priority: Critical
+specification: [PSD-PEP-503]
+acceptance_criteria:
+  - Backups are encrypted, integrity-checked, and separated from primary failure domains.
+  - Restoration is rehearsed in an isolated environment.
+  - Recovery evidence identifies the source backup and validation result.
+implementation_status: Planned

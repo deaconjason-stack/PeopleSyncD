@@ -1,0 +1,13 @@
+id: PSD-REQ-CONFIG-000001
+title: Schema-Validated Auditable Configuration
+version: 1.0.0
+status: Approved
+hierarchy: Platform
+owner: DevSecOps Office
+priority: Critical
+specification: [PSD-PEP-501]
+acceptance_criteria:
+  - Governed configuration is versioned and schema-validated.
+  - Secrets are references rather than embedded values.
+  - Production changes record authorization, rollback, and verification.
+implementation_status: Planned
