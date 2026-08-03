@@ -1,0 +1,40 @@
+platform:
+  name: PeopleSyncD
+  version: 0.1.0-foundation
+  status: governance-foundation
+  productionCertified: false
+
+services:
+  - worker
+  - organization
+  - board
+  - documents
+  - workflow
+  - audit
+  - notifications
+  - ai
+
+api:
+  version: v1
+  status: draft
+
+database:
+  schemaVersion: 0.1.0
+  status: draft
+
+requirements:
+  implemented: null
+  source: generated-by-traceability-ci
+
+tests:
+  passed: null
+  coverage: null
+  source: generated-by-ci
+
+certification:
+  enterprise: false
+  evidenceRequired: true
+
+build:
+  signed: false
+  evidenceRequired: true
