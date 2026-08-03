@@ -1,19 +1,47 @@
 openapi: 3.1.0
-info: { title: PeopleSyncD Notifications API, version: 0.1.0 }
-security: [{ bearerAuth: [] }]
+info:
+  title: PeopleSyncD Notifications API
+  version: 0.1.0
+  description: User-scoped notification contract.
+  license:
+    name: Proprietary
+servers:
+  - url: https://api.peoplesyncd.example
+security:
+  - bearerAuth: []
 paths:
   /v1/notifications:
     get:
       operationId: listMyNotifications
+      summary: List notifications visible to the caller
       responses:
-        '200': { description: Notifications visible to the authenticated user }
+        '200':
+          description: Notifications visible to the authenticated user
+        '400':
+          description: Invalid notification query
+        '403':
+          description: Notification access denied
   /v1/notifications/{notificationId}/read:
     post:
       operationId: markNotificationRead
+      summary: Mark a notification as read
       parameters:
-        - { in: path, name: notificationId, required: true, schema: { type: string, format: uuid } }
+        - in: path
+          name: notificationId
+          required: true
+          schema:
+            type: string
+            format: uuid
       responses:
-        '204': { description: Marked read }
+        '204':
+          description: Notification marked read
+        '403':
+          description: Notification access denied
+        '404':
+          description: Notification not found in caller scope
 components:
   securitySchemes:
-    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

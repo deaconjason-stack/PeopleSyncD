@@ -1,28 +1,67 @@
 openapi: 3.1.0
-info: { title: PeopleSyncD Domonique 2.0 API, version: 0.1.0 }
-security: [{ bearerAuth: [] }]
+info:
+  title: PeopleSyncD Domonique 2.0 API
+  version: 0.1.0
+  description: Draft permission-aware AI orchestration contract.
+  license:
+    name: Proprietary
+servers:
+  - url: https://api.peoplesyncd.example
+security:
+  - bearerAuth: []
 paths:
   /v1/ai/conversations:
     post:
       operationId: startAiConversation
+      summary: Start a permission-aware AI conversation
       responses:
-        '201': { description: Permission-aware conversation started }
+        '201':
+          description: Permission-aware conversation started
+        '400':
+          description: Invalid conversation request
+        '403':
+          description: AI access is not authorized
   /v1/ai/conversations/{conversationId}/messages:
     post:
       operationId: sendAiMessage
+      summary: Send a message to Domonique 2.0
       parameters:
-        - { in: path, name: conversationId, required: true, schema: { type: string, format: uuid } }
+        - in: path
+          name: conversationId
+          required: true
+          schema:
+            type: string
+            format: uuid
       responses:
-        '200': { description: Grounded response, refusal, or approval-required draft }
-        '403': { description: Requested data or tool is not authorized }
+        '200':
+          description: Grounded response, refusal, or approval-required draft
+        '400':
+          description: Invalid message request
+        '403':
+          description: Requested data or tool is not authorized
+        '404':
+          description: Conversation not found in authorized scope
   /v1/ai/actions/{actionId}/approve:
     post:
       operationId: approveAiPreparedAction
+      summary: Approve an AI-prepared action
       parameters:
-        - { in: path, name: actionId, required: true, schema: { type: string, format: uuid } }
+        - in: path
+          name: actionId
+          required: true
+          schema:
+            type: string
+            format: uuid
       responses:
-        '200': { description: Authorized action executed and audited }
-        '409': { description: Approval missing, expired, or stale }
+        '200':
+          description: Authorized action executed and audited
+        '403':
+          description: Caller cannot approve this action
+        '409':
+          description: Approval is missing, expired, canceled, or stale
 components:
   securitySchemes:
-    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

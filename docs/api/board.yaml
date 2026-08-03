@@ -1,12 +1,26 @@
 openapi: 3.1.0
-info: { title: PeopleSyncD Board API, version: 0.1.0 }
-security: [{ bearerAuth: [] }]
+info:
+  title: PeopleSyncD Board API
+  version: 0.1.0
+  description: Tenant-scoped governance and active-board contract.
+  license:
+    name: Proprietary
+servers:
+  - url: https://api.peoplesyncd.example
+security:
+  - bearerAuth: []
 paths:
   /v1/board/members:
     get:
       operationId: listActiveBoardMembers
+      summary: List active board appointments
       parameters:
-        - { in: header, name: X-Organization-Id, required: true, schema: { type: string, format: uuid } }
+        - in: header
+          name: X-Organization-Id
+          required: true
+          schema:
+            type: string
+            format: uuid
       responses:
         '200':
           description: Active appointments only
@@ -15,15 +29,38 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  required: [appointmentId, personId, displayName, status]
-                  properties:
-                    appointmentId: { type: string, format: uuid }
-                    personId: { type: string, format: uuid }
-                    displayName: { type: string }
-                    officerTitle: { type: [string, 'null'] }
-                    status: { const: active }
-        '403': { description: Board access denied }
+                  $ref: '#/components/schemas/ActiveBoardMember'
+        '400':
+          description: Invalid organization context
+        '403':
+          description: Board access denied
 components:
   securitySchemes:
-    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ActiveBoardMember:
+      type: object
+      required:
+        - appointmentId
+        - personId
+        - displayName
+        - status
+      properties:
+        appointmentId:
+          type: string
+          format: uuid
+        personId:
+          type: string
+          format: uuid
+        displayName:
+          type: string
+        officerTitle:
+          type:
+            - string
+            - 'null'
+        status:
+          type: string
+          const: active

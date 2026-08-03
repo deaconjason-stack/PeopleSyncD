@@ -1,24 +1,57 @@
 openapi: 3.1.0
-info: { title: PeopleSyncD Documents API, version: 0.1.0 }
-security: [{ bearerAuth: [] }]
+info:
+  title: PeopleSyncD Documents API
+  version: 0.1.0
+  description: Secure document metadata and delivery contract.
+  license:
+    name: Proprietary
+servers:
+  - url: https://api.peoplesyncd.example
+security:
+  - bearerAuth: []
 paths:
   /v1/documents:
     get:
       operationId: listDocuments
+      summary: List authorized document metadata
       responses:
-        '200': { description: Authorized metadata only }
+        '200':
+          description: Authorized metadata only
+        '400':
+          description: Invalid document query
+        '403':
+          description: Document access denied
     post:
       operationId: createDocumentMetadata
+      summary: Create document metadata and upload authorization
       responses:
-        '201': { description: Metadata created; upload authorization returned }
+        '201':
+          description: Metadata created and upload authorization returned
+        '400':
+          description: Invalid document metadata
+        '403':
+          description: Document creation denied
   /v1/documents/{documentId}/download:
     post:
       operationId: authorizeDocumentDownload
+      summary: Authorize a short-lived document download
       parameters:
-        - { in: path, name: documentId, required: true, schema: { type: string, format: uuid } }
+        - in: path
+          name: documentId
+          required: true
+          schema:
+            type: string
+            format: uuid
       responses:
-        '200': { description: Short-lived authorized delivery reference }
-        '403': { description: Access denied or fresh authentication required }
+        '200':
+          description: Short-lived authorized delivery reference
+        '403':
+          description: Access denied or fresh authentication required
+        '404':
+          description: Document not found in authorized scope
 components:
   securitySchemes:
-    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
