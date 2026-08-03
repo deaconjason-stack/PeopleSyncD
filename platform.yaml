@@ -2,8 +2,8 @@ platform:
   name: PeopleSyncD Enterprise Platform
   codename: Genesis
   versionTarget: 1.0.0
-  currentVersion: 0.1.0-foundation
-  phase: 5-enterprise-deployment-certification
+  currentVersion: 0.2.0-internal-alpha
+  phase: 6-first-executable-platform
   category: AI-powered enterprise workforce operating system
   repositoryRole: single-authoritative-source
   classification: commercial-confidential
@@ -15,10 +15,11 @@ deploymentTargets:
   - hybrid-enterprise
   - government-restricted
 clients:
-  - web
-  - desktop
-  - mobile
+  - web-internal-alpha
+  - desktop-unsigned-internal-alpha
+  - mobile-planned
 services:
+  - api-internal-alpha
   - identity
   - organization
   - permissions
@@ -27,9 +28,9 @@ services:
   - workflow
   - notification
   - licensing
-  - ai
-  - person
-  - worker
+  - ai-read-only-tool-runtime
+  - person-internal-alpha
+  - worker-internal-alpha
   - employment
   - onboarding
   - credentials
@@ -37,6 +38,9 @@ services:
   - board
   - search
   - reporting
+persistence:
+  runtime: in-memory-internal-alpha
+  postgresMigration: validated-by-ci
 infrastructure:
   dockerDevelopment: foundation
   kubernetesProduction: template-only
@@ -45,20 +49,20 @@ infrastructure:
   onPremises: target
   hybrid: target
 requirements:
-  implemented: null
-  source: generated-by-traceability-ci
+  implemented: generated-by-traceability-ci
 tests:
-  passed: null
-  coverage: null
-  source: generated-by-ci
+  passed: generated-by-ci
+  coverage: not-yet-gated
 certification:
   enterprise: false
   aiPlatform: false
   deployment: false
   genesisFoundation: false
+  internalAlpha: true
   evidenceRequired: true
 build:
   signed: false
-  sbomGenerated: false
-  checksumsGenerated: false
+  sbomGenerated: generated-by-ci
+  checksumsGenerated: generated-by-ci
+  windowsInstaller: unsigned-generated-by-ci
   evidenceRequired: true

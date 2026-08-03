@@ -1,0 +1,13 @@
+id: PSD-REQ-DESKTOP-000001
+title: Unsigned Internal Windows Installer
+version: 1.0.0
+status: Approved
+hierarchy: Application
+owner: Engineering Organization
+priority: High
+specification: [PSD-PEP-600]
+acceptance_criteria:
+  - CI packages the governed web shell in an Electron NSIS installer.
+  - Context isolation, sandboxing, navigation restrictions, and no Node integration are enabled.
+  - The artifact is clearly labeled unsigned and internal alpha.
+implementation_status: Internal Alpha

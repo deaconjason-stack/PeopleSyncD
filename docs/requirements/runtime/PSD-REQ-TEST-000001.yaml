@@ -1,0 +1,15 @@
+id: PSD-REQ-TEST-000001
+title: Executable Runtime Verification
+version: 1.0.0
+status: Approved
+hierarchy: Test
+owner: Quality Office
+priority: Critical
+specification: [PSD-PEP-600]
+acceptance_criteria:
+  - Session tampering and expiration are tested.
+  - Cross-tenant requests are denied.
+  - Person creation emits audit evidence.
+  - Unregistered AI tools cannot execute.
+  - PostgreSQL migrations are applied in CI.
+implementation_status: Internal Alpha

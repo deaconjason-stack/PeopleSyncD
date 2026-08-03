@@ -10,6 +10,7 @@
 - Phase 2 Identity, Organization, Permissions, Audit, Documents, Workflow, Notifications, and Licensing service blueprints
 - Phase 3 PeopleSyncD HR domain, service, database, UI, operations, and certification specifications
 - Phase 4 Domonique 2.0 conversation, retrieval, tools, approvals, memory, assistant modes, voice, safety, database, and certification specifications
-- Phase 5 Docker, Kubernetes, deployment-model, configuration, secrets, backup, disaster recovery, observability, support, supply-chain, SBOM, signing, performance, accessibility, customer operations, and Genesis 0.1.0 evidence foundations
+- Phase 5 enterprise deployment, operations, supply-chain, customer-guide, and certification foundations
+- Phase 6 executable TypeScript monorepo, API, React Founder Dashboard, Electron Windows shell, runtime migration, tests, and commit-linked internal build artifacts
 
 No production release has been certified.

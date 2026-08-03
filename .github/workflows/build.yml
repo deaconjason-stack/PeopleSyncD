@@ -9,25 +9,67 @@ permissions:
   contents: read
 
 jobs:
-  validate-foundation:
+  build-test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: peoplesyncd_test
+          POSTGRES_USER: peoplesyncd_test
+          POSTGRES_PASSWORD: test-only-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U peoplesyncd_test -d peoplesyncd_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
-      - name: Verify product-factory structure
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Test
+        run: npm test
+      - name: Build
+        run: npm run build
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Apply runtime migration
+        env:
+          PGPASSWORD: test-only-password
+        run: psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -v ON_ERROR_STOP=1 -f database/migrations/0001_phase6_runtime.sql
+      - name: Verify seed and tenant schema
+        env:
+          PGPASSWORD: test-only-password
+        run: |
+          test "$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc 'select count(*) from organizations')" = "1"
+          test "$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc 'select count(*) from workers')" = "1"
+      - name: Build commit-linked evidence
         shell: bash
         run: |
-          set -euo pipefail
-          for path in apps/web apps/desktop apps/mobile services/hr packages/ui packages/auth packages/permissions infrastructure/docker infrastructure/kubernetes database/migrations tests/unit tests/integration tests/security tests/performance tests/acceptance; do
-            test -d "$path" || { echo "Missing $path" >&2; exit 1; }
-          done
-      - name: Build and test when implementation manifests exist
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ -f package.json ]; then
-            npm ci
-            npm run build --if-present
-            npm test --if-present
-          else
-            echo 'No executable package manifest yet; foundation structure validated.'
-          fi
+          mkdir -p build-artifacts/api build-artifacts/web
+          cp -R apps/api/dist/. build-artifacts/api/
+          cp -R apps/web/dist/. build-artifacts/web/
+          cat > build-artifacts/build-manifest.json <<JSON
+          {
+            "product": "PeopleSyncD Genesis Internal Alpha",
+            "version": "0.2.0",
+            "sourceCommit": "$GITHUB_SHA",
+            "workflowRun": "$GITHUB_RUN_ID",
+            "signed": false,
+            "certified": false
+          }
+          JSON
+          python scripts/certification/generate_sbom.py --root . --version 0.2.0 --commit "$GITHUB_SHA" --output build-artifacts/SBOM.cdx.json
+          python scripts/certification/generate_checksums.py build-artifacts --output build-artifacts/CHECKSUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: peoplesyncd-internal-alpha-${{ github.sha }}
+          path: build-artifacts
+          if-no-files-found: error
