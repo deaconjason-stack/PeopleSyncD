@@ -14,15 +14,14 @@ deploymentTargets:
   - on-premises
   - hybrid-enterprise
   - government-restricted
-
 clients:
   - web
   - desktop
   - mobile
-
 services:
   - identity
   - organization
+  - permissions
   - hr
   - board
   - documents
@@ -33,20 +32,16 @@ services:
   - ai
   - licensing
   - reporting
-
 requirements:
   implemented: null
   source: generated-by-traceability-ci
-
 tests:
   passed: null
   coverage: null
   source: generated-by-ci
-
 certification:
   enterprise: false
   evidenceRequired: true
-
 build:
   signed: false
   evidenceRequired: true
