@@ -12,8 +12,9 @@
     "package:windows": "npm run build && electron-builder --win nsis --publish never"
   },
   "devDependencies": {
+    "app-builder-bin": "4.2.0",
     "electron": "34.0.0",
-    "electron-builder": "25.1.8"
+    "electron-builder": "26.15.3"
   },
   "build": {
     "appId": "com.medisyncd.peoplesyncd",
