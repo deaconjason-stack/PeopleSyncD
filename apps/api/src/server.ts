@@ -20,16 +20,21 @@ const FOUNDER_PERMISSIONS: Permission[] = [
   "ai.tool.founder.get_brief"
 ];
 
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "Unknown error";
+}
+
 export function buildServer(config: ApiConfig = readConfig(), store = new InMemoryPlatformStore()) {
   const app = Fastify({ logger: false, trustProxy: false, bodyLimit: 1024 * 1024 });
   void app.register(cors, { origin: config.corsOrigin, credentials: false });
 
   app.setErrorHandler((error, _request, reply) => {
-    if (error instanceof AuthorizationError || /session|bearer|signature|expired/i.test(error.message)) {
-      return reply.status(error instanceof AuthorizationError ? 403 : 401).send({ error: error.message });
+    const message = errorMessage(error);
+    if (error instanceof AuthorizationError || /session|bearer|signature|expired/i.test(message)) {
+      return reply.status(error instanceof AuthorizationError ? 403 : 401).send({ error: message });
     }
-    if (/not found|invalid|required/i.test(error.message)) {
-      return reply.status(400).send({ error: error.message });
+    if (/not found|invalid|required/i.test(message)) {
+      return reply.status(400).send({ error: message });
     }
     return reply.status(500).send({ error: "Internal server error" });
   });
