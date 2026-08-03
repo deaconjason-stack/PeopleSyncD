@@ -1,9 +1,19 @@
 # Traceability Matrix
 
-The machine-readable source is `requirements.csv`.
+The machine-readable source is `requirements.csv` and the approved requirement catalog is `docs/requirements/registry.yaml`.
 
-Current status: architecture foundation only. Requirements are specified but not yet claimed as implemented. CI must verify that every requirement references an existing governing PEP, service, contract, database object where applicable, test plan, and release status.
+## Current status
 
-The required evidence chain is:
+Genesis contains approved architecture requirements and draft service requirements. No requirement is represented as implemented until code, automated tests, and release evidence are linked and verified.
 
-`PEP → Requirement → Service → API/Event Contract → Database → Tests → Release`
+## Required evidence chain
+
+`Requirement → Specification → Architecture Decision → Contract → Implementation → Automated Tests → Certification`
+
+## Status meanings
+
+- `planned` means approved but not yet implemented.
+- `draft` means recorded for review and not yet promoted to the master requirement registry.
+- `implemented` requires code and automated test references.
+- `verified` requires passing evidence tied to a commit.
+- `released` requires an approved release manifest and certification decision.
