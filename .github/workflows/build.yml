@@ -47,7 +47,8 @@ jobs:
         run: |
           test "$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc 'select count(*) from organizations')" = "1"
           test "$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc 'select count(*) from workers')" = "1"
-          test "$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc \"select relforcerowsecurity from pg_class where relname = 'persons'\")" = "t"
+          forced_rls="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select relforcerowsecurity from pg_class where relname = 'persons'")"
+          test "$forced_rls" = "t"
       - name: Typecheck
         run: npm run typecheck
       - name: Test
