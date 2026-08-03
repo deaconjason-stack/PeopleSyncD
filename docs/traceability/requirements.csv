@@ -1,11 +1,11 @@
 requirement_id,pep,service,api,event,database,test,release_status
-PSD-REQ-PLATFORM-000001,PSD-PEP-130,,,,tests/security/README.md,planned
+PSD-REQ-PLATFORM-000001,PSD-PEP-130,,,,,tests/security/README.md,planned
 PSD-REQ-SEC-000001,PSD-PEP-120,audit,docs/api/audit.yaml,docs/asyncapi/audit-events.yaml,,tests/security/README.md,planned
 PSD-REQ-IDENTITY-000001,PSD-PEP-140,identity,,,,tests/security/README.md,planned
 PSD-REQ-ORG-000001,PSD-PEP-130,organization,docs/api/organization.yaml,,,tests/security/README.md,planned
 PSD-REQ-AI-000001,PSD-PEP-150,ai,docs/api/ai.yaml,,,tests/security/README.md,planned
 PSD-REQ-AI-000002,PSD-PEP-150,ai,docs/api/ai.yaml,,,tests/security/README.md,planned
-PSD-REQ-DATA-000001,PSD-PEP-120,,,,tests/security/README.md,planned
+PSD-REQ-DATA-000001,PSD-PEP-120,,,,,tests/security/README.md,planned
 PSD-REQ-HR-WORKER-000001,PSD-PEP-3010,worker,docs/api/worker.yaml,docs/asyncapi/worker-events.yaml,database/worker/schema.sql,services/worker/testing.md,planned
 PSD-REQ-HR-WORKER-000002,PSD-PEP-3010,worker,docs/api/worker.yaml,docs/asyncapi/worker-events.yaml,database/worker/constraints.sql,services/worker/testing.md,draft
 PSD-REQ-HR-WORKER-000003,PSD-PEP-3010,worker,docs/api/worker.yaml,docs/asyncapi/worker-events.yaml,database/worker/schema.sql,services/worker/testing.md,draft
