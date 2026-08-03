@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: peoplesyncd-api-config
+  namespace: peoplesyncd
+data:
+  PEOPLESYNCD_ENVIRONMENT: production-template
+  PEOPLESYNCD_LOG_FORMAT: json
+  PEOPLESYNCD_TELEMETRY_ENABLED: "true"
+  PEOPLESYNCD_AI_ENABLED: "false"

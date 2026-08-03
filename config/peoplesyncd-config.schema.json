@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.peoplesyncd.example/config/1.0.0",
+  "title": "PeopleSyncD Governed Configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["environment", "release", "telemetry", "features"],
+  "properties": {
+    "environment": {"type": "string", "enum": ["development", "test", "staging", "production", "disaster-recovery"]},
+    "release": {"type": "string", "minLength": 1},
+    "telemetry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "serviceName"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "serviceName": {"type": "string", "minLength": 1},
+        "endpointSecretRef": {"type": ["string", "null"]}
+      }
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": {"type": "boolean"}
+    },
+    "secretRefs": {
+      "type": "object",
+      "additionalProperties": {"type": "string", "minLength": 1}
+    }
+  }
+}

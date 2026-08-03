@@ -1,0 +1,31 @@
+name: Build Release Evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release evidence directory version
+        required: true
+        default: 0.1.0
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copy evidence template
+        run: cp -R "release/${{ inputs.version }}" release-work
+      - name: Generate SBOM
+        run: python scripts/certification/generate_sbom.py --version "${{ inputs.version }}" --commit "$GITHUB_SHA" --output release-work/SBOM.cdx.json
+      - name: Generate checksums
+        run: python scripts/certification/generate_checksums.py release-work --output release-work/CHECKSUMS.generated.txt
+      - name: Validate evidence structure
+        run: python scripts/certification/verify_release_evidence.py --allow-draft release-work
+      - uses: actions/upload-artifact@v4
+        with:
+          name: peoplesyncd-release-evidence-${{ inputs.version }}
+          path: release-work
+          if-no-files-found: error

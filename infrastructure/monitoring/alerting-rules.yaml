@@ -1,0 +1,24 @@
+groups:
+  - name: peoplesyncd-platform
+    rules:
+      - alert: PeopleSyncDHighErrorRate
+        expr: sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[5m])) / sum(rate(http_server_request_duration_seconds_count[5m])) > 0.05
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: PeopleSyncD HTTP error rate exceeds five percent
+      - alert: PeopleSyncDAuditDeliveryBacklog
+        expr: peoplesyncd_audit_outbox_oldest_seconds > 300
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: Audit evidence delivery is delayed
+      - alert: PeopleSyncDBackupVerificationStale
+        expr: time() - peoplesyncd_backup_last_verified_timestamp_seconds > 604800
+        for: 1h
+        labels:
+          severity: high
+        annotations:
+          summary: No verified backup restoration evidence in seven days

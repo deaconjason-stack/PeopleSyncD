@@ -1,0 +1,48 @@
+name: Enterprise Deployment Foundation
+
+on:
+  pull_request:
+    paths:
+      - 'infrastructure/**'
+      - 'config/**'
+      - 'scripts/backup/**'
+      - 'scripts/certification/**'
+      - 'tools/support/**'
+      - 'release/0.1.0/**'
+      - '.github/workflows/enterprise-deployment.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'infrastructure/**'
+      - 'config/**'
+      - 'scripts/**'
+      - 'release/0.1.0/**'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Docker Compose
+        working-directory: infrastructure/docker
+        run: |
+          cp .env.example .env
+          docker compose --env-file .env config --quiet
+      - name: Validate JSON configuration
+        run: |
+          python -m json.tool config/peoplesyncd-config.schema.json >/dev/null
+          python -m json.tool config/environments/development.example.json >/dev/null
+          python -m json.tool config/environments/production.example.json >/dev/null
+      - name: Validate scripts
+        run: |
+          bash -n scripts/backup/postgres_backup.sh
+          bash -n scripts/backup/postgres_restore_verify.sh
+          python -m py_compile scripts/certification/generate_checksums.py
+          python -m py_compile scripts/certification/generate_sbom.py
+          python -m py_compile scripts/certification/verify_release_evidence.py
+          python -m py_compile tools/support/create_support_bundle.py
+      - name: Validate draft release evidence
+        run: python scripts/certification/verify_release_evidence.py --allow-draft release/0.1.0

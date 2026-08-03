@@ -1,0 +1,15 @@
+{
+  "environment": "development",
+  "release": "0.1.0-foundation",
+  "telemetry": {
+    "enabled": true,
+    "serviceName": "peoplesyncd-local",
+    "endpointSecretRef": null
+  },
+  "features": {
+    "ai": false,
+    "emailDelivery": false,
+    "desktopUpdates": false
+  },
+  "secretRefs": {}
+}

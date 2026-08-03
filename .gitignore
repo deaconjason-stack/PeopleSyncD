@@ -1,0 +1,31 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.jks
+*.keystore
+
+# Local data and backups
+.local-data/
+backups/
+restore-work/
+support-bundles/
+release-work/
+dist/
+
+# Tooling
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+coverage/
+
+# Operating systems and editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

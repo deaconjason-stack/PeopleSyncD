@@ -1,0 +1,19 @@
+{
+  "environment": "production",
+  "release": "REPLACE_WITH_CERTIFIED_RELEASE",
+  "telemetry": {
+    "enabled": true,
+    "serviceName": "peoplesyncd",
+    "endpointSecretRef": "secret://telemetry/endpoint"
+  },
+  "features": {
+    "ai": false,
+    "emailDelivery": true,
+    "desktopUpdates": false
+  },
+  "secretRefs": {
+    "database": "secret://runtime/database-url",
+    "objectStorage": "secret://runtime/object-storage",
+    "encryptionKey": "secret://runtime/application-encryption-key"
+  }
+}
