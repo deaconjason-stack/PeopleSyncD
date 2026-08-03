@@ -1,0 +1,51 @@
+openapi: 3.1.0
+info:
+  title: PeopleSyncD Worker Service API
+  version: 0.1.0
+  description: Service-local copy of the draft Worker contract.
+security:
+  - bearerAuth: []
+paths:
+  /v1/workers:
+    get:
+      operationId: listWorkers
+      parameters:
+        - in: header
+          name: X-Organization-Id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Authorized worker summaries
+        '403':
+          description: Access denied
+    post:
+      operationId: createWorker
+      parameters:
+        - in: header
+          name: X-Organization-Id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [personId, workerType, employmentStatus, startDate]
+              additionalProperties: false
+              properties:
+                personId: { type: string, format: uuid }
+                workerType: { type: string }
+                employmentStatus: { type: string }
+                startDate: { type: string, format: date }
+      responses:
+        '201': { description: Worker assignment created }
+        '403': { description: Access denied }
+        '409': { description: Conflict }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

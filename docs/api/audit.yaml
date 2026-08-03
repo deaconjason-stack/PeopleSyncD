@@ -1,0 +1,22 @@
+openapi: 3.1.0
+info: { title: PeopleSyncD Audit API, version: 0.1.0 }
+security: [{ bearerAuth: [] }]
+paths:
+  /v1/audit/events:
+    get:
+      operationId: searchAuditEvents
+      responses:
+        '200': { description: Authorized append-only event results }
+        '403': { description: Audit access denied }
+    post:
+      operationId: appendAuditEvent
+      responses:
+        '202': { description: Evidence accepted }
+  /v1/audit/events/{eventId}:
+    patch:
+      operationId: auditEventsAreImmutable
+      responses:
+        '405': { description: Audit events cannot be modified }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

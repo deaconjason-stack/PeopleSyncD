@@ -1,0 +1,101 @@
+openapi: 3.1.0
+info:
+  title: PeopleSyncD Worker API
+  version: 0.1.0
+  description: Draft tenant-scoped contract implementing PEP-2010.
+security:
+  - bearerAuth: []
+paths:
+  /v1/workers:
+    get:
+      operationId: listWorkers
+      summary: List authorized worker summaries
+      parameters:
+        - in: header
+          name: X-Organization-Id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Authorized worker summaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/WorkerSummary' }
+        '403': { description: Access denied }
+    post:
+      operationId: createWorker
+      summary: Create a worker assignment
+      parameters:
+        - in: header
+          name: X-Organization-Id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateWorker' }
+      responses:
+        '201':
+          description: Worker created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WorkerSummary' }
+        '403': { description: Access denied }
+        '409': { description: Conflict or stale state }
+  /v1/workers/{workerId}:
+    get:
+      operationId: getWorker
+      parameters:
+        - in: path
+          name: workerId
+          required: true
+          schema: { type: string, format: uuid }
+        - in: header
+          name: X-Organization-Id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Authorized worker detail
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WorkerSummary' }
+        '404': { description: Not found within authorized tenant scope }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    CreateWorker:
+      type: object
+      required: [personId, workerType, employmentStatus, startDate]
+      additionalProperties: false
+      properties:
+        personId: { type: string, format: uuid }
+        positionId: { type: [string, 'null'], format: uuid }
+        departmentId: { type: [string, 'null'], format: uuid }
+        supervisorAssignmentId: { type: [string, 'null'], format: uuid }
+        workerType:
+          type: string
+          enum: [employee, contractor, volunteer, intern, instructor, advisor]
+        employmentStatus:
+          type: string
+          enum: [planned, onboarding, active, leave, suspended, ended, archived]
+        startDate: { type: string, format: date }
+    WorkerSummary:
+      type: object
+      required: [id, organizationId, personId, workerType, employmentStatus, startDate, rowVersion]
+      properties:
+        id: { type: string, format: uuid }
+        organizationId: { type: string, format: uuid }
+        personId: { type: string, format: uuid }
+        workerType: { type: string }
+        employmentStatus: { type: string }
+        startDate: { type: string, format: date }
+        endDate: { type: [string, 'null'], format: date }
+        rowVersion: { type: integer, minimum: 1 }

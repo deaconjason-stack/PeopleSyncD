@@ -1,0 +1,19 @@
+openapi: 3.1.0
+info: { title: PeopleSyncD Notifications API, version: 0.1.0 }
+security: [{ bearerAuth: [] }]
+paths:
+  /v1/notifications:
+    get:
+      operationId: listMyNotifications
+      responses:
+        '200': { description: Notifications visible to the authenticated user }
+  /v1/notifications/{notificationId}/read:
+    post:
+      operationId: markNotificationRead
+      parameters:
+        - { in: path, name: notificationId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '204': { description: Marked read }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

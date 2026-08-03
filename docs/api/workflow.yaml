@@ -1,0 +1,20 @@
+openapi: 3.1.0
+info: { title: PeopleSyncD Workflow API, version: 0.1.0 }
+security: [{ bearerAuth: [] }]
+paths:
+  /v1/workflows:
+    post:
+      operationId: startWorkflow
+      responses:
+        '201': { description: Workflow started }
+  /v1/workflows/{workflowId}/transitions:
+    post:
+      operationId: transitionWorkflow
+      parameters:
+        - { in: path, name: workflowId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Valid transition committed }
+        '409': { description: Invalid or stale transition }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

@@ -1,0 +1,24 @@
+openapi: 3.1.0
+info: { title: PeopleSyncD Documents API, version: 0.1.0 }
+security: [{ bearerAuth: [] }]
+paths:
+  /v1/documents:
+    get:
+      operationId: listDocuments
+      responses:
+        '200': { description: Authorized metadata only }
+    post:
+      operationId: createDocumentMetadata
+      responses:
+        '201': { description: Metadata created; upload authorization returned }
+  /v1/documents/{documentId}/download:
+    post:
+      operationId: authorizeDocumentDownload
+      parameters:
+        - { in: path, name: documentId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Short-lived authorized delivery reference }
+        '403': { description: Access denied or fresh authentication required }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

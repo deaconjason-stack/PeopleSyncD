@@ -1,0 +1,28 @@
+openapi: 3.1.0
+info: { title: PeopleSyncD Domonique 2.0 API, version: 0.1.0 }
+security: [{ bearerAuth: [] }]
+paths:
+  /v1/ai/conversations:
+    post:
+      operationId: startAiConversation
+      responses:
+        '201': { description: Permission-aware conversation started }
+  /v1/ai/conversations/{conversationId}/messages:
+    post:
+      operationId: sendAiMessage
+      parameters:
+        - { in: path, name: conversationId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Grounded response, refusal, or approval-required draft }
+        '403': { description: Requested data or tool is not authorized }
+  /v1/ai/actions/{actionId}/approve:
+    post:
+      operationId: approveAiPreparedAction
+      parameters:
+        - { in: path, name: actionId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Authorized action executed and audited }
+        '409': { description: Approval missing, expired, or stale }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
