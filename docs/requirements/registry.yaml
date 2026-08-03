@@ -1,118 +1,98 @@
 registry:
   id: PSD-REQ-000001
-  version: 1.2.1
+  version: 1.3.0
   status: Approved
 
 requirements:
   - requirement_id: PSD-REQ-PLATFORM-000001
     title: Multi-Tenant Architecture
     status: Approved
-    priority: Critical
-    owner: Enterprise Architecture Office
-    specification: [PSD-PEP-130]
-    implementation_status: Planned
+    path: docs/requirements/platform/PSD-REQ-PLATFORM-000001.yaml
   - requirement_id: PSD-REQ-SEC-000001
     title: Immutable Audit Logging
     status: Approved
-    priority: Critical
-    owner: Security Office
-    specification: [PSD-PEP-120, PSD-PEP-240]
-    implementation_status: Planned
+    path: docs/requirements/security/PSD-REQ-SEC-000001.yaml
   - requirement_id: PSD-REQ-IDENTITY-000001
     title: Strong Authentication and Session Control
     status: Approved
-    priority: Critical
-    owner: Identity Domain
-    specification: [PSD-PEP-140, PSD-PEP-210]
-    implementation_status: Planned
-  - requirement_id: PSD-REQ-IDENTITY-000002
-    title: Federated Identity Lifecycle
-    status: Approved
-    priority: High
-    owner: Identity Domain
-    specification: [PSD-PEP-210]
-    implementation_status: Planned
+    path: docs/requirements/platform/PSD-REQ-IDENTITY-000001.yaml
   - requirement_id: PSD-REQ-ORG-000001
     title: Explicit Organization Context
     status: Approved
-    priority: Critical
-    owner: Organization Domain
-    specification: [PSD-PEP-130, PSD-PEP-220]
-    implementation_status: Planned
-  - requirement_id: PSD-REQ-ORG-000002
-    title: Governed Organization Hierarchy and Membership
-    status: Approved
-    priority: High
-    owner: Organization Domain
-    specification: [PSD-PEP-220]
-    implementation_status: Planned
-  - requirement_id: PSD-REQ-PERM-000001
-    title: Default-Deny Authorization
-    status: Approved
-    priority: Critical
-    owner: Security Office
-    specification: [PSD-PEP-230]
-    implementation_status: Planned
-  - requirement_id: PSD-REQ-AUDIT-000002
-    title: Audit Evidence Integrity and Retention
-    status: Approved
-    priority: Critical
-    owner: Security Office
-    specification: [PSD-PEP-240]
-    implementation_status: Planned
-  - requirement_id: PSD-REQ-DOCUMENT-000001
-    title: Versioned Private Document Management
-    status: Approved
-    priority: Critical
-    owner: Documents Domain
-    specification: [PSD-PEP-250]
-    implementation_status: Planned
-  - requirement_id: PSD-REQ-WORKFLOW-000001
-    title: Deterministic Workflow State Transitions
-    status: Approved
-    priority: High
-    owner: Workflow Domain
-    specification: [PSD-PEP-260]
-    implementation_status: Planned
-  - requirement_id: PSD-REQ-NOTIFY-000001
-    title: Authorized and Privacy-Safe Notifications
-    status: Approved
-    priority: High
-    owner: Notification Domain
-    specification: [PSD-PEP-270]
-    implementation_status: Planned
-  - requirement_id: PSD-REQ-LICENSE-000001
-    title: Tenant-Scoped Feature Entitlements
-    status: Approved
-    priority: High
-    owner: Licensing Domain
-    specification: [PSD-PEP-280]
-    implementation_status: Planned
+    path: docs/requirements/platform/PSD-REQ-ORG-000001.yaml
   - requirement_id: PSD-REQ-AI-000001
     title: Human Approval for High-Impact AI Actions
     status: Approved
-    priority: Critical
-    owner: AI Platform Office
-    specification: [PSD-PEP-150]
-    implementation_status: Planned
+    path: docs/requirements/platform/PSD-REQ-AI-000001.yaml
   - requirement_id: PSD-REQ-AI-000002
     title: Permission-Aware AI Tool Invocation
     status: Approved
-    priority: Critical
-    owner: AI Platform Office
-    specification: [PSD-PEP-150, PSD-PEP-230]
-    implementation_status: Planned
+    path: docs/requirements/platform/PSD-REQ-AI-000002.yaml
   - requirement_id: PSD-REQ-DATA-000001
     title: Protected Data Encryption
     status: Approved
-    priority: Critical
-    owner: Security Office
-    specification: [PSD-PEP-120]
-    implementation_status: Planned
+    path: docs/requirements/security/PSD-REQ-DATA-000001.yaml
+  - requirement_id: PSD-REQ-IDENTITY-000002
+    title: Federated Identity Lifecycle
+    status: Approved
+    path: docs/requirements/platform/PSD-REQ-IDENTITY-000002.yaml
+  - requirement_id: PSD-REQ-ORG-000002
+    title: Governed Organization Hierarchy and Membership
+    status: Approved
+    path: docs/requirements/platform/PSD-REQ-ORG-000002.yaml
+  - requirement_id: PSD-REQ-PERM-000001
+    title: Default-Deny Authorization
+    status: Approved
+    path: docs/requirements/security/PSD-REQ-PERM-000001.yaml
+  - requirement_id: PSD-REQ-AUDIT-000002
+    title: Audit Evidence Integrity
+    status: Approved
+    path: docs/requirements/security/PSD-REQ-AUDIT-000002.yaml
+  - requirement_id: PSD-REQ-DOCUMENT-000001
+    title: Versioned Private Documents
+    status: Approved
+    path: docs/requirements/platform/PSD-REQ-DOCUMENT-000001.yaml
+  - requirement_id: PSD-REQ-WORKFLOW-000001
+    title: Deterministic Workflow Transitions
+    status: Approved
+    path: docs/requirements/platform/PSD-REQ-WORKFLOW-000001.yaml
+  - requirement_id: PSD-REQ-NOTIFY-000001
+    title: Privacy-Safe Notifications
+    status: Approved
+    path: docs/requirements/platform/PSD-REQ-NOTIFY-000001.yaml
+  - requirement_id: PSD-REQ-LICENSE-000001
+    title: Tenant-Scoped Licensing Entitlements
+    status: Approved
+    path: docs/requirements/platform/PSD-REQ-LICENSE-000001.yaml
   - requirement_id: PSD-REQ-HR-WORKER-000001
     title: Worker Management
     status: Approved
-    priority: High
-    owner: HR Domain
-    specification: [PSD-PEP-3010, PSD-PEP-110]
-    implementation_status: Planned
+    path: services/worker/requirements.md
+  - requirement_id: PSD-REQ-HR-PERSON-000001
+    title: Tenant-Scoped Person Record
+    status: Approved
+    path: docs/requirements/hr/PSD-REQ-HR-PERSON-000001.yaml
+  - requirement_id: PSD-REQ-HR-EMP-000001
+    title: Employment Relationship Lifecycle
+    status: Approved
+    path: docs/requirements/hr/PSD-REQ-HR-EMP-000001.yaml
+  - requirement_id: PSD-REQ-HR-ONBOARD-000001
+    title: Versioned Onboarding Templates
+    status: Approved
+    path: docs/requirements/hr/PSD-REQ-HR-ONBOARD-000001.yaml
+  - requirement_id: PSD-REQ-HR-CRED-000001
+    title: Credential Verification and Expiration
+    status: Approved
+    path: docs/requirements/hr/PSD-REQ-HR-CRED-000001.yaml
+  - requirement_id: PSD-REQ-HR-TRAIN-000001
+    title: Versioned Training Completion Evidence
+    status: Approved
+    path: docs/requirements/hr/PSD-REQ-HR-TRAIN-000001.yaml
+  - requirement_id: PSD-REQ-HR-CASE-000001
+    title: Restricted HR Case Access
+    status: Approved
+    path: docs/requirements/hr/PSD-REQ-HR-CASE-000001.yaml
+  - requirement_id: PSD-REQ-HR-UI-000001
+    title: Role-Aware HR Workspaces
+    status: Approved
+    path: docs/requirements/hr/PSD-REQ-HR-UI-000001.yaml

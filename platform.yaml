@@ -3,6 +3,7 @@ platform:
   codename: Genesis
   versionTarget: 1.0.0
   currentVersion: 0.1.0-foundation
+  phase: 3-hr-domain-specification
   category: AI-powered enterprise workforce operating system
   repositoryRole: single-authoritative-source
   classification: commercial-confidential
@@ -22,15 +23,20 @@ services:
   - identity
   - organization
   - permissions
-  - hr
-  - board
+  - audit
   - documents
   - workflow
-  - audit
   - notification
-  - search
-  - ai
   - licensing
+  - ai
+  - person
+  - worker
+  - employment
+  - onboarding
+  - credentials
+  - hr-cases
+  - board
+  - search
   - reporting
 requirements:
   implemented: null

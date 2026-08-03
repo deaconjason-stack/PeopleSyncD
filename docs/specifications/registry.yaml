@@ -1,5 +1,5 @@
 registry:
-  version: 1.2.0
+  version: 1.3.0
   status: Approved
 
 specifications:
@@ -31,37 +31,65 @@ specifications:
     title: System Architecture
     status: Planned
   - id: PSD-PEP-210
-    title: Identity Service Specification
+    title: Identity Service
     status: Approved
     path: docs/specifications/PSD-PEP-210-identity-service.md
   - id: PSD-PEP-220
-    title: Organization Service Specification
+    title: Organization Service
     status: Approved
     path: docs/specifications/PSD-PEP-220-organization-service.md
   - id: PSD-PEP-230
-    title: Permissions Service Specification
+    title: Permissions Service
     status: Approved
     path: docs/specifications/PSD-PEP-230-permissions-service.md
   - id: PSD-PEP-240
-    title: Audit Service Specification
+    title: Audit Service
     status: Approved
     path: docs/specifications/PSD-PEP-240-audit-service.md
   - id: PSD-PEP-250
-    title: Documents Service Specification
+    title: Documents Service
     status: Approved
     path: docs/specifications/PSD-PEP-250-documents-service.md
   - id: PSD-PEP-260
-    title: Workflow Service Specification
+    title: Workflow Service
     status: Approved
     path: docs/specifications/PSD-PEP-260-workflow-service.md
   - id: PSD-PEP-270
-    title: Notification Service Specification
+    title: Notification Service
     status: Approved
     path: docs/specifications/PSD-PEP-270-notification-service.md
   - id: PSD-PEP-280
-    title: Licensing Service Specification
+    title: Licensing Service
     status: Approved
     path: docs/specifications/PSD-PEP-280-licensing-service.md
+  - id: PSD-PEP-300
+    title: HR Domain
+    status: Approved
+    path: docs/specifications/PSD-PEP-300-hr-domain.md
+  - id: PSD-PEP-301
+    title: Person Service
+    status: Approved
+    path: docs/specifications/PSD-PEP-301-person-service.md
+  - id: PSD-PEP-302
+    title: Employment and Assignment Service
+    status: Approved
+    path: docs/specifications/PSD-PEP-302-employment-service.md
+  - id: PSD-PEP-303
+    title: Onboarding Service
+    status: Approved
+    path: docs/specifications/PSD-PEP-303-onboarding-service.md
+  - id: PSD-PEP-304
+    title: Credentials and Training
+    status: Approved
+    path: docs/specifications/PSD-PEP-304-credentials-training.md
+  - id: PSD-PEP-305
+    title: HR Cases and Concerns
+    status: Approved
+    path: docs/specifications/PSD-PEP-305-hr-cases.md
+  - id: PSD-PEP-306
+    title: HR User Experience and Dashboards
+    status: Approved
+    path: docs/specifications/PSD-PEP-306-hr-experience.md
   - id: PSD-PEP-3010
     title: Worker Service Specification
     status: Foundation
