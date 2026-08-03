@@ -1,0 +1,14 @@
+# Default repository owner
+* @deaconjason-stack
+
+# Governance and security require owner review
+/CODEOWNERS @deaconjason-stack
+/SECURITY.md @deaconjason-stack
+/.github/workflows/ @deaconjason-stack
+/docs/pep/ @deaconjason-stack
+/docs/governance/ @deaconjason-stack
+/docs/architecture/ @deaconjason-stack
+/docs/api/ @deaconjason-stack
+/docs/asyncapi/ @deaconjason-stack
+/database/ @deaconjason-stack
+/release/ @deaconjason-stack
