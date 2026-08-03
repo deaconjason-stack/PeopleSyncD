@@ -1,0 +1,11 @@
+requirement_id,pep,service,api,event,database,test,release_status
+REQ-WORKER-0001,PEP-2010,worker,docs/api/worker.yaml,docs/asyncapi/worker-events.yaml,database/worker/schema.sql,services/worker/tests.md,planned
+REQ-WORKER-0002,PEP-2010,worker,docs/api/worker.yaml,docs/asyncapi/worker-events.yaml,database/worker/constraints.sql,services/worker/tests.md,planned
+REQ-WORKER-0003,PEP-2010,worker,docs/api/worker.yaml,docs/asyncapi/worker-events.yaml,database/worker/schema.sql,services/worker/tests.md,planned
+REQ-WORKER-0004,PEP-2010,worker,docs/api/worker.yaml,,database/worker/views.sql,services/worker/tests.md,planned
+REQ-WORKER-0005,PEP-2010,worker,docs/api/worker.yaml,docs/asyncapi/worker-events.yaml,database/worker/constraints.sql,services/worker/tests.md,planned
+REQ-WORKER-0006,PEP-2010,worker,docs/api/audit.yaml,docs/asyncapi/audit-events.yaml,,services/worker/tests.md,planned
+REQ-WORKER-0007,PEP-2010,worker,docs/api/worker.yaml,,database/worker/constraints.sql,services/worker/tests.md,planned
+REQ-WORKER-0008,PEP-2010,worker,docs/api/worker.yaml,,database/worker/schema.sql,services/worker/tests.md,planned
+REQ-WORKER-0009,PEP-2010,worker,docs/api/worker.yaml,docs/asyncapi/worker-events.yaml,,services/worker/tests.md,planned
+REQ-WORKER-0010,PEP-2010,worker,docs/api/worker.yaml,,,services/worker/tests.md,planned

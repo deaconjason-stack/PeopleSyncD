@@ -1,0 +1,27 @@
+asyncapi: 2.6.0
+info:
+  title: PeopleSyncD Worker Service Events
+  version: 0.1.0
+channels:
+  worker.created.v1:
+    publish:
+      operationId: publishWorkerCreated
+      message:
+        payload:
+          type: object
+          required: [eventId, eventType, schemaVersion, occurredAt, organizationId, correlationId, data]
+          properties:
+            eventId: { type: string, format: uuid }
+            eventType: { const: worker.created.v1 }
+            schemaVersion: { const: '1.0' }
+            occurredAt: { type: string, format: date-time }
+            organizationId: { type: string, format: uuid }
+            correlationId: { type: string }
+            data:
+              type: object
+              required: [workerAssignmentId, personId, workerType, employmentStatus]
+              properties:
+                workerAssignmentId: { type: string, format: uuid }
+                personId: { type: string, format: uuid }
+                workerType: { type: string }
+                employmentStatus: { type: string }

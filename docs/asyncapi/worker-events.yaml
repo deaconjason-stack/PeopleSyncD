@@ -1,0 +1,54 @@
+asyncapi: 2.6.0
+info:
+  title: PeopleSyncD Worker Events
+  version: 0.1.0
+channels:
+  worker.created.v1:
+    publish:
+      operationId: publishWorkerCreated
+      message: { $ref: '#/components/messages/WorkerCreated' }
+  worker.status_changed.v1:
+    publish:
+      operationId: publishWorkerStatusChanged
+      message: { $ref: '#/components/messages/WorkerStatusChanged' }
+components:
+  messages:
+    WorkerCreated:
+      payload:
+        allOf:
+          - { $ref: '#/components/schemas/Envelope' }
+          - type: object
+            properties:
+              data:
+                type: object
+                required: [workerAssignmentId, personId, workerType, employmentStatus]
+                properties:
+                  workerAssignmentId: { type: string, format: uuid }
+                  personId: { type: string, format: uuid }
+                  workerType: { type: string }
+                  employmentStatus: { type: string }
+    WorkerStatusChanged:
+      payload:
+        allOf:
+          - { $ref: '#/components/schemas/Envelope' }
+          - type: object
+            properties:
+              data:
+                type: object
+                required: [workerAssignmentId, previousStatus, newStatus]
+                properties:
+                  workerAssignmentId: { type: string, format: uuid }
+                  previousStatus: { type: string }
+                  newStatus: { type: string }
+  schemas:
+    Envelope:
+      type: object
+      required: [eventId, eventType, schemaVersion, occurredAt, organizationId, correlationId, data]
+      properties:
+        eventId: { type: string, format: uuid }
+        eventType: { type: string }
+        schemaVersion: { type: string }
+        occurredAt: { type: string, format: date-time }
+        organizationId: { type: string, format: uuid }
+        correlationId: { type: string }
+        data: { type: object }

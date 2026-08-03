@@ -1,0 +1,24 @@
+asyncapi: 2.6.0
+info: { title: PeopleSyncD Workflow Events, version: 0.1.0 }
+channels:
+  workflow.transitioned.v1:
+    publish:
+      operationId: publishWorkflowTransitioned
+      message:
+        payload:
+          type: object
+          required: [eventId, eventType, schemaVersion, occurredAt, organizationId, correlationId, data]
+          properties:
+            eventId: { type: string, format: uuid }
+            eventType: { const: workflow.transitioned.v1 }
+            schemaVersion: { const: '1.0' }
+            occurredAt: { type: string, format: date-time }
+            organizationId: { type: string, format: uuid }
+            correlationId: { type: string }
+            data:
+              type: object
+              required: [workflowId, previousState, newState]
+              properties:
+                workflowId: { type: string, format: uuid }
+                previousState: { type: string }
+                newState: { type: string }

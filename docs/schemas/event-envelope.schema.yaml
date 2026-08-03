@@ -1,0 +1,16 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://schemas.peoplesyncd.example/event-envelope.schema.yaml
+title: PeopleSyncD Event Envelope
+type: object
+additionalProperties: false
+required: [eventId, eventType, schemaVersion, occurredAt, organizationId, correlationId, data]
+properties:
+  eventId: { type: string, format: uuid }
+  eventType: { type: string, minLength: 1 }
+  schemaVersion: { type: string, pattern: '^[0-9]+\\.[0-9]+$' }
+  occurredAt: { type: string, format: date-time }
+  organizationId: { type: string, format: uuid }
+  actorId: { type: [string, 'null'], format: uuid }
+  correlationId: { type: string, minLength: 1 }
+  causationId: { type: [string, 'null'] }
+  data: { type: object }
