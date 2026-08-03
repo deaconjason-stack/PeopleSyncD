@@ -1,0 +1,21 @@
+{
+  "name": "@peoplesyncd/api",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.0.1",
+    "@peoplesyncd/audit": "*",
+    "@peoplesyncd/auth": "*",
+    "@peoplesyncd/permissions": "*",
+    "@peoplesyncd/shared": "*",
+    "fastify": "^5.2.1"
+  }
+}
