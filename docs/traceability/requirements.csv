@@ -30,3 +30,17 @@ PSD-REQ-AI-MEMORY-000001,PSD-PEP-404,ai,services/ai/api.yaml,docs/asyncapi/ai-ev
 PSD-REQ-AI-FOUNDER-000001,PSD-PEP-405,ai,docs/api/ai.yaml,,,services/ai/testing.md,planned
 PSD-REQ-AI-VOICE-000001,PSD-PEP-406,ai,,,,services/ai/testing.md,planned
 PSD-REQ-AI-SEC-000001,PSD-PEP-407,ai,services/ai/api.yaml,services/ai/asyncapi.yaml,,services/ai/testing.md,planned
+PSD-REQ-DEPLOY-000001,PSD-PEP-500,,,,,docs/testing/deployment-certification-test-strategy.md,planned
+PSD-REQ-CONFIG-000001,PSD-PEP-501,,,,,docs/testing/deployment-certification-test-strategy.md,planned
+PSD-REQ-SECRET-000001,PSD-PEP-502,,,,,docs/testing/deployment-certification-test-strategy.md,planned
+PSD-REQ-BACKUP-000001,PSD-PEP-503,,,,,docs/testing/deployment-certification-test-strategy.md,planned
+PSD-REQ-DR-000001,PSD-PEP-503,,,,,docs/testing/deployment-certification-test-strategy.md,planned
+PSD-REQ-OBS-000001,PSD-PEP-504,,,,,docs/testing/deployment-certification-test-strategy.md,planned
+PSD-REQ-SUPPORT-000001,PSD-PEP-504,,,,,docs/testing/deployment-certification-test-strategy.md,planned
+PSD-REQ-SUPPLY-000001,PSD-PEP-505,,,,,docs/testing/deployment-certification-test-strategy.md,planned
+PSD-REQ-SBOM-000001,PSD-PEP-505,,,,,docs/testing/deployment-certification-test-strategy.md,planned
+PSD-REQ-SIGN-000001,PSD-PEP-505,,,,,docs/testing/deployment-certification-test-strategy.md,planned
+PSD-REQ-PERF-000001,PSD-PEP-506,,,,,docs/testing/deployment-certification-test-strategy.md,planned
+PSD-REQ-A11Y-000001,PSD-PEP-506,,,,,docs/testing/deployment-certification-test-strategy.md,planned
+PSD-REQ-CERT-000001,PSD-PEP-507,,,,,docs/testing/deployment-certification-test-strategy.md,planned
+PSD-REQ-INSTALL-000001,PSD-PEP-507,,,,,docs/testing/deployment-certification-test-strategy.md,planned

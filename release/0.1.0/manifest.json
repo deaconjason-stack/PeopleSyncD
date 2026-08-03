@@ -1,0 +1,23 @@
+{
+  "release": "0.1.0",
+  "codename": "Genesis Foundation",
+  "status": "draft",
+  "certified": false,
+  "sourceCommit": null,
+  "buildId": null,
+  "certificationApprover": null,
+  "evidence": {
+    "requirements": false,
+    "automatedTests": false,
+    "security": false,
+    "performance": false,
+    "accessibility": false,
+    "sbom": false,
+    "checksums": false,
+    "signatures": false,
+    "backupRestore": false,
+    "disasterRecovery": false,
+    "installation": false,
+    "upgradeRollback": false
+  }
+}

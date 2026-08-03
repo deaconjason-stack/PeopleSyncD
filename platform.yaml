@@ -3,7 +3,7 @@ platform:
   codename: Genesis
   versionTarget: 1.0.0
   currentVersion: 0.1.0-foundation
-  phase: 4-domonique-ai-platform-specification
+  phase: 5-enterprise-deployment-certification
   category: AI-powered enterprise workforce operating system
   repositoryRole: single-authoritative-source
   classification: commercial-confidential
@@ -37,6 +37,13 @@ services:
   - board
   - search
   - reporting
+infrastructure:
+  dockerDevelopment: foundation
+  kubernetesProduction: template-only
+  cloud: target
+  privateCloud: target
+  onPremises: target
+  hybrid: target
 requirements:
   implemented: null
   source: generated-by-traceability-ci
@@ -47,7 +54,11 @@ tests:
 certification:
   enterprise: false
   aiPlatform: false
+  deployment: false
+  genesisFoundation: false
   evidenceRequired: true
 build:
   signed: false
+  sbomGenerated: false
+  checksumsGenerated: false
   evidenceRequired: true

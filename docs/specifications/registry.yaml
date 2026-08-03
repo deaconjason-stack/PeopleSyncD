@@ -1,5 +1,5 @@
 registry:
-  version: 1.4.0
+  version: 1.5.0
   status: Approved
 
 specifications:
@@ -122,6 +122,38 @@ specifications:
     title: AI Security, Safety, and Evaluation
     status: Approved
     path: docs/specifications/PSD-PEP-407-ai-security-evaluation.md
+  - id: PSD-PEP-500
+    title: Enterprise Deployment Architecture
+    status: Approved
+    path: docs/specifications/PSD-PEP-500-enterprise-deployment.md
+  - id: PSD-PEP-501
+    title: Environment and Configuration Management
+    status: Approved
+    path: docs/specifications/PSD-PEP-501-environment-configuration.md
+  - id: PSD-PEP-502
+    title: Secrets and Key Management
+    status: Approved
+    path: docs/specifications/PSD-PEP-502-secrets-key-management.md
+  - id: PSD-PEP-503
+    title: Backup, Restoration, and Disaster Recovery
+    status: Approved
+    path: docs/specifications/PSD-PEP-503-backup-disaster-recovery.md
+  - id: PSD-PEP-504
+    title: Observability, Alerting, and Support Diagnostics
+    status: Approved
+    path: docs/specifications/PSD-PEP-504-observability-support.md
+  - id: PSD-PEP-505
+    title: Software Supply Chain and Release Security
+    status: Approved
+    path: docs/specifications/PSD-PEP-505-supply-chain-release-security.md
+  - id: PSD-PEP-506
+    title: Performance and Accessibility Verification
+    status: Approved
+    path: docs/specifications/PSD-PEP-506-performance-accessibility.md
+  - id: PSD-PEP-507
+    title: Release Certification and Customer Operations
+    status: Approved
+    path: docs/specifications/PSD-PEP-507-certification-customer-operations.md
   - id: PSD-PEP-3010
     title: Worker Service Specification
     status: Foundation

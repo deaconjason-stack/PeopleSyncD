@@ -1,6 +1,6 @@
 registry:
   id: PSD-REQ-000001
-  version: 1.4.0
+  version: 1.5.0
   status: Approved
 
 requirements:
@@ -128,3 +128,59 @@ requirements:
     title: Prompt-Injection and Tool-Abuse Defense
     status: Approved
     path: docs/requirements/ai/PSD-REQ-AI-SEC-000001.yaml
+  - requirement_id: PSD-REQ-DEPLOY-000001
+    title: Governed Multi-Model Deployment
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-DEPLOY-000001.yaml
+  - requirement_id: PSD-REQ-CONFIG-000001
+    title: Schema-Validated Auditable Configuration
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-CONFIG-000001.yaml
+  - requirement_id: PSD-REQ-SECRET-000001
+    title: Managed Secret and Key Lifecycle
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-SECRET-000001.yaml
+  - requirement_id: PSD-REQ-BACKUP-000001
+    title: Encrypted Restorable Backups
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-BACKUP-000001.yaml
+  - requirement_id: PSD-REQ-DR-000001
+    title: Tested Disaster Recovery
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-DR-000001.yaml
+  - requirement_id: PSD-REQ-OBS-000001
+    title: Correlated Privacy-Safe Observability
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-OBS-000001.yaml
+  - requirement_id: PSD-REQ-SUPPORT-000001
+    title: Sanitized Support Diagnostics
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-SUPPORT-000001.yaml
+  - requirement_id: PSD-REQ-SUPPLY-000001
+    title: Verifiable Software Supply Chain
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-SUPPLY-000001.yaml
+  - requirement_id: PSD-REQ-SBOM-000001
+    title: Machine-Readable Software Bill of Materials
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-SBOM-000001.yaml
+  - requirement_id: PSD-REQ-SIGN-000001
+    title: Checksums and Authorized Release Signatures
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-SIGN-000001.yaml
+  - requirement_id: PSD-REQ-PERF-000001
+    title: Verified Performance Budgets
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-PERF-000001.yaml
+  - requirement_id: PSD-REQ-A11Y-000001
+    title: Release Accessibility Verification
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-A11Y-000001.yaml
+  - requirement_id: PSD-REQ-CERT-000001
+    title: Evidence-Gated Release Certification
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-CERT-000001.yaml
+  - requirement_id: PSD-REQ-INSTALL-000001
+    title: Customer Installation and Upgrade Guidance
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-INSTALL-000001.yaml
