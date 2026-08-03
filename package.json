@@ -1,0 +1,28 @@
+{
+  "name": "peoplesyncd-enterprise-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PeopleSyncD Genesis internal alpha monorepo",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "build": "npm run build -w @peoplesyncd/shared && npm run build -w @peoplesyncd/auth && npm run build -w @peoplesyncd/permissions && npm run build -w @peoplesyncd/audit && npm run build -w @peoplesyncd/sdk && npm run build -w @peoplesyncd/api && npm run build -w @peoplesyncd/web && npm run build -w @peoplesyncd/desktop",
+    "typecheck": "npm run typecheck -w @peoplesyncd/shared && npm run typecheck -w @peoplesyncd/auth && npm run typecheck -w @peoplesyncd/permissions && npm run typecheck -w @peoplesyncd/audit && npm run typecheck -w @peoplesyncd/sdk && npm run typecheck -w @peoplesyncd/api && npm run typecheck -w @peoplesyncd/web && npm run typecheck -w @peoplesyncd/desktop",
+    "test": "npm run test -w @peoplesyncd/auth && npm run test -w @peoplesyncd/permissions && npm run test -w @peoplesyncd/api && npm run test -w @peoplesyncd/web",
+    "dev:api": "npm run dev -w @peoplesyncd/api",
+    "dev:web": "npm run dev -w @peoplesyncd/web",
+    "dev:desktop": "npm run dev -w @peoplesyncd/desktop",
+    "package:windows": "npm run package:windows -w @peoplesyncd/desktop"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
