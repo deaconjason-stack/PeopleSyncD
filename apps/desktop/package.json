@@ -1,0 +1,39 @@
+{
+  "name": "@peoplesyncd/desktop",
+  "version": "0.2.0",
+  "private": true,
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "npm run build && electron .",
+    "package:windows": "npm run build && electron-builder --win nsis --publish never"
+  },
+  "devDependencies": {
+    "electron": "^34.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.medisyncd.peoplesyncd",
+    "productName": "PeopleSyncD Genesis",
+    "artifactName": "PeopleSyncD-Genesis-${version}-unsigned.${ext}",
+    "directories": {
+      "output": "dist-installer"
+    },
+    "files": ["dist/**/*", "package.json"],
+    "extraResources": [
+      {"from": "../web/dist", "to": "web", "filter": ["**/*"]}
+    ],
+    "win": {
+      "target": ["nsis"],
+      "forceCodeSigning": false,
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}
