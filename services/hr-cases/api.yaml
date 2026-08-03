@@ -1,0 +1,37 @@
+openapi: 3.1.0
+info:
+  title: PeopleSyncD HR Cases API
+  version: 0.1.0
+  description: Restricted HR case and concern contract.
+  license:
+    name: PeopleSyncD Proprietary License
+    url: https://github.com/deaconjason-stack/PeopleSyncD/blob/main/LICENSE
+servers:
+  - url: https://api.peoplesyncd.example
+security:
+  - bearerAuth: []
+paths:
+  /v1/hr-cases:
+    post:
+      operationId: createHrCase
+      summary: Create a restricted HR case
+      responses:
+        '201': { description: Restricted case created }
+        '400': { description: Invalid case request }
+        '403': { description: Case creation denied }
+  /v1/hr-cases/{caseId}:
+    get:
+      operationId: getHrCase
+      summary: Get an explicitly authorized HR case
+      parameters:
+        - in: path
+          name: caseId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Authorized restricted case }
+        '403': { description: Access denied or fresh authentication required }
+        '404': { description: Case not found in authorized scope }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

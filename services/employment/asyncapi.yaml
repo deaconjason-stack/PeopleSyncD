@@ -1,0 +1,17 @@
+asyncapi: 2.6.0
+info: { title: PeopleSyncD Employment Events, version: 0.1.0 }
+channels:
+  employment.status_changed.v1:
+    publish:
+      operationId: publishEmploymentStatusChanged
+      message:
+        payload:
+          type: object
+          required: [eventId, organizationId, employmentId, previousStatus, newStatus, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            organizationId: { type: string, format: uuid }
+            employmentId: { type: string, format: uuid }
+            previousStatus: { type: string }
+            newStatus: { type: string }
+            occurredAt: { type: string, format: date-time }

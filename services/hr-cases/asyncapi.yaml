@@ -1,0 +1,15 @@
+asyncapi: 2.6.0
+info: { title: PeopleSyncD HR Case Events, version: 0.1.0 }
+channels:
+  hr_case.assignment_changed.v1:
+    publish:
+      operationId: publishHrCaseAssignmentChanged
+      message:
+        payload:
+          type: object
+          required: [eventId, organizationId, caseId, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            organizationId: { type: string, format: uuid }
+            caseId: { type: string, format: uuid }
+            occurredAt: { type: string, format: date-time }

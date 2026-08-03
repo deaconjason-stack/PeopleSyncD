@@ -1,0 +1,41 @@
+openapi: 3.1.0
+info:
+  title: PeopleSyncD Onboarding API
+  version: 0.1.0
+  description: Versioned onboarding template and instance contract.
+  license:
+    name: PeopleSyncD Proprietary License
+    url: https://github.com/deaconjason-stack/PeopleSyncD/blob/main/LICENSE
+servers:
+  - url: https://api.peoplesyncd.example
+security:
+  - bearerAuth: []
+paths:
+  /v1/onboarding/instances:
+    post:
+      operationId: startOnboarding
+      summary: Start onboarding from an approved template version
+      responses:
+        '201': { description: Onboarding instance started }
+        '400': { description: Invalid onboarding request }
+        '403': { description: Start denied }
+  /v1/onboarding/instances/{instanceId}/tasks/{taskId}/complete:
+    post:
+      operationId: completeOnboardingTask
+      summary: Complete an authorized onboarding task
+      parameters:
+        - in: path
+          name: instanceId
+          required: true
+          schema: { type: string, format: uuid }
+        - in: path
+          name: taskId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Task completed and readiness recalculated }
+        '403': { description: Task completion denied }
+        '409': { description: Dependency, stale state, or approval requirement prevents completion }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

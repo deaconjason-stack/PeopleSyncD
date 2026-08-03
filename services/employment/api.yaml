@@ -1,0 +1,38 @@
+openapi: 3.1.0
+info:
+  title: PeopleSyncD Employment API
+  version: 0.1.0
+  description: Employment relationship and assignment contract.
+  license:
+    name: PeopleSyncD Proprietary License
+    url: https://github.com/deaconjason-stack/PeopleSyncD/blob/main/LICENSE
+servers:
+  - url: https://api.peoplesyncd.example
+security:
+  - bearerAuth: []
+paths:
+  /v1/employments:
+    post:
+      operationId: createEmployment
+      summary: Create an employment relationship
+      responses:
+        '201': { description: Employment relationship created }
+        '400': { description: Invalid employment request }
+        '403': { description: Access denied }
+        '409': { description: Conflicting or duplicate active relationship }
+  /v1/employments/{employmentId}/transitions:
+    post:
+      operationId: transitionEmployment
+      summary: Apply an authorized employment transition
+      parameters:
+        - in: path
+          name: employmentId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Transition committed }
+        '403': { description: Transition denied }
+        '409': { description: Invalid or stale transition }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
