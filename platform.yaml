@@ -1,26 +1,38 @@
 platform:
-  name: PeopleSyncD
-  version: 0.1.0-foundation
-  status: governance-foundation
+  name: PeopleSyncD Enterprise Platform
+  codename: Genesis
+  versionTarget: 1.0.0
+  currentVersion: 0.1.0-foundation
+  category: AI-powered enterprise workforce operating system
+  repositoryRole: single-authoritative-source
+  classification: commercial-confidential
   productionCertified: false
 
+deploymentTargets:
+  - cloud-saas
+  - private-cloud
+  - on-premises
+  - hybrid-enterprise
+  - government-restricted
+
+clients:
+  - web
+  - desktop
+  - mobile
+
 services:
-  - worker
+  - identity
   - organization
+  - hr
   - board
   - documents
   - workflow
   - audit
-  - notifications
+  - notification
+  - search
   - ai
-
-api:
-  version: v1
-  status: draft
-
-database:
-  schemaVersion: 0.1.0
-  status: draft
+  - licensing
+  - reporting
 
 requirements:
   implemented: null
