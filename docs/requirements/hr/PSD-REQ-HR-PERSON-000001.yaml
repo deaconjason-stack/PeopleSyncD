@@ -1,0 +1,14 @@
+id: PSD-REQ-HR-PERSON-000001
+title: Tenant-Scoped Person Record
+version: 1.0.0
+status: Approved
+hierarchy: Service
+owner: HR Domain
+priority: High
+specification:
+  - PSD-PEP-301
+acceptance_criteria:
+  - Authorized users can create a Person record within one organization context.
+  - Sensitive identity fields are excluded from directory responses.
+  - Create and denied actions produce audit evidence.
+implementation_status: Planned

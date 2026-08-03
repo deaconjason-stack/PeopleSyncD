@@ -1,0 +1,14 @@
+id: PSD-REQ-HR-ONBOARD-000001
+title: Versioned Onboarding Templates
+version: 1.0.0
+status: Approved
+hierarchy: Service
+owner: HR Domain
+priority: High
+specification:
+  - PSD-PEP-303
+acceptance_criteria:
+  - HR can launch onboarding from an approved immutable template version.
+  - Tasks, dependencies, assignments, and completion evidence are preserved.
+  - Critical-task waivers require authorized approval.
+implementation_status: Planned

@@ -1,0 +1,14 @@
+id: PSD-REQ-HR-EMP-000001
+title: Employment Relationship Lifecycle
+version: 1.0.0
+status: Approved
+hierarchy: Service
+owner: HR Domain
+priority: Critical
+specification:
+  - PSD-PEP-302
+acceptance_criteria:
+  - An authorized Person can receive a tenant-scoped employment relationship.
+  - Lifecycle transitions validate current state, effective date, and authority.
+  - Historical relationships remain available after ending.
+implementation_status: Planned
