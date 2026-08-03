@@ -1,0 +1,26 @@
+name: Security Baseline
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  secret-patterns:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reject common committed secret formats
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git grep -nE 'AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|-----BEGIN ([A-Z ]+ )?PRIVATE KEY-----' -- . ':!*.lock'; then
+            echo 'Potential secret material detected.' >&2
+            exit 1
+          fi
+          echo 'No blocked secret patterns detected.'
