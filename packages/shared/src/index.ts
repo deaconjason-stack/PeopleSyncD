@@ -17,9 +17,12 @@ export type Permission =
   | "ai.tool.founder.get_brief"
   | "identity.session.read"
   | "identity.session.revoke"
+  | "identity.session.rotate"
   | "identity.mfa.read"
   | "identity.mfa.enroll"
-  | "organization.membership.read";
+  | "identity.mfa.verify"
+  | "organization.membership.read"
+  | "organization.membership.manage";
 
 export interface SessionClaims {
   sessionId: string;
@@ -79,9 +82,12 @@ export interface SessionSummary {
   id: string;
   organizationId: string;
   userId: string;
+  sessionFamilyId: string;
   authenticationMethods: string[];
   issuedAt: string;
   expiresAt: string;
+  rotatedFrom?: string;
+  replacedBy?: string;
   revokedAt?: string;
   revokedBy?: string;
 }
@@ -95,6 +101,17 @@ export interface MfaMethodSummary {
   status: "pending" | "active" | "revoked";
   createdAt: string;
   verifiedAt?: string;
+}
+
+export interface TotpEnrollmentResult {
+  method: MfaMethodSummary;
+  provisioningUri: string;
+}
+
+export interface TotpVerificationResult {
+  method: MfaMethodSummary;
+  session: SessionSummary;
+  recoveryCodes: string[];
 }
 
 export interface FounderDashboard {
