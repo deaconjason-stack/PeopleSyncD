@@ -1,0 +1,25 @@
+requirement_id: PSD-REQ-ORG-000003
+title: Immediate Membership Lifecycle Enforcement
+status: Implemented Increment
+priority: Critical
+specification: PSD-PEP-720
+statement: >-
+  PeopleSyncD shall enforce current membership status and permissions on every
+  protected request and shall revoke active organization sessions when a
+  membership is suspended or ended.
+acceptance_criteria:
+  - Membership administration requires organization.membership.manage.
+  - Only recognized membership statuses and permissions are accepted.
+  - Current membership permissions replace stale token permissions at request time.
+  - Suspending or ending membership revokes all active tenant sessions for the user.
+  - Permission removal takes effect without waiting for token expiry.
+  - Membership changes create correlated append-only security evidence.
+implementation:
+  - apps/api/src/security.ts
+  - apps/api/src/identity.ts
+  - apps/api/src/server.ts
+  - database/migrations/0004_phase7b2_totp_rotation_membership.sql
+tests:
+  - apps/api/src/server.test.ts
+  - apps/api/src/postgres.integration.test.ts
+release_status: identity-hardening-implemented
