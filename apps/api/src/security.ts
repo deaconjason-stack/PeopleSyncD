@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { FastifyRequest } from "fastify";
 import { bearerToken, verifySessionToken } from "@peoplesyncd/auth";
-import { authorize } from "@peoplesyncd/permissions";
+import { authorize, requireOrganization } from "@peoplesyncd/permissions";
 import type { Permission, SessionClaims } from "@peoplesyncd/shared";
 import type { ApiConfig } from "./config";
 import type { IdentityStore } from "./identity";
@@ -24,10 +24,20 @@ export async function requestContext(
   permission: Permission
 ): Promise<RequestContext> {
   const token = bearerToken(request.headers.authorization);
-  const claims = verifySessionToken(token, config.sessionSecret);
-  const organizationId = authorize(claims, header(request, "x-organization-id"), permission);
-  const active = await identity.validateSession(claims.sessionId, claims.subject, organizationId);
+  const tokenClaims = verifySessionToken(token, config.sessionSecret);
+  const organizationId = requireOrganization(tokenClaims, header(request, "x-organization-id"));
+  const membership = await identity.getMembership(tokenClaims.subject, organizationId);
+  const active = await identity.validateSession(tokenClaims.sessionId, tokenClaims.subject, organizationId);
   if (!active) throw new Error("Session revoked or inactive");
+
+  const claims: SessionClaims = {
+    ...tokenClaims,
+    displayName: membership.displayName,
+    organizationIds: [membership.organizationId],
+    permissions: membership.permissions
+  };
+  authorize(claims, organizationId, permission);
+
   const correlationId = header(request, "x-correlation-id") ?? randomUUID();
   return { claims, organizationId, correlationId };
 }
