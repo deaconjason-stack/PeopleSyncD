@@ -1,5 +1,5 @@
 registry:
-  version: 1.6.0
+  version: 1.8.0
   status: Approved
 
 specifications:
@@ -158,6 +158,14 @@ specifications:
     title: First Executable Platform Build
     status: Approved
     path: docs/specifications/PSD-PEP-600-first-executable-platform.md
+  - id: PSD-PEP-700
+    title: Production Beta Hardening
+    status: Active
+    path: docs/specifications/PSD-PEP-700-production-beta-hardening.md
+  - id: PSD-PEP-710
+    title: Identity and Session Hardening
+    status: Implemented Foundation
+    path: docs/specifications/PSD-PEP-710-identity-session-hardening.md
   - id: PSD-PEP-3010
     title: Worker Service Specification
     status: Foundation

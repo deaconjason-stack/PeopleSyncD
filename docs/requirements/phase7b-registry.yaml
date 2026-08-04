@@ -1,0 +1,15 @@
+registry:
+  id: PSD-REQ-PHASE7B
+  version: 1.0.0
+  status: Implemented Foundation
+  parent: PSD-REQ-000001
+
+requirements:
+  - requirement_id: PSD-REQ-IDENTITY-000003
+    path: docs/requirements/platform/PSD-REQ-IDENTITY-000003.yaml
+  - requirement_id: PSD-REQ-SESSION-000001
+    path: docs/requirements/security/PSD-REQ-SESSION-000001.yaml
+  - requirement_id: PSD-REQ-MFA-000001
+    path: docs/requirements/security/PSD-REQ-MFA-000001.yaml
+  - requirement_id: PSD-REQ-SEC-EVENT-000001
+    path: docs/requirements/security/PSD-REQ-SEC-EVENT-000001.yaml

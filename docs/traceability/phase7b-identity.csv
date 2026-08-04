@@ -1,0 +1,5 @@
+requirement_id,pep,service,api,event,database,test,release_status
+PSD-REQ-IDENTITY-000003,PSD-PEP-710,identity,apps/api/src/server.ts,,database/migrations/0003_phase7b_identity_sessions.sql,apps/api/src/server.test.ts,identity-beta-foundation
+PSD-REQ-SESSION-000001,PSD-PEP-710,identity,apps/api/src/server.ts,,database/migrations/0003_phase7b_identity_sessions.sql,apps/api/src/postgres.integration.test.ts,identity-beta-foundation
+PSD-REQ-MFA-000001,PSD-PEP-710,identity,apps/api/src/server.ts,,database/migrations/0003_phase7b_identity_sessions.sql,apps/api/src/server.test.ts,identity-beta-foundation
+PSD-REQ-SEC-EVENT-000001,PSD-PEP-710,identity,apps/api/src/identity.ts,,database/migrations/0003_phase7b_identity_sessions.sql,apps/api/src/postgres.integration.test.ts,identity-beta-foundation

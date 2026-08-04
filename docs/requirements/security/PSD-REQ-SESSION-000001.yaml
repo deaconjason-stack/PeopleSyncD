@@ -1,0 +1,25 @@
+requirement_id: PSD-REQ-SESSION-000001
+title: Revocable Server-Side Sessions
+status: Implemented
+priority: Critical
+specification: PSD-PEP-710
+statement: >-
+  A signed session token shall be accepted only when its corresponding server-side
+  session is active, unexpired, unrevoked, and bound to the same user and organization.
+acceptance_criteria:
+  - Every token contains an immutable session identifier.
+  - Protected requests verify server-side session state.
+  - Logout revokes the current session immediately.
+  - A revoked session receives HTTP 401 on later protected requests.
+  - Session rows are tenant protected by forced row-level security.
+implementation:
+  - packages/auth/src/index.ts
+  - apps/api/src/security.ts
+  - apps/api/src/identity.ts
+  - apps/api/src/server.ts
+  - database/migrations/0003_phase7b_identity_sessions.sql
+tests:
+  - packages/auth/src/index.test.ts
+  - apps/api/src/server.test.ts
+  - apps/api/src/postgres.integration.test.ts
+release_status: identity-beta-foundation

@@ -41,14 +41,18 @@ jobs:
           for migration in database/migrations/*.sql; do
             psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -v ON_ERROR_STOP=1 -f "$migration"
           done
-      - name: Verify seed and tenant schema
+      - name: Verify identity seed and tenant schema
         env:
           PGPASSWORD: test-only-password
         run: |
           test "$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc 'select count(*) from organizations')" = "1"
           test "$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc 'select count(*) from workers')" = "1"
-          forced_rls="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select relforcerowsecurity from pg_class where relname = 'persons'")"
-          test "$forced_rls" = "t"
+          test "$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc \"select count(*) from users where id = 'founder-jason' and status = 'active'\")" = "1"
+          test "$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc \"select count(*) from organization_memberships where user_id = 'founder-jason' and role_key = 'founder' and status = 'active'\")" = "1"
+          for table in persons workers audit_events organization_memberships identity_sessions mfa_methods security_events; do
+            forced_rls="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select relforcerowsecurity from pg_class where relname = '$table'")"
+            test "$forced_rls" = "t"
+          done
       - name: Typecheck
         run: npm run typecheck
       - name: Test
@@ -65,19 +69,21 @@ jobs:
           cp -R apps/web/dist/. build-artifacts/web/
           cat > build-artifacts/build-manifest.json <<JSON
           {
-            "product": "PeopleSyncD Genesis Production Beta Foundation",
-            "version": "0.3.0",
+            "product": "PeopleSyncD Genesis Identity Beta",
+            "version": "0.3.1",
             "sourceCommit": "$GITHUB_SHA",
             "workflowRun": "$GITHUB_RUN_ID",
             "storage": "postgresql-runtime",
+            "identity": "persistent-membership-and-revocable-sessions",
+            "mfa": "enrollment-record-foundation-only",
             "signed": false,
             "certified": false
           }
           JSON
-          python scripts/certification/generate_sbom.py --root . --version 0.3.0 --commit "$GITHUB_SHA" --output build-artifacts/SBOM.cdx.json
+          python scripts/certification/generate_sbom.py --root . --version 0.3.1 --commit "$GITHUB_SHA" --output build-artifacts/SBOM.cdx.json
           python scripts/certification/generate_checksums.py build-artifacts --output build-artifacts/CHECKSUMS.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: peoplesyncd-production-beta-foundation-${{ github.sha }}
+          name: peoplesyncd-identity-beta-${{ github.sha }}
           path: build-artifacts
           if-no-files-found: error

@@ -1,8 +1,8 @@
 {
   "name": "@peoplesyncd/desktop",
-  "version": "0.2.0",
+  "version": "0.3.1",
   "private": true,
-  "description": "PeopleSyncD Genesis unsigned internal Windows alpha",
+  "description": "PeopleSyncD Genesis unsigned identity beta for internal verification",
   "author": "MediSyncD Technologies, LLC",
   "main": "dist/main.js",
   "scripts": {

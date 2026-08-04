@@ -1,0 +1,14 @@
+{
+  "product": "PeopleSyncD Genesis",
+  "version": "0.3.1-identity-beta",
+  "phase": "7B1",
+  "status": "implemented-not-certified",
+  "identityAuthority": "persistent-current-membership",
+  "sessions": "server-side-revocable",
+  "mfa": "pending-enrollment-records-only",
+  "federation": "schema-foundation-only",
+  "windowsSigned": false,
+  "productionCertified": false,
+  "implementedCommit": "16e8f3240034f3e2ba986d066caa59140f35ca7a",
+  "remainingProgram": "Phase 7B2 through Phase 8"
+}

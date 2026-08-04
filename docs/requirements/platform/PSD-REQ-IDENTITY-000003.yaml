@@ -1,0 +1,22 @@
+requirement_id: PSD-REQ-IDENTITY-000003
+title: Persistent Current Membership Authority
+status: Implemented
+priority: Critical
+specification: PSD-PEP-710
+statement: >-
+  Every protected request shall be authorized using a current active organization
+  membership and its current permission set rather than relying solely on authority
+  embedded in a previously issued token.
+acceptance_criteria:
+  - Active membership is retrieved for the selected organization on every protected request.
+  - Suspended or ended membership denies further protected requests.
+  - Removed permissions take effect without waiting for token expiration.
+  - Membership data is tenant protected by forced row-level security.
+implementation:
+  - apps/api/src/security.ts
+  - apps/api/src/identity.ts
+  - database/migrations/0003_phase7b_identity_sessions.sql
+tests:
+  - apps/api/src/server.test.ts
+  - apps/api/src/postgres.integration.test.ts
+release_status: identity-beta-foundation
