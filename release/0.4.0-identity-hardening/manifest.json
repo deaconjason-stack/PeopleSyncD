@@ -1,0 +1,33 @@
+{
+  "product": "PeopleSyncD Genesis",
+  "version": "0.4.0",
+  "releaseName": "Identity Hardening",
+  "phase": "7B2A",
+  "status": "implemented-increment",
+  "distribution": "internal-verification-only",
+  "signed": false,
+  "certified": false,
+  "productionApproved": false,
+  "implementedControls": [
+    "encrypted-totp-enrollment",
+    "totp-possession-verification",
+    "recovery-code-hash-foundation",
+    "atomic-session-family-rotation",
+    "current-membership-authority",
+    "membership-suspension-session-revocation",
+    "tenant-row-level-security"
+  ],
+  "incompleteControls": [
+    "webauthn-ceremonies",
+    "recovery-code-consumption",
+    "account-recovery",
+    "oidc-saml-scim",
+    "last-founder-invariant",
+    "dedicated-runtime-login-credential",
+    "independent-penetration-test",
+    "signed-distribution",
+    "production-certification"
+  ],
+  "sourceCommit": "resolved-by-ci",
+  "workflowRun": "resolved-by-ci"
+}
