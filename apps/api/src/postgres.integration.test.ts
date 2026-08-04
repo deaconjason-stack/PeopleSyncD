@@ -49,7 +49,7 @@ describePostgres("PostgreSQL platform and identity repositories", () => {
     if (ownerPool) {
       await ownerPool.query("DELETE FROM identity_sessions WHERE user_id = $1", [operatorUserId]);
       await ownerPool.query("DELETE FROM organization_memberships WHERE user_id = $1", [operatorUserId]);
-      await ownerPool.query("DELETE FROM users WHERE id = $1", [operatorUserId]);
+      // Preserve the user row because append-only security evidence retains its actor foreign key.
       await ownerPool.query("DELETE FROM workers WHERE organization_id = $1", [secondaryOrganizationId]);
       await ownerPool.query("DELETE FROM persons WHERE organization_id = $1", [secondaryOrganizationId]);
       await ownerPool.query("DELETE FROM organizations WHERE id = $1", [secondaryOrganizationId]);
