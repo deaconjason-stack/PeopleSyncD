@@ -21,6 +21,7 @@ export type Permission =
   | "identity.mfa.read"
   | "identity.mfa.enroll"
   | "identity.mfa.verify"
+  | "identity.mfa.recovery.consume"
   | "organization.membership.read"
   | "organization.membership.manage";
 
@@ -112,6 +113,11 @@ export interface TotpVerificationResult {
   method: MfaMethodSummary;
   session: SessionSummary;
   recoveryCodes: string[];
+}
+
+export interface RecoveryCodeVerificationResult {
+  session: SessionSummary;
+  remainingCodes: number;
 }
 
 export interface FounderDashboard {
