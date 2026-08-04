@@ -49,11 +49,17 @@ jobs:
           worker_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc 'select count(*) from workers')"
           founder_user_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from users where id = 'founder-jason' and status = 'active'")"
           founder_membership_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from organization_memberships where user_id = 'founder-jason' and role_key = 'founder' and status = 'active'")"
+          phase7b2_permission_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from organization_memberships where user_id = 'founder-jason' and permissions @> '[\"identity.session.rotate\",\"identity.mfa.verify\",\"organization.membership.manage\"]'::jsonb")"
+          session_family_column="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from information_schema.columns where table_name = 'identity_sessions' and column_name = 'session_family_id'")"
+          encrypted_secret_column="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from information_schema.columns where table_name = 'mfa_methods' and column_name = 'secret_ciphertext'")"
           test "$organization_count" = "1"
           test "$worker_count" = "1"
           test "$founder_user_count" = "1"
           test "$founder_membership_count" = "1"
-          for table in persons workers audit_events organization_memberships identity_sessions mfa_methods security_events; do
+          test "$phase7b2_permission_count" = "1"
+          test "$session_family_column" = "1"
+          test "$encrypted_secret_column" = "1"
+          for table in persons workers audit_events organization_memberships identity_sessions mfa_methods mfa_recovery_codes security_events; do
             forced_rls="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select relforcerowsecurity from pg_class where relname = '$table'")"
             test "$forced_rls" = "t"
           done
@@ -62,6 +68,7 @@ jobs:
       - name: Test
         env:
           PEOPLESYNCD_TEST_DATABASE_URL: postgresql://peoplesyncd_test:test-only-password@127.0.0.1:5432/peoplesyncd_test
+          PEOPLESYNCD_MFA_ENCRYPTION_KEY: test-mfa-key-at-least-thirty-two-characters
         run: npm test
       - name: Build
         run: npm run build
@@ -73,21 +80,23 @@ jobs:
           cp -R apps/web/dist/. build-artifacts/web/
           cat > build-artifacts/build-manifest.json <<JSON
           {
-            "product": "PeopleSyncD Genesis Identity Beta",
-            "version": "0.3.1",
+            "product": "PeopleSyncD Genesis Identity Hardening",
+            "version": "0.4.0",
             "sourceCommit": "$GITHUB_SHA",
             "workflowRun": "$GITHUB_RUN_ID",
             "storage": "postgresql-runtime",
-            "identity": "persistent-membership-and-revocable-sessions",
-            "mfa": "enrollment-record-foundation-only",
+            "identity": "current-membership-authority-and-revocable-session-families",
+            "mfa": "encrypted-totp-verification-and-recovery-code-foundation",
+            "webauthn": "enrollment-record-foundation-only",
+            "federation": "not-implemented",
             "signed": false,
             "certified": false
           }
           JSON
-          python scripts/certification/generate_sbom.py --root . --version 0.3.1 --commit "$GITHUB_SHA" --output build-artifacts/SBOM.cdx.json
+          python scripts/certification/generate_sbom.py --root . --version 0.4.0 --commit "$GITHUB_SHA" --output build-artifacts/SBOM.cdx.json
           python scripts/certification/generate_checksums.py build-artifacts --output build-artifacts/CHECKSUMS.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: peoplesyncd-identity-beta-${{ github.sha }}
+          name: peoplesyncd-identity-hardening-${{ github.sha }}
           path: build-artifacts
           if-no-files-found: error
