@@ -9,6 +9,8 @@ import { PostgresPlatformStore } from "./store";
 const databaseUrl = process.env.PEOPLESYNCD_TEST_DATABASE_URL;
 const describePostgres = databaseUrl ? describe : describe.skip;
 const secondaryOrganizationId = "99999999-9999-4999-8999-999999999999";
+const operatorUserId = "phase7b2b-test-operator";
+const operatorMembershipId = "77777777-7777-4777-8777-777777777777";
 const mfaEncryptionKey = "integration-mfa-key-at-least-thirty-two-characters";
 
 describePostgres("PostgreSQL platform and identity repositories", () => {
@@ -27,10 +29,27 @@ describePostgres("PostgreSQL platform and identity repositories", () => {
        ON CONFLICT (id) DO NOTHING`,
       [secondaryOrganizationId]
     );
+    await ownerPool.query(
+      `INSERT INTO users (id, email, display_name, status)
+       VALUES ($1, 'operator-test@peoplesyncd.invalid', 'Operator Test', 'active')
+       ON CONFLICT (id) DO UPDATE SET status = 'active'`,
+      [operatorUserId]
+    );
+    await ownerPool.query(
+      `INSERT INTO organization_memberships
+         (id, organization_id, user_id, role_key, status, permissions)
+       VALUES ($1, $2, $3, 'operator', 'active', '["identity.session.read"]'::jsonb)
+       ON CONFLICT (organization_id, user_id) DO UPDATE
+       SET status = 'active', permissions = EXCLUDED.permissions`,
+      [operatorMembershipId, GENESIS_ORGANIZATION_ID, operatorUserId]
+    );
   });
 
   afterAll(async () => {
     if (ownerPool) {
+      await ownerPool.query("DELETE FROM identity_sessions WHERE user_id = $1", [operatorUserId]);
+      await ownerPool.query("DELETE FROM organization_memberships WHERE user_id = $1", [operatorUserId]);
+      await ownerPool.query("DELETE FROM users WHERE id = $1", [operatorUserId]);
       await ownerPool.query("DELETE FROM workers WHERE organization_id = $1", [secondaryOrganizationId]);
       await ownerPool.query("DELETE FROM persons WHERE organization_id = $1", [secondaryOrganizationId]);
       await ownerPool.query("DELETE FROM organizations WHERE id = $1", [secondaryOrganizationId]);
@@ -44,10 +63,8 @@ describePostgres("PostgreSQL platform and identity repositories", () => {
     const displayName = `Tenant Test ${randomUUID()}`;
     const created = await store.createPerson(secondaryOrganizationId, { displayName });
     expect(created.organizationId).toBe(secondaryOrganizationId);
-
     const secondaryPeople = await store.listPersons(secondaryOrganizationId);
     expect(secondaryPeople.some((person) => person.id === created.id)).toBe(true);
-
     const genesisPeople = await store.listPersons(GENESIS_ORGANIZATION_ID);
     expect(genesisPeople.some((person) => person.id === created.id)).toBe(false);
   });
@@ -114,7 +131,7 @@ describePostgres("PostgreSQL platform and identity repositories", () => {
     expect(listed.some((method) => method.id === enrolled.id)).toBe(true);
   });
 
-  it("activates encrypted TOTP enrollment and rotates the authenticated session", async () => {
+  it("activates TOTP, blocks replay, and consumes recovery codes once", async () => {
     const session = await identity.createSession({
       organizationId: GENESIS_ORGANIZATION_ID,
       userId: "founder-jason",
@@ -130,14 +147,14 @@ describePostgres("PostgreSQL platform and identity repositories", () => {
       "PeopleSyncD Genesis",
       randomUUID()
     );
-    const provisioningUri = new URL(enrollment.provisioningUri);
-    const secret = provisioningUri.searchParams.get("secret");
+    const secret = new URL(enrollment.provisioningUri).searchParams.get("secret");
     expect(secret).toBeTruthy();
+    const code = totpCode(secret as string);
     const verified = await identity.verifyTotpMethod(
       GENESIS_ORGANIZATION_ID,
       "founder-jason",
       enrollment.method.id,
-      totpCode(secret as string),
+      code,
       session.id,
       new Date(Date.now() + 120_000).toISOString(),
       randomUUID()
@@ -145,7 +162,72 @@ describePostgres("PostgreSQL platform and identity repositories", () => {
     expect(verified.method.status).toBe("active");
     expect(verified.session.authenticationMethods).toContain("totp");
     expect(verified.recoveryCodes).toHaveLength(8);
-    await expect(identity.validateSession(session.id, "founder-jason", GENESIS_ORGANIZATION_ID)).resolves.toBe(false);
-    await expect(identity.validateSession(verified.session.id, "founder-jason", GENESIS_ORGANIZATION_ID)).resolves.toBe(true);
+    await expect(
+      identity.verifyTotpMethod(
+        GENESIS_ORGANIZATION_ID,
+        "founder-jason",
+        enrollment.method.id,
+        code,
+        verified.session.id,
+        new Date(Date.now() + 120_000).toISOString(),
+        randomUUID()
+      )
+    ).rejects.toThrow(/replay/i);
+
+    const recoveryCode = verified.recoveryCodes[0] as string;
+    const recovered = await identity.consumeRecoveryCode(
+      GENESIS_ORGANIZATION_ID,
+      "founder-jason",
+      recoveryCode,
+      verified.session.id,
+      new Date(Date.now() + 120_000).toISOString(),
+      randomUUID()
+    );
+    expect(recovered.session.authenticationMethods).toContain("recovery_code");
+    expect(recovered.remainingCodes).toBe(7);
+    await expect(
+      identity.consumeRecoveryCode(
+        GENESIS_ORGANIZATION_ID,
+        "founder-jason",
+        recoveryCode,
+        recovered.session.id,
+        new Date(Date.now() + 120_000).toISOString(),
+        randomUUID()
+      )
+    ).rejects.toThrow(/used recovery code/i);
+  });
+
+  it("prevents removal of the final active Founder authority", async () => {
+    const founder = await identity.getMembership("founder-jason", GENESIS_ORGANIZATION_ID);
+    await expect(
+      identity.updateMembership(
+        GENESIS_ORGANIZATION_ID,
+        founder.userId,
+        "suspended",
+        ["organization.membership.read"],
+        founder.userId,
+        randomUUID()
+      )
+    ).rejects.toThrow(/Last Founder/i);
+    await expect(identity.getMembership("founder-jason", GENESIS_ORGANIZATION_ID)).resolves.toMatchObject({ status: "active" });
+  });
+
+  it("revokes a non-Founder member's active sessions when membership is suspended", async () => {
+    const operatorSession = await identity.createSession({
+      organizationId: GENESIS_ORGANIZATION_ID,
+      userId: operatorUserId,
+      authenticationMethods: ["development"],
+      expiresAt: new Date(Date.now() + 60_000).toISOString(),
+      correlationId: randomUUID()
+    });
+    await identity.updateMembership(
+      GENESIS_ORGANIZATION_ID,
+      operatorUserId,
+      "suspended",
+      ["identity.session.read"],
+      "founder-jason",
+      randomUUID()
+    );
+    await expect(identity.validateSession(operatorSession.id, operatorUserId, GENESIS_ORGANIZATION_ID)).resolves.toBe(false);
   });
 });
