@@ -1,6 +1,6 @@
 registry:
   id: PSD-REQ-000001
-  version: 1.6.0
+  version: 1.7.0
   status: Approved
 
 requirements:
@@ -204,3 +204,19 @@ requirements:
     title: Executable Runtime Verification
     status: Approved
     path: docs/requirements/runtime/PSD-REQ-TEST-000001.yaml
+  - requirement_id: PSD-REQ-MFA-000003
+    title: Monotonic TOTP Replay Prevention
+    status: Implemented
+    path: docs/requirements/security/PSD-REQ-MFA-000003.yaml
+  - requirement_id: PSD-REQ-RECOVERY-000001
+    title: Single-Use MFA Recovery Codes
+    status: Implemented
+    path: docs/requirements/security/PSD-REQ-RECOVERY-000001.yaml
+  - requirement_id: PSD-REQ-FOUNDER-000001
+    title: Final Active Founder Protection
+    status: Implemented
+    path: docs/requirements/security/PSD-REQ-FOUNDER-000001.yaml
+  - requirement_id: PSD-REQ-DBIDENTITY-000001
+    title: Dedicated Deployed Runtime Database Identity
+    status: Implemented Foundation
+    path: docs/requirements/deployment/PSD-REQ-DBIDENTITY-000001.yaml
