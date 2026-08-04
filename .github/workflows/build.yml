@@ -49,16 +49,22 @@ jobs:
           worker_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc 'select count(*) from workers')"
           founder_user_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from users where id = 'founder-jason' and status = 'active'")"
           founder_membership_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from organization_memberships where user_id = 'founder-jason' and role_key = 'founder' and status = 'active'")"
-          phase7b2_permission_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from organization_memberships where user_id = 'founder-jason' and permissions @> '[\"identity.session.rotate\",\"identity.mfa.verify\",\"organization.membership.manage\"]'::jsonb")"
+          hardened_permission_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from organization_memberships where user_id = 'founder-jason' and permissions @> '[\"identity.session.rotate\",\"identity.mfa.verify\",\"identity.mfa.recovery.consume\",\"organization.membership.manage\"]'::jsonb")"
           session_family_column="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from information_schema.columns where table_name = 'identity_sessions' and column_name = 'session_family_id'")"
           encrypted_secret_column="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from information_schema.columns where table_name = 'mfa_methods' and column_name = 'secret_ciphertext'")"
+          replay_counter_column="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from information_schema.columns where table_name = 'mfa_methods' and column_name = 'last_totp_counter'")"
+          founder_trigger_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from pg_trigger where tgname = 'organization_memberships_last_founder' and not tgisinternal")"
+          runtime_role_no_login="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select not rolcanlogin from pg_roles where rolname = 'peoplesyncd_runtime'")"
           test "$organization_count" = "1"
           test "$worker_count" = "1"
           test "$founder_user_count" = "1"
           test "$founder_membership_count" = "1"
-          test "$phase7b2_permission_count" = "1"
+          test "$hardened_permission_count" = "1"
           test "$session_family_column" = "1"
           test "$encrypted_secret_column" = "1"
+          test "$replay_counter_column" = "1"
+          test "$founder_trigger_count" = "1"
+          test "$runtime_role_no_login" = "t"
           for table in persons workers audit_events organization_memberships identity_sessions mfa_methods mfa_recovery_codes security_events; do
             forced_rls="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select relforcerowsecurity from pg_class where relname = '$table'")"
             test "$forced_rls" = "t"
@@ -80,23 +86,23 @@ jobs:
           cp -R apps/web/dist/. build-artifacts/web/
           cat > build-artifacts/build-manifest.json <<JSON
           {
-            "product": "PeopleSyncD Genesis Identity Hardening",
-            "version": "0.4.0",
+            "product": "PeopleSyncD Genesis Recovery and Administrative Safety",
+            "version": "0.4.1",
             "sourceCommit": "$GITHUB_SHA",
             "workflowRun": "$GITHUB_RUN_ID",
-            "storage": "postgresql-runtime",
-            "identity": "current-membership-authority-and-revocable-session-families",
-            "mfa": "encrypted-totp-verification-and-recovery-code-foundation",
+            "storage": "dedicated-postgresql-runtime-identity-required-in-production",
+            "identity": "current-membership-authority-revocable-session-families-last-founder-invariant",
+            "mfa": "encrypted-totp-monotonic-replay-control-single-use-recovery-codes",
             "webauthn": "enrollment-record-foundation-only",
             "federation": "not-implemented",
             "signed": false,
             "certified": false
           }
           JSON
-          python scripts/certification/generate_sbom.py --root . --version 0.4.0 --commit "$GITHUB_SHA" --output build-artifacts/SBOM.cdx.json
+          python scripts/certification/generate_sbom.py --root . --version 0.4.1 --commit "$GITHUB_SHA" --output build-artifacts/SBOM.cdx.json
           python scripts/certification/generate_checksums.py build-artifacts --output build-artifacts/CHECKSUMS.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: peoplesyncd-identity-hardening-${{ github.sha }}
+          name: peoplesyncd-recovery-safety-${{ github.sha }}
           path: build-artifacts
           if-no-files-found: error
