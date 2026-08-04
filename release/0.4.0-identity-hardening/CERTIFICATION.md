@@ -2,7 +2,7 @@
 
 ## Decision
 
-**NOT CERTIFIED FOR PRODUCTION OR CUSTOMER DEPLOYMENT**
+### Not certified for production or customer deployment
 
 ## Verified engineering claims
 
