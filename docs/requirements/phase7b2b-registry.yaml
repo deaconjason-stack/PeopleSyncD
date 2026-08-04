@@ -1,0 +1,15 @@
+registry:
+  id: PSD-REQ-PHASE7B2B
+  version: 1.0.0
+  status: Implemented Increment
+  parent: PSD-REQ-000001
+
+requirements:
+  - requirement_id: PSD-REQ-MFA-000003
+    path: docs/requirements/security/PSD-REQ-MFA-000003.yaml
+  - requirement_id: PSD-REQ-RECOVERY-000001
+    path: docs/requirements/security/PSD-REQ-RECOVERY-000001.yaml
+  - requirement_id: PSD-REQ-FOUNDER-000001
+    path: docs/requirements/security/PSD-REQ-FOUNDER-000001.yaml
+  - requirement_id: PSD-REQ-DBIDENTITY-000001
+    path: docs/requirements/deployment/PSD-REQ-DBIDENTITY-000001.yaml
