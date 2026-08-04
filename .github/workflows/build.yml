@@ -45,10 +45,14 @@ jobs:
         env:
           PGPASSWORD: test-only-password
         run: |
-          test "$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc 'select count(*) from organizations')" = "1"
-          test "$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc 'select count(*) from workers')" = "1"
-          test "$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc \"select count(*) from users where id = 'founder-jason' and status = 'active'\")" = "1"
-          test "$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc \"select count(*) from organization_memberships where user_id = 'founder-jason' and role_key = 'founder' and status = 'active'\")" = "1"
+          organization_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc 'select count(*) from organizations')"
+          worker_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc 'select count(*) from workers')"
+          founder_user_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from users where id = 'founder-jason' and status = 'active'")"
+          founder_membership_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from organization_memberships where user_id = 'founder-jason' and role_key = 'founder' and status = 'active'")"
+          test "$organization_count" = "1"
+          test "$worker_count" = "1"
+          test "$founder_user_count" = "1"
+          test "$founder_membership_count" = "1"
           for table in persons workers audit_events organization_memberships identity_sessions mfa_methods security_events; do
             forced_rls="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select relforcerowsecurity from pg_class where relname = '$table'")"
             test "$forced_rls" = "t"
