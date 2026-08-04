@@ -1,4 +1,5 @@
 export type StorageMode = "memory" | "postgres";
+export type DatabaseRoleMode = "assume" | "direct";
 
 export interface ApiConfig {
   host: string;
@@ -9,6 +10,7 @@ export interface ApiConfig {
   devAuthEnabled: boolean;
   corsOrigin: string;
   storageMode: StorageMode;
+  databaseRoleMode: DatabaseRoleMode;
   databaseUrl?: string;
 }
 
@@ -30,16 +32,28 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
     throw new Error("PEOPLESYNCD_MFA_ENCRYPTION_KEY must contain at least 32 characters");
   }
 
-  const databaseUrl = env.PEOPLESYNCD_DATABASE_URL ?? env.DATABASE_URL;
+  const runtimeDatabaseUrl = env.PEOPLESYNCD_RUNTIME_DATABASE_URL;
+  const databaseUrl = runtimeDatabaseUrl ?? env.PEOPLESYNCD_DATABASE_URL ?? env.DATABASE_URL;
   const requestedStorage = env.PEOPLESYNCD_STORAGE ?? (databaseUrl ? "postgres" : "memory");
   if (requestedStorage !== "memory" && requestedStorage !== "postgres") {
     throw new Error("PEOPLESYNCD_STORAGE must be memory or postgres");
   }
   if (requestedStorage === "postgres" && !databaseUrl) {
-    throw new Error("PEOPLESYNCD_DATABASE_URL is required for PostgreSQL storage");
+    throw new Error("A PeopleSyncD PostgreSQL database URL is required for PostgreSQL storage");
   }
   if (nodeEnv === "production" && requestedStorage !== "postgres") {
     throw new Error("PostgreSQL storage is required in production");
+  }
+  if (nodeEnv === "production" && !runtimeDatabaseUrl) {
+    throw new Error("PEOPLESYNCD_RUNTIME_DATABASE_URL is required in production");
+  }
+
+  const requestedRoleMode = env.PEOPLESYNCD_DATABASE_ROLE_MODE ?? (runtimeDatabaseUrl ? "direct" : "assume");
+  if (requestedRoleMode !== "assume" && requestedRoleMode !== "direct") {
+    throw new Error("PEOPLESYNCD_DATABASE_ROLE_MODE must be assume or direct");
+  }
+  if (nodeEnv === "production" && requestedRoleMode !== "direct") {
+    throw new Error("Direct runtime database identity is required in production");
   }
 
   return {
@@ -51,6 +65,7 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
     devAuthEnabled: nodeEnv !== "production" && env.PEOPLESYNCD_DEV_AUTH !== "false",
     corsOrigin: env.PEOPLESYNCD_CORS_ORIGIN ?? "http://localhost:5173",
     storageMode: requestedStorage,
+    databaseRoleMode: requestedRoleMode,
     databaseUrl
   };
 }
