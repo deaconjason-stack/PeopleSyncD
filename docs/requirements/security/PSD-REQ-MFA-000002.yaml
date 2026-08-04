@@ -1,0 +1,28 @@
+requirement_id: PSD-REQ-MFA-000002
+title: Verified and Protected TOTP Enrollment
+status: Implemented Increment
+priority: Critical
+specification: PSD-PEP-720
+statement: >-
+  PeopleSyncD shall activate a TOTP method only after possession verification,
+  protect the authenticator secret with authenticated encryption at rest, and
+  store only keyed hashes of one-time recovery codes.
+acceptance_criteria:
+  - TOTP behavior passes an RFC 6238 reference vector.
+  - New TOTP methods begin in pending status.
+  - The plaintext secret is returned only in the enrollment provisioning URI.
+  - The persisted TOTP secret is protected using AES-256-GCM.
+  - Invalid codes do not activate the method and create denied evidence.
+  - Successful verification activates the method and rotates the current session.
+  - Recovery codes are returned once and only keyed hashes are persisted.
+  - MFA and recovery-code records are tenant protected by forced row-level security.
+implementation:
+  - packages/auth/src/index.ts
+  - apps/api/src/identity.ts
+  - apps/api/src/server.ts
+  - database/migrations/0004_phase7b2_totp_rotation_membership.sql
+tests:
+  - packages/auth/src/index.test.ts
+  - apps/api/src/server.test.ts
+  - apps/api/src/postgres.integration.test.ts
+release_status: identity-hardening-implemented
