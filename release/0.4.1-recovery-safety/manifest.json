@@ -1,0 +1,39 @@
+{
+  "product": "PeopleSyncD Genesis",
+  "version": "0.4.1",
+  "codename": "Recovery Safety",
+  "phase": "7B2B1",
+  "classification": "Commercial Confidential",
+  "releaseStatus": "internal-engineering-verification",
+  "signed": false,
+  "certified": false,
+  "implementedControls": [
+    "monotonic-totp-counter",
+    "totp-replay-denial",
+    "single-use-recovery-codes",
+    "recovery-session-rotation",
+    "last-founder-invariant",
+    "non-founder-session-revocation",
+    "dedicated-runtime-database-identity-boundary"
+  ],
+  "requiredEvidence": [
+    "all-repository-gates",
+    "strict-typecheck",
+    "automated-tests",
+    "migration-verification",
+    "forced-row-level-security",
+    "sbom",
+    "checksums",
+    "unsigned-windows-installer"
+  ],
+  "excludedClaims": [
+    "production-ready",
+    "webauthn-complete",
+    "federation-complete",
+    "independent-security-tested",
+    "accessibility-certified",
+    "healthcare-certified",
+    "government-certified",
+    "signed-distribution"
+  ]
+}
