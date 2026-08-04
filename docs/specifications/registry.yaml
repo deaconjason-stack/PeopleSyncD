@@ -1,5 +1,5 @@
 registry:
-  version: 1.8.0
+  version: 1.9.0
   status: Approved
 
 specifications:
@@ -166,6 +166,10 @@ specifications:
     title: Identity and Session Hardening
     status: Implemented Foundation
     path: docs/specifications/PSD-PEP-710-identity-session-hardening.md
+  - id: PSD-PEP-720
+    title: MFA and Session Lifecycle Hardening
+    status: Implemented Increment
+    path: docs/specifications/PSD-PEP-720-mfa-session-lifecycle.md
   - id: PSD-PEP-3010
     title: Worker Service Specification
     status: Foundation
