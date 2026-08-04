@@ -35,6 +35,7 @@ const KNOWN_PERMISSIONS = new Set<Permission>([
   "identity.mfa.read",
   "identity.mfa.enroll",
   "identity.mfa.verify",
+  "identity.mfa.recovery.consume",
   "organization.membership.read",
   "organization.membership.manage"
 ]);
@@ -92,7 +93,11 @@ export function buildServer(
 
   app.setErrorHandler((error, _request, reply) => {
     const message = errorMessage(error);
-    if (error instanceof AuthorizationError || /session|bearer|signature|expired|revoked|inactive|MFA code/i.test(message)) {
+    if (/Last Founder invariant/i.test(message)) return reply.status(409).send({ error: message });
+    if (
+      error instanceof AuthorizationError ||
+      /session|bearer|signature|expired|revoked|inactive|MFA code|recovery code|replay/i.test(message)
+    ) {
       return reply.status(error instanceof AuthorizationError ? 403 : 401).send({ error: message });
     }
     if (/not found|invalid|required|unavailable/i.test(message)) {
@@ -101,7 +106,7 @@ export function buildServer(
     return reply.status(500).send({ error: "Internal server error" });
   });
 
-  app.get("/health/live", async () => ({ status: "live", release: "0.4.0-identity-hardening" }));
+  app.get("/health/live", async () => ({ status: "live", release: "0.4.1-recovery-safety" }));
   app.get("/health/ready", async (_request, reply) => {
     const [platformReady, identityReady] = await Promise.all([store.health(), identity.health()]);
     const ready = platformReady && identityReady;
@@ -227,6 +232,25 @@ export function buildServer(
     }
   );
 
+  app.post<{ Body: { code?: string } }>("/v1/auth/mfa/recovery/consume", async (request) => {
+    const context = await requestContext(request, config, identity, "identity.mfa.recovery.consume");
+    const code = request.body?.code?.trim();
+    if (!code) throw new Error("Recovery code is required");
+    const result = await identity.consumeRecoveryCode(
+      context.organizationId,
+      context.claims.subject,
+      code,
+      context.claims.sessionId,
+      new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      context.correlationId
+    );
+    const membership = await identity.getMembership(context.claims.subject, context.organizationId);
+    return {
+      ...sessionTokenResponse(membership, result.session, config),
+      remainingCodes: result.remainingCodes
+    };
+  });
+
   app.get("/v1/organizations/memberships", async (request) => {
     const context = await requestContext(request, config, identity, "organization.membership.read");
     return identity.listMemberships(context.organizationId);
@@ -304,7 +328,9 @@ export function buildServer(
     return reply.status(201).send(worker);
   });
 
-  app.post<{ Body: { action?: string; resourceType?: string; resourceId?: string; outcome?: "success" | "denied" | "failure" } }>("/v1/audit/events", async (request, reply) => {
+  app.post<{
+    Body: { action?: string; resourceType?: string; resourceId?: string; outcome?: "success" | "denied" | "failure" };
+  }>("/v1/audit/events", async (request, reply) => {
     const context = await requestContext(request, config, identity, "audit.append");
     if (!request.body?.action || !request.body.resourceType || !request.body.outcome) {
       throw new Error("action, resourceType, and outcome are required");
