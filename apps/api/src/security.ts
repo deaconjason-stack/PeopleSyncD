@@ -26,7 +26,12 @@ export async function requestContext(
   const token = bearerToken(request.headers.authorization);
   const tokenClaims = verifySessionToken(token, config.sessionSecret);
   const organizationId = requireOrganization(tokenClaims, header(request, "x-organization-id"));
-  const membership = await identity.getMembership(tokenClaims.subject, organizationId);
+  let membership;
+  try {
+    membership = await identity.getMembership(tokenClaims.subject, organizationId);
+  } catch {
+    throw new Error("Session membership inactive");
+  }
   const active = await identity.validateSession(tokenClaims.sessionId, tokenClaims.subject, organizationId);
   if (!active) throw new Error("Session revoked or inactive");
 
