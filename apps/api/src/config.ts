@@ -5,6 +5,7 @@ export interface ApiConfig {
   port: number;
   nodeEnv: string;
   sessionSecret: string;
+  mfaEncryptionKey: string;
   devAuthEnabled: boolean;
   corsOrigin: string;
   storageMode: StorageMode;
@@ -19,6 +20,14 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
   }
   if (sessionSecret.length < 32) {
     throw new Error("PEOPLESYNCD_SESSION_SECRET must contain at least 32 characters");
+  }
+
+  const mfaEncryptionKey = env.PEOPLESYNCD_MFA_ENCRYPTION_KEY ?? sessionSecret;
+  if (nodeEnv === "production" && !env.PEOPLESYNCD_MFA_ENCRYPTION_KEY) {
+    throw new Error("PEOPLESYNCD_MFA_ENCRYPTION_KEY is required in production");
+  }
+  if (mfaEncryptionKey.length < 32) {
+    throw new Error("PEOPLESYNCD_MFA_ENCRYPTION_KEY must contain at least 32 characters");
   }
 
   const databaseUrl = env.PEOPLESYNCD_DATABASE_URL ?? env.DATABASE_URL;
@@ -38,6 +47,7 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
     port: Number(env.PEOPLESYNCD_API_PORT ?? 8080),
     nodeEnv,
     sessionSecret,
+    mfaEncryptionKey,
     devAuthEnabled: nodeEnv !== "production" && env.PEOPLESYNCD_DEV_AUTH !== "false",
     corsOrigin: env.PEOPLESYNCD_CORS_ORIGIN ?? "http://localhost:5173",
     storageMode: requestedStorage,
