@@ -11,7 +11,8 @@ const config: ApiConfig = {
   mfaEncryptionKey: "test-mfa-key-at-least-thirty-two-characters",
   devAuthEnabled: true,
   corsOrigin: "http://localhost:5173",
-  storageMode: "memory"
+  storageMode: "memory",
+  databaseRoleMode: "assume"
 };
 
 async function session(app: ReturnType<typeof buildServer>) {
@@ -25,6 +26,20 @@ function headers(auth: { token: string; organizationId: string }) {
     authorization: `Bearer ${auth.token}`,
     "x-organization-id": auth.organizationId
   };
+}
+
+async function enrollTotp(app: ReturnType<typeof buildServer>, auth: { token: string; organizationId: string }) {
+  const response = await app.inject({
+    method: "POST",
+    url: "/v1/auth/mfa/methods",
+    headers: headers(auth),
+    payload: { method: "totp", label: "Founder authenticator" }
+  });
+  expect(response.statusCode).toBe(201);
+  const provisioningUri = new URL(response.json().provisioningUri as string);
+  const secret = provisioningUri.searchParams.get("secret");
+  expect(secret).toBeTruthy();
+  return { methodId: response.json().method.id as string, secret: secret as string };
 }
 
 describe("PeopleSyncD API", () => {
@@ -122,73 +137,97 @@ describe("PeopleSyncD API", () => {
     await app.close();
   });
 
-  it("completes TOTP enrollment, rotates into an MFA session, and returns one-time recovery codes", async () => {
+  it("completes TOTP enrollment and issues one-time recovery codes", async () => {
     const app = buildServer(config);
     const auth = await session(app);
-    const requestHeaders = headers(auth);
-    const enrolled = await app.inject({
-      method: "POST",
-      url: "/v1/auth/mfa/methods",
-      headers: requestHeaders,
-      payload: { method: "totp", label: "Founder authenticator" }
-    });
-    expect(enrolled.statusCode).toBe(201);
-    expect(enrolled.json().method.status).toBe("pending");
-    expect(enrolled.json()).not.toHaveProperty("secret");
-    const provisioningUri = new URL(enrolled.json().provisioningUri as string);
-    const secret = provisioningUri.searchParams.get("secret");
-    expect(secret).toBeTruthy();
-
+    const enrolled = await enrollTotp(app, auth);
     const verified = await app.inject({
       method: "POST",
-      url: `/v1/auth/mfa/totp/${enrolled.json().method.id}/verify`,
-      headers: requestHeaders,
-      payload: { code: totpCode(secret as string) }
+      url: `/v1/auth/mfa/totp/${enrolled.methodId}/verify`,
+      headers: headers(auth),
+      payload: { code: totpCode(enrolled.secret) }
     });
     expect(verified.statusCode).toBe(200);
     expect(verified.json().method.status).toBe("active");
     expect(verified.json().authenticationMethods).toContain("totp");
     expect(verified.json().recoveryCodes).toHaveLength(8);
-
-    const oldDenied = await app.inject({ method: "GET", url: "/v1/founder/dashboard", headers: requestHeaders });
+    const oldDenied = await app.inject({ method: "GET", url: "/v1/founder/dashboard", headers: headers(auth) });
     expect(oldDenied.statusCode).toBe(401);
-    const newAccepted = await app.inject({
-      method: "GET",
-      url: "/v1/founder/dashboard",
-      headers: headers({ token: verified.json().token, organizationId: auth.organizationId })
+    await app.close();
+  });
+
+  it("rejects reuse of the same TOTP time-step counter", async () => {
+    const app = buildServer(config);
+    const auth = await session(app);
+    const enrolled = await enrollTotp(app, auth);
+    const code = totpCode(enrolled.secret);
+    const verified = await app.inject({
+      method: "POST",
+      url: `/v1/auth/mfa/totp/${enrolled.methodId}/verify`,
+      headers: headers(auth),
+      payload: { code }
     });
-    expect(newAccepted.statusCode).toBe(200);
+    expect(verified.statusCode).toBe(200);
+    const replay = await app.inject({
+      method: "POST",
+      url: `/v1/auth/mfa/totp/${enrolled.methodId}/verify`,
+      headers: headers({ token: verified.json().token, organizationId: auth.organizationId }),
+      payload: { code }
+    });
+    expect(replay.statusCode).toBe(401);
+    expect(replay.json().error).toMatch(/replay/i);
+    await app.close();
+  });
+
+  it("consumes each recovery code once and rotates the session", async () => {
+    const app = buildServer(config);
+    const auth = await session(app);
+    const enrolled = await enrollTotp(app, auth);
+    const verified = await app.inject({
+      method: "POST",
+      url: `/v1/auth/mfa/totp/${enrolled.methodId}/verify`,
+      headers: headers(auth),
+      payload: { code: totpCode(enrolled.secret) }
+    });
+    const recoveryCode = verified.json().recoveryCodes[0] as string;
+    const recovered = await app.inject({
+      method: "POST",
+      url: "/v1/auth/mfa/recovery/consume",
+      headers: headers({ token: verified.json().token, organizationId: auth.organizationId }),
+      payload: { code: recoveryCode }
+    });
+    expect(recovered.statusCode).toBe(200);
+    expect(recovered.json().authenticationMethods).toContain("recovery_code");
+    expect(recovered.json().remainingCodes).toBe(7);
+    const reused = await app.inject({
+      method: "POST",
+      url: "/v1/auth/mfa/recovery/consume",
+      headers: headers({ token: recovered.json().token, organizationId: auth.organizationId }),
+      payload: { code: recoveryCode }
+    });
+    expect(reused.statusCode).toBe(401);
     await app.close();
   });
 
   it("rejects an invalid TOTP verification code without activating the method", async () => {
     const app = buildServer(config);
     const auth = await session(app);
-    const requestHeaders = headers(auth);
-    const enrolled = await app.inject({
-      method: "POST",
-      url: "/v1/auth/mfa/methods",
-      headers: requestHeaders,
-      payload: { method: "totp" }
-    });
-    const provisioningUri = new URL(enrolled.json().provisioningUri as string);
-    const secret = provisioningUri.searchParams.get("secret");
-    expect(secret).toBeTruthy();
-    const validCode = totpCode(secret as string);
+    const enrolled = await enrollTotp(app, auth);
+    const validCode = totpCode(enrolled.secret);
     const invalidCode = `${validCode[0] === "0" ? "1" : "0"}${validCode.slice(1)}`;
     const denied = await app.inject({
       method: "POST",
-      url: `/v1/auth/mfa/totp/${enrolled.json().method.id}/verify`,
-      headers: requestHeaders,
+      url: `/v1/auth/mfa/totp/${enrolled.methodId}/verify`,
+      headers: headers(auth),
       payload: { code: invalidCode }
     });
     expect(denied.statusCode).toBe(401);
-    const listed = await app.inject({ method: "GET", url: "/v1/auth/mfa/methods", headers: requestHeaders });
+    const listed = await app.inject({ method: "GET", url: "/v1/auth/mfa/methods", headers: headers(auth) });
     expect(listed.json()[0].status).toBe("pending");
     await app.close();
   });
 
-  it("suspends a membership and immediately revokes its sessions", async () => {
+  it("prevents suspending or de-authorizing the final active Founder", async () => {
     const app = buildServer(config);
     const auth = await session(app);
     const response = await app.inject({
@@ -197,10 +236,9 @@ describe("PeopleSyncD API", () => {
       headers: headers(auth),
       payload: { status: "suspended", permissions: ["organization.membership.read"] }
     });
-    expect(response.statusCode).toBe(200);
-    expect(response.json().status).toBe("suspended");
-    const denied = await app.inject({ method: "GET", url: "/v1/founder/dashboard", headers: headers(auth) });
-    expect(denied.statusCode).toBe(401);
+    expect(response.statusCode).toBe(409);
+    const stillAccepted = await app.inject({ method: "GET", url: "/v1/founder/dashboard", headers: headers(auth) });
+    expect(stillAccepted.statusCode).toBe(200);
     await app.close();
   });
 
