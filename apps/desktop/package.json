@@ -1,8 +1,8 @@
 {
   "name": "@peoplesyncd/desktop",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
-  "description": "PeopleSyncD Genesis unsigned identity hardening build for internal verification",
+  "description": "PeopleSyncD Genesis unsigned recovery and administrative safety build for internal verification",
   "author": "MediSyncD Technologies, LLC",
   "main": "dist/main.js",
   "scripts": {
