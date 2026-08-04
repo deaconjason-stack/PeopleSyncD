@@ -14,13 +14,20 @@ export type Permission =
   | "worker.create"
   | "audit.append"
   | "audit.read"
-  | "ai.tool.founder.get_brief";
+  | "ai.tool.founder.get_brief"
+  | "identity.session.read"
+  | "identity.session.revoke"
+  | "identity.mfa.read"
+  | "identity.mfa.enroll"
+  | "organization.membership.read";
 
 export interface SessionClaims {
+  sessionId: string;
   subject: string;
   displayName: string;
   organizationIds: string[];
   permissions: Permission[];
+  authenticationMethods: string[];
   issuedAt: number;
   expiresAt: number;
 }
@@ -54,6 +61,40 @@ export interface AuditEvent {
   occurredAt: string;
   correlationId: string;
   metadata?: Record<string, string | number | boolean | null>;
+}
+
+export interface OrganizationMembershipSummary {
+  id: string;
+  organizationId: string;
+  userId: string;
+  displayName: string;
+  email?: string;
+  roleKey: string;
+  status: "active" | "suspended" | "ended";
+  permissions: Permission[];
+  createdAt: string;
+}
+
+export interface SessionSummary {
+  id: string;
+  organizationId: string;
+  userId: string;
+  authenticationMethods: string[];
+  issuedAt: string;
+  expiresAt: string;
+  revokedAt?: string;
+  revokedBy?: string;
+}
+
+export interface MfaMethodSummary {
+  id: string;
+  organizationId: string;
+  userId: string;
+  method: "totp" | "webauthn";
+  label?: string;
+  status: "pending" | "active" | "revoked";
+  createdAt: string;
+  verifiedAt?: string;
 }
 
 export interface FounderDashboard {

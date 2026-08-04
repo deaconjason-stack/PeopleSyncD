@@ -15,6 +15,7 @@ function signature(payload: string, secret: string): string {
 
 export function createSessionToken(claims: SessionClaims, secret: string): string {
   if (secret.length < 16) throw new Error("Session secret must be at least 16 characters");
+  if (!claims.sessionId) throw new Error("Session identifier is required");
   const payload = encode(JSON.stringify(claims));
   return `${payload}.${signature(payload, secret)}`;
 }
@@ -29,7 +30,13 @@ export function verifySessionToken(token: string, secret: string, now = Math.flo
     throw new Error("Invalid session signature");
   }
   const claims = JSON.parse(decode(payload)) as SessionClaims;
-  if (!claims.subject || !Array.isArray(claims.organizationIds) || !Array.isArray(claims.permissions)) {
+  if (
+    !claims.sessionId ||
+    !claims.subject ||
+    !Array.isArray(claims.organizationIds) ||
+    !Array.isArray(claims.permissions) ||
+    !Array.isArray(claims.authenticationMethods)
+  ) {
     throw new Error("Invalid session claims");
   }
   if (claims.expiresAt <= now) throw new Error("Session expired");
