@@ -119,6 +119,29 @@ export function totpCode(secret: string, atMilliseconds = Date.now(), periodSeco
   return String(binary % 10 ** digits).padStart(digits, "0");
 }
 
+export function matchTotpCounter(
+  secret: string,
+  suppliedCode: string,
+  atMilliseconds = Date.now(),
+  window = 1,
+  periodSeconds = 30,
+  digits = 6
+): number | undefined {
+  if (!new RegExp(`^\\d{${digits}}$`, "u").test(suppliedCode)) return undefined;
+  const supplied = Buffer.from(suppliedCode, "utf8");
+  const currentCounter = Math.floor(atMilliseconds / 1000 / periodSeconds);
+  for (let offset = -window; offset <= window; offset += 1) {
+    const counter = currentCounter + offset;
+    if (counter < 0) continue;
+    const candidate = Buffer.from(
+      totpCode(secret, counter * periodSeconds * 1000, periodSeconds, digits),
+      "utf8"
+    );
+    if (candidate.length === supplied.length && timingSafeEqual(candidate, supplied)) return counter;
+  }
+  return undefined;
+}
+
 export function verifyTotpCode(
   secret: string,
   suppliedCode: string,
@@ -127,13 +150,7 @@ export function verifyTotpCode(
   periodSeconds = 30,
   digits = 6
 ): boolean {
-  if (!new RegExp(`^\\d{${digits}}$`, "u").test(suppliedCode)) return false;
-  const supplied = Buffer.from(suppliedCode, "utf8");
-  for (let offset = -window; offset <= window; offset += 1) {
-    const candidate = Buffer.from(totpCode(secret, atMilliseconds + offset * periodSeconds * 1000, periodSeconds, digits), "utf8");
-    if (candidate.length === supplied.length && timingSafeEqual(candidate, supplied)) return true;
-  }
-  return false;
+  return matchTotpCounter(secret, suppliedCode, atMilliseconds, window, periodSeconds, digits) !== undefined;
 }
 
 export function totpProvisioningUri(input: { secret: string; accountName: string; issuer: string }): string {
