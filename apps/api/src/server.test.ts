@@ -171,11 +171,16 @@ describe("PeopleSyncD API", () => {
       headers: requestHeaders,
       payload: { method: "totp" }
     });
+    const provisioningUri = new URL(enrolled.json().provisioningUri as string);
+    const secret = provisioningUri.searchParams.get("secret");
+    expect(secret).toBeTruthy();
+    const validCode = totpCode(secret as string);
+    const invalidCode = `${validCode[0] === "0" ? "1" : "0"}${validCode.slice(1)}`;
     const denied = await app.inject({
       method: "POST",
       url: `/v1/auth/mfa/totp/${enrolled.json().method.id}/verify`,
       headers: requestHeaders,
-      payload: { code: "000000" }
+      payload: { code: invalidCode }
     });
     expect(denied.statusCode).toBe(401);
     const listed = await app.inject({ method: "GET", url: "/v1/auth/mfa/methods", headers: requestHeaders });
