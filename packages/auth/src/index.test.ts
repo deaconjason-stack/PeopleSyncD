@@ -3,6 +3,7 @@ import {
   createSessionToken,
   decryptCredential,
   encryptCredential,
+  matchTotpCounter,
   totpCode,
   verifySessionToken,
   verifyTotpCode
@@ -44,10 +45,12 @@ describe("session tokens", () => {
 });
 
 describe("TOTP and credential protection", () => {
-  it("matches the RFC 6238 SHA-1 test vector", () => {
+  it("matches the RFC 6238 SHA-1 test vector and exposes its counter", () => {
     const rfcSecret = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ";
     expect(totpCode(rfcSecret, 59_000, 30, 8)).toBe("94287082");
     expect(verifyTotpCode(rfcSecret, "94287082", 59_000, 0, 30, 8)).toBe(true);
+    expect(matchTotpCounter(rfcSecret, "94287082", 59_000, 0, 30, 8)).toBe(1);
+    expect(matchTotpCounter(rfcSecret, "00000000", 59_000, 0, 30, 8)).toBeUndefined();
   });
 
   it("encrypts authenticator credentials with authenticated encryption", () => {
