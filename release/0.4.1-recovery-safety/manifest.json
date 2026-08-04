@@ -5,22 +5,22 @@
   "phase": "7B2B1",
   "classification": "Commercial Confidential",
   "releaseStatus": "internal-engineering-verification",
-  "sourceCommit": "682bf4f730141834f171c7c5d0750404dab491ac",
-  "pullRequestMergeCommit": "e9c72c7cb6a0c28a61f8aa34108885987b56d187",
-  "workflowRun": 30880787657,
+  "sourceCommit": "29d484c28f3e1d3dd98c968cb883f24b92e5107d",
+  "pullRequestMergeCommit": "d8d157bdad38bb5ec578823e34744093234686bc",
+  "workflowRun": 30880971062,
   "testsPassed": 33,
   "signed": false,
   "certified": false,
   "artifacts": [
     {
-      "id": 8881229708,
-      "name": "peoplesyncd-recovery-safety-e9c72c7cb6a0c28a61f8aa34108885987b56d187",
-      "sha256": "cfc29cd133c8614dcc0266c461ecdb8d836ece30d5600aeaefa0d79b1bf93166"
+      "id": 8881294153,
+      "name": "peoplesyncd-recovery-safety-d8d157bdad38bb5ec578823e34744093234686bc",
+      "sha256": "b6511eba09b6489476fc93f885bfba9a953cdf22b13dd51112642b38d20f8ca6"
     },
     {
-      "id": 8881239591,
-      "name": "peoplesyncd-windows-unsigned-e9c72c7cb6a0c28a61f8aa34108885987b56d187",
-      "sha256": "149636936db3b90d11b8133bfcfb0e51cfd164cff6ac0d6a90f1aa5cea940e2e"
+      "id": 8881311046,
+      "name": "peoplesyncd-windows-unsigned-d8d157bdad38bb5ec578823e34744093234686bc",
+      "sha256": "14e7763c1ba914c075ebfedf04571c6f7b559914096b5d7f00483ef1b6b4e44a"
     }
   ],
   "implementedControls": [
