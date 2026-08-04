@@ -1,5 +1,5 @@
 registry:
-  version: 1.9.0
+  version: 1.10.0
   status: Approved
 
 specifications:
@@ -170,6 +170,10 @@ specifications:
     title: MFA and Session Lifecycle Hardening
     status: Implemented Increment
     path: docs/specifications/PSD-PEP-720-mfa-session-lifecycle.md
+  - id: PSD-PEP-730
+    title: Recovery, Replay, and Administrative Safety
+    status: Implemented Increment
+    path: docs/specifications/PSD-PEP-730-recovery-replay-administrative-safety.md
   - id: PSD-PEP-3010
     title: Worker Service Specification
     status: Foundation
