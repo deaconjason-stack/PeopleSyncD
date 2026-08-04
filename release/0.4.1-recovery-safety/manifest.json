@@ -5,8 +5,24 @@
   "phase": "7B2B1",
   "classification": "Commercial Confidential",
   "releaseStatus": "internal-engineering-verification",
+  "sourceCommit": "682bf4f730141834f171c7c5d0750404dab491ac",
+  "pullRequestMergeCommit": "e9c72c7cb6a0c28a61f8aa34108885987b56d187",
+  "workflowRun": 30880787657,
+  "testsPassed": 33,
   "signed": false,
   "certified": false,
+  "artifacts": [
+    {
+      "id": 8881229708,
+      "name": "peoplesyncd-recovery-safety-e9c72c7cb6a0c28a61f8aa34108885987b56d187",
+      "sha256": "cfc29cd133c8614dcc0266c461ecdb8d836ece30d5600aeaefa0d79b1bf93166"
+    },
+    {
+      "id": 8881239591,
+      "name": "peoplesyncd-windows-unsigned-e9c72c7cb6a0c28a61f8aa34108885987b56d187",
+      "sha256": "149636936db3b90d11b8133bfcfb0e51cfd164cff6ac0d6a90f1aa5cea940e2e"
+    }
+  ],
   "implementedControls": [
     "monotonic-totp-counter",
     "totp-replay-denial",
