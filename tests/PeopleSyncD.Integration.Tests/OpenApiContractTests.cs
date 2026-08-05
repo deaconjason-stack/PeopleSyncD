@@ -7,7 +7,7 @@ namespace PeopleSyncD.Integration.Tests;
 public sealed class OpenApiContractTests
 {
     [Fact]
-    public async Task OpenApiDocumentIsAvailable()
+    public async Task OpenApiDocumentContainsIdentityTenantEndpoints()
     {
         await using var factory = new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder => builder.UseSetting("Database:Provider", "InMemory"));
@@ -17,6 +17,8 @@ public sealed class OpenApiContractTests
         var content = await response.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Contains("/api/v1/organizations", content, StringComparison.Ordinal);
+        Assert.Contains("/api/v1/auth/register-tenant", content, StringComparison.Ordinal);
+        Assert.Contains("/api/v1/auth/select-organization", content, StringComparison.Ordinal);
+        Assert.Contains("/api/v1/organizations/{id}", content, StringComparison.Ordinal);
     }
 }

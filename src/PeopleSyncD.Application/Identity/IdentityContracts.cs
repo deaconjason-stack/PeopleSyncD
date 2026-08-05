@@ -1,0 +1,72 @@
+using PeopleSyncD.Domain.Identity;
+
+namespace PeopleSyncD.Application.Identity;
+
+/// <summary>
+/// Tenant and owner registration request.
+/// </summary>
+public sealed record RegisterTenantRequest(
+    string OrganizationName,
+    string OrganizationSlug,
+    string DisplayName,
+    string Email,
+    string Password);
+
+/// <summary>
+/// Password authentication request.
+/// </summary>
+public sealed record LoginRequest(string Email, string Password);
+
+/// <summary>
+/// Request to exchange a user token for a tenant-scoped token.
+/// </summary>
+public sealed record SelectOrganizationRequest(Guid OrganizationId);
+
+/// <summary>
+/// Authenticated platform user projected outside ASP.NET Core Identity.
+/// </summary>
+public sealed record IdentityUserDto(
+    Guid Id,
+    string DisplayName,
+    string Email,
+    bool EmailConfirmed,
+    bool IsActive);
+
+/// <summary>
+/// Organization membership visible to the authenticated user.
+/// </summary>
+public sealed record OrganizationAccessDto(
+    Guid MembershipId,
+    Guid OrganizationId,
+    string OrganizationName,
+    string OrganizationSlug,
+    TenantRole Role,
+    MembershipStatus Status);
+
+/// <summary>
+/// Tenant context carried by a tenant-scoped access token.
+/// </summary>
+public sealed record TenantContextDto(
+    Guid MembershipId,
+    Guid OrganizationId,
+    string OrganizationName,
+    string OrganizationSlug,
+    TenantRole Role,
+    IReadOnlyCollection<string> Permissions);
+
+/// <summary>
+/// Access token response returned by authentication operations.
+/// </summary>
+public sealed record AccessTokenDto(
+    string AccessToken,
+    string TokenType,
+    DateTimeOffset ExpiresAt,
+    IdentityUserDto User,
+    TenantContextDto? Tenant);
+
+/// <summary>
+/// Result produced by atomic owner-and-tenant provisioning.
+/// </summary>
+public sealed record ProvisionedTenantDto(
+    IdentityUserDto User,
+    OrganizationAccessDto Access);

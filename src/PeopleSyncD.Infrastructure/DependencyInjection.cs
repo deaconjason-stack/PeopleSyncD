@@ -19,7 +19,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        JwtOptions jwtOptions)
     {
         var provider = configuration[$"{DatabaseOptions.SectionName}:Provider"] ?? "PostgreSql";
         services.AddDbContext<ApplicationDbContext>(options =>
@@ -41,12 +42,23 @@ public static class DependencyInjection
             {
                 options.User.RequireUniqueEmail = true;
                 options.Password.RequiredLength = 12;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireDigit = true;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Lockout.AllowedForNewUsers = true;
                 options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
             })
             .AddRoles<IdentityRole<Guid>>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
 
+        services.AddSingleton(jwtOptions);
         services.AddScoped<IOrganizationRepository, OrganizationRepository>();
+        services.AddScoped<IOrganizationMembershipRepository, OrganizationMembershipRepository>();
+        services.AddScoped<IIdentityGateway, IdentityGateway>();
+        services.AddScoped<ITenantProvisioningGateway, TenantProvisioningGateway>();
+        services.AddScoped<IAccessTokenIssuer, JwtAccessTokenIssuer>();
         services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<ApplicationDbContext>());
         services.AddSingleton<IClock, SystemClock>();
         return services;

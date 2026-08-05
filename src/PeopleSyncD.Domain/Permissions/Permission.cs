@@ -7,6 +7,8 @@ public static class PermissionNames
 {
     public const string OrganizationsRead = "organizations.read";
     public const string OrganizationsWrite = "organizations.write";
+    public const string MembershipsRead = "memberships.read";
+    public const string MembershipsWrite = "memberships.write";
     public const string EmployeesRead = "employees.read";
     public const string EmployeesWrite = "employees.write";
 }

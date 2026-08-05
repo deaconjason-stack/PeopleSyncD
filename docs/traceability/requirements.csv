@@ -49,3 +49,5 @@ PSD-REQ-API-000001,PSD-PEP-600,,apps/api/src/server.ts,,database/migrations/0001
 PSD-REQ-WEB-000001,PSD-PEP-600,,apps/web/src/App.tsx,,,apps/web/src/status.test.ts,internal-alpha
 PSD-REQ-DESKTOP-000001,PSD-PEP-600,,apps/desktop/src/main.ts,,,.github/workflows/windows-internal-installer.yml,internal-alpha
 PSD-REQ-TEST-000001,PSD-PEP-600,,apps/api/src/server.ts,,database/migrations/0001_phase6_runtime.sql,apps/api/src/server.test.ts,internal-alpha
+PSD-REQ-IDENTITY-000003,PSD-PEP-210,identity,docs/api/peoplesyncd-v1.yaml,,infrastructure/postgres/migrations/0001-platform-identity.sql,tests/PeopleSyncD.Api.Tests/ApiFoundationTests.cs,implemented-foundation
+PSD-REQ-TENANT-000001,PSD-PEP-230,permissions,docs/api/peoplesyncd-v1.yaml,,infrastructure/postgres/migrations/0001-platform-identity.sql,tests/PeopleSyncD.Api.Tests/ApiFoundationTests.cs,implemented-foundation

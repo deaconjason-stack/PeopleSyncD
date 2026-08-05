@@ -2,10 +2,10 @@
 
 ## Prerequisites
 
-- .NET SDK 9
-- Node.js 22 and npm 10
-- Docker with Compose v2
-- PostgreSQL 16 for direct local persistence work
+- .NET SDK 9.
+- Node.js 22 and npm 10.
+- Docker with Compose v2.
+- PostgreSQL 16 for direct persistence development.
 
 ## Restore and verify
 
@@ -18,18 +18,26 @@ dotnet test PeopleSyncD.slnx -c Release --no-build --collect:"XPlat Code Coverag
 
 ```bash
 cd src/PeopleSyncD.Web
-npm install
+npm ci
 npm run typecheck
 npm run build
 npm audit --audit-level=high
 ```
 
-The M1 workflow generates the initial reviewed lockfile. After it is committed, local and CI installs use `npm ci`.
-
 ## Local orchestration
 
-`dotnet run --project src/PeopleSyncD.AppHost` starts PostgreSQL, Redis, the API, and the Next.js shell through Aspire.
+```bash
+dotnet run --project src/PeopleSyncD.AppHost
+```
 
-`docker compose up --build` builds isolated API and web containers plus PostgreSQL and Redis.
+Aspire starts PostgreSQL, Redis, the API, and the Next.js application.
 
-Do not use local example passwords or unsigned images in customer environments.
+```bash
+docker compose up --build
+```
+
+The development API creates an ephemeral JWT signing key for the life of the process and initializes the development schema. Restarting the API invalidates previously issued development tokens.
+
+## Production key requirement
+
+Production startup requires `Jwt__SigningKey` from a protected secret provider. Do not store signing keys in appsettings files, Docker images, Kubernetes manifests, Terraform state, logs, or source control.
