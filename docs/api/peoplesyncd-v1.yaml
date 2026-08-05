@@ -7,15 +7,20 @@ info:
     name: PeopleSyncD Proprietary License
     url: https://github.com/deaconjason-stack/PeopleSyncD/blob/main/LICENSE
 servers:
-  - url: http://localhost:8080
+  - url: https://api.peoplesyncd.com
+security:
+  - bearerAuth: []
 paths:
   /health:
     get:
       operationId: getHealth
       summary: Get service readiness status
+      security: []
       responses:
         '200':
           description: Service is ready
+        '503':
+          description: Service is not ready
   /api/v1/organizations:
     post:
       operationId: createOrganization
@@ -25,6 +30,10 @@ paths:
           description: Organization created
         '400':
           description: Invalid organization request
+        '401':
+          description: Authentication required
+        '403':
+          description: Organization creation denied
         '409':
           description: Organization slug conflict
   /api/v1/organizations/{id}:
@@ -41,5 +50,15 @@ paths:
       responses:
         '200':
           description: Organization found
+        '401':
+          description: Authentication required
+        '403':
+          description: Organization read denied
         '404':
           description: Organization not found
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

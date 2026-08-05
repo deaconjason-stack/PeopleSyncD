@@ -1,9 +1,9 @@
 using System.Net;
 using System.Net.Http.Json;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using PeopleSyncD.Application.DTOs;
 using PeopleSyncD.Application.Organizations;
+using Xunit;
 
 namespace PeopleSyncD.Api.Tests;
 

@@ -21,8 +21,6 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.Configure<DatabaseOptions>(configuration.GetSection(DatabaseOptions.SectionName));
-
         var provider = configuration[$"{DatabaseOptions.SectionName}:Provider"] ?? "PostgreSql";
         services.AddDbContext<ApplicationDbContext>(options =>
         {

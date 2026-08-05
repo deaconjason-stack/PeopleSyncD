@@ -1,8 +1,8 @@
-using FluentValidation;
 using PeopleSyncD.Application.Interfaces;
 using PeopleSyncD.Application.Organizations;
 using PeopleSyncD.Domain.Organizations;
 using PeopleSyncD.SharedKernel;
+using Xunit;
 
 namespace PeopleSyncD.Application.Tests;
 

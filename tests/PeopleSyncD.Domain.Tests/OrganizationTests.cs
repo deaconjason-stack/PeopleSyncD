@@ -1,4 +1,5 @@
 using PeopleSyncD.Domain.Organizations;
+using Xunit;
 
 namespace PeopleSyncD.Domain.Tests;
 

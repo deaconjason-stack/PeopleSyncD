@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PeopleSyncD.Domain.Organizations;
 using PeopleSyncD.Infrastructure.Persistence;
+using Xunit;
 
 namespace PeopleSyncD.Infrastructure.Tests;
 

@@ -40,16 +40,3 @@ spec:
             runAsNonRoot: true
             capabilities:
               drop: ["ALL"]
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: peoplesyncd-api
-  namespace: peoplesyncd
-spec:
-  selector:
-    app.kubernetes.io/name: peoplesyncd-api
-  ports:
-    - name: http
-      port: 80
-      targetPort: http
