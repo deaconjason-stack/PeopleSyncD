@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using PeopleSyncD.Application.Identity;
 using PeopleSyncD.Application.Organizations;
 
 namespace PeopleSyncD.Application;
@@ -13,6 +14,10 @@ public static class DependencyInjection
     {
         services.AddValidatorsFromAssemblyContaining<CreateOrganizationValidator>();
         services.AddScoped<CreateOrganizationService>();
+        services.AddScoped<RegisterTenantService>();
+        services.AddScoped<LoginService>();
+        services.AddScoped<ListOrganizationsService>();
+        services.AddScoped<SelectOrganizationService>();
         return services;
     }
 }
