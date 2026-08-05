@@ -1,3 +1,4 @@
+using System.Globalization;
 using PeopleSyncD.Api.Configuration;
 using PeopleSyncD.Api.Middleware;
 using PeopleSyncD.Application;
@@ -12,7 +13,7 @@ builder.Host.UseSerilog((context, services, logger) => logger
     .ReadFrom.Configuration(context.Configuration)
     .ReadFrom.Services(services)
     .Enrich.FromLogContext()
-    .WriteTo.Console());
+    .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture));
 
 builder.Services.Configure<ApiOptions>(builder.Configuration.GetSection(ApiOptions.SectionName));
 builder.Services.AddApplication();
