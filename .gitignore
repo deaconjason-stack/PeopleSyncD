@@ -8,6 +8,28 @@
 *.p12
 *.jks
 *.keystore
+secrets.json
+
+# .NET
+bin/
+obj/
+artifacts/
+TestResults/
+*.user
+*.suo
+*.ncrunch*
+.packages/
+.vs/
+
+# Node and Next.js
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
 # Local data and backups
 .local-data/
@@ -18,11 +40,20 @@ release-work/
 dist/
 
 # Tooling
-node_modules/
 .venv/
 __pycache__/
 *.pyc
 coverage/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
 
 # Operating systems and editors
 .DS_Store

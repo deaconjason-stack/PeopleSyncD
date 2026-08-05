@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>PeopleSyncD.Domain</RootNamespace>
+    <AssemblyName>PeopleSyncD.Domain</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../PeopleSyncD.SharedKernel/PeopleSyncD.SharedKernel.csproj" />
+  </ItemGroup>
+</Project>

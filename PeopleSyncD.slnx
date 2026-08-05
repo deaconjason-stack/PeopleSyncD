@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PeopleSyncD.AppHost/PeopleSyncD.AppHost.csproj" />
+    <Project Path="src/PeopleSyncD.ServiceDefaults/PeopleSyncD.ServiceDefaults.csproj" />
+    <Project Path="src/PeopleSyncD.Api/PeopleSyncD.Api.csproj" />
+    <Project Path="src/PeopleSyncD.Application/PeopleSyncD.Application.csproj" />
+    <Project Path="src/PeopleSyncD.Domain/PeopleSyncD.Domain.csproj" />
+    <Project Path="src/PeopleSyncD.Infrastructure/PeopleSyncD.Infrastructure.csproj" />
+    <Project Path="src/PeopleSyncD.SharedKernel/PeopleSyncD.SharedKernel.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PeopleSyncD.Domain.Tests/PeopleSyncD.Domain.Tests.csproj" />
+    <Project Path="tests/PeopleSyncD.Application.Tests/PeopleSyncD.Application.Tests.csproj" />
+    <Project Path="tests/PeopleSyncD.Infrastructure.Tests/PeopleSyncD.Infrastructure.Tests.csproj" />
+    <Project Path="tests/PeopleSyncD.Api.Tests/PeopleSyncD.Api.Tests.csproj" />
+    <Project Path="tests/PeopleSyncD.Integration.Tests/PeopleSyncD.Integration.Tests.csproj" />
+  </Folder>
+</Solution>
