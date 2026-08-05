@@ -28,8 +28,6 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
-      - name: Restore Aspire workload
-        run: dotnet workload restore PeopleSyncD.slnx
       - name: Restore with NuGet audit
         run: dotnet restore PeopleSyncD.slnx -p:NuGetAudit=true -p:NuGetAuditMode=all
       - name: Verify formatting

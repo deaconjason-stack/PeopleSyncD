@@ -10,7 +10,6 @@
 ## Restore and verify
 
 ```bash
-dotnet workload restore PeopleSyncD.slnx
 dotnet restore PeopleSyncD.slnx -p:NuGetAudit=true -p:NuGetAuditMode=all
 dotnet format PeopleSyncD.slnx --verify-no-changes --no-restore
 dotnet build PeopleSyncD.slnx -c Release --no-restore

@@ -11,7 +11,7 @@ var api = builder.AddProject<Projects.PeopleSyncD_Api>("api")
     .WaitFor(database)
     .WaitFor(redis);
 
-builder.AddNpmApp("web", "../PeopleSyncD.Web", "dev")
+builder.AddJavaScriptApp("web", "../PeopleSyncD.Web")
     .WithReference(api)
     .WithEnvironment("NEXT_PUBLIC_API_BASE_URL", "http://localhost:5000")
     .WithHttpEndpoint(port: 3000, env: "PORT");

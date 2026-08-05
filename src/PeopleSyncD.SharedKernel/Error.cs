@@ -5,7 +5,7 @@ namespace PeopleSyncD.SharedKernel;
 /// </summary>
 /// <param name="Code">Stable machine-readable error code.</param>
 /// <param name="Description">Human-readable description.</param>
-public sealed record Error(string Code, string Description)
+public sealed record DomainError(string Code, string Description)
 {
-    public static readonly Error None = new(string.Empty, string.Empty);
+    public static readonly DomainError None = new(string.Empty, string.Empty);
 }

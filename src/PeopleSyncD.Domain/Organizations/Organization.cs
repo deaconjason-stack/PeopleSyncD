@@ -39,11 +39,11 @@ public sealed class Organization : AggregateRoot<Guid>
                 CreatedAt = createdAt,
             };
             organization.Raise(new OrganizationCreatedDomainEvent(organization.Id, organization.Name, createdAt));
-            return Result<Organization>.Success(organization);
+            return Result.Success(organization);
         }
         catch (ArgumentException exception)
         {
-            return Result<Organization>.Failure(new Error("organization.invalid", exception.Message));
+            return Result.Failure<Organization>(new DomainError("organization.invalid", exception.Message));
         }
     }
 
@@ -56,7 +56,7 @@ public sealed class Organization : AggregateRoot<Guid>
         }
         catch (ArgumentException exception)
         {
-            return Result.Failure(new Error("organization.invalid_name", exception.Message));
+            return Result.Failure(new DomainError("organization.invalid_name", exception.Message));
         }
     }
 }

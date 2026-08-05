@@ -19,17 +19,17 @@ public sealed class EmailAddress : ValueObject
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            return Result<EmailAddress>.Failure(new Error("email.required", "Email address is required."));
+            return Result.Failure<EmailAddress>(new DomainError("email.required", "Email address is required."));
         }
 
         try
         {
             var parsed = new MailAddress(value.Trim());
-            return Result<EmailAddress>.Success(new EmailAddress(parsed.Address.ToLowerInvariant()));
+            return Result.Success(new EmailAddress(parsed.Address.ToLowerInvariant()));
         }
         catch (FormatException)
         {
-            return Result<EmailAddress>.Failure(new Error("email.invalid", "Email address format is invalid."));
+            return Result.Failure<EmailAddress>(new DomainError("email.invalid", "Email address format is invalid."));
         }
     }
 

@@ -22,7 +22,7 @@ public sealed class CreateOrganizationService(
         var validation = await validator.ValidateAsync(request, cancellationToken);
         if (!validation.IsValid)
         {
-            return Result<OrganizationDto>.Failure(new Error(
+            return Result.Failure<OrganizationDto>(new DomainError(
                 "organization.validation_failed",
                 string.Join(" ", validation.Errors.Select(error => error.ErrorMessage))));
         }
@@ -30,7 +30,7 @@ public sealed class CreateOrganizationService(
         var normalizedSlug = request.Slug.Trim().ToLowerInvariant();
         if (await repository.SlugExistsAsync(normalizedSlug, cancellationToken))
         {
-            return Result<OrganizationDto>.Failure(new Error(
+            return Result.Failure<OrganizationDto>(new DomainError(
                 "organization.slug_conflict",
                 "An organization with this slug already exists."));
         }
@@ -38,14 +38,14 @@ public sealed class CreateOrganizationService(
         var creation = Organization.Create(request.Name, normalizedSlug, clock.UtcNow);
         if (creation.IsFailure)
         {
-            return Result<OrganizationDto>.Failure(creation.Error);
+            return Result.Failure<OrganizationDto>(creation.Error);
         }
 
         await repository.AddAsync(creation.Value, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var organization = creation.Value;
-        return Result<OrganizationDto>.Success(new OrganizationDto(
+        return Result.Success(new OrganizationDto(
             organization.Id,
             organization.Name,
             organization.Slug,

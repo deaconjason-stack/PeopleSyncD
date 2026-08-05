@@ -5,14 +5,14 @@ namespace PeopleSyncD.SharedKernel;
 /// </summary>
 public class Result
 {
-    protected Result(bool isSuccess, Error error)
+    protected Result(bool isSuccess, DomainError error)
     {
-        if (isSuccess && error != Error.None)
+        if (isSuccess && error != DomainError.None)
         {
             throw new ArgumentException("A successful result cannot contain an error.", nameof(error));
         }
 
-        if (!isSuccess && error == Error.None)
+        if (!isSuccess && error == DomainError.None)
         {
             throw new ArgumentException("A failed result must contain an error.", nameof(error));
         }
@@ -25,11 +25,15 @@ public class Result
 
     public bool IsFailure => !IsSuccess;
 
-    public Error Error { get; }
+    public DomainError Error { get; }
 
-    public static Result Success() => new(true, Error.None);
+    public static Result Success() => new(true, DomainError.None);
 
-    public static Result Failure(Error error) => new(false, error);
+    public static Result<T> Success<T>(T value) => new(value);
+
+    public static Result Failure(DomainError error) => new(false, error);
+
+    public static Result<T> Failure<T>(DomainError error) => new(error);
 }
 
 /// <summary>
@@ -40,13 +44,13 @@ public sealed class Result<T> : Result
 {
     private readonly T? _value;
 
-    private Result(T value)
-        : base(true, Error.None)
+    internal Result(T value)
+        : base(true, DomainError.None)
     {
         _value = value;
     }
 
-    private Result(Error error)
+    internal Result(DomainError error)
         : base(false, error)
     {
     }
@@ -54,8 +58,4 @@ public sealed class Result<T> : Result
     public T Value => IsSuccess
         ? _value!
         : throw new InvalidOperationException("A failed result does not contain a value.");
-
-    public static Result<T> Success(T value) => new(value);
-
-    public new static Result<T> Failure(Error error) => new(error);
 }

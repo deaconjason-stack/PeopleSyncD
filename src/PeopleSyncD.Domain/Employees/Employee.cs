@@ -33,23 +33,23 @@ public sealed class Employee : AggregateRoot<Guid>
     {
         if (organizationId == Guid.Empty)
         {
-            return Result<Employee>.Failure(new Error("employee.organization_required", "Organization is required."));
+            return Result.Failure<Employee>(new DomainError("employee.organization_required", "Organization is required."));
         }
 
         var emailResult = EmailAddress.Create(email);
         if (emailResult.IsFailure)
         {
-            return Result<Employee>.Failure(emailResult.Error);
+            return Result.Failure<Employee>(emailResult.Error);
         }
 
         try
         {
             var name = Guard.AgainstNullOrWhiteSpace(displayName, nameof(displayName), 200);
-            return Result<Employee>.Success(new Employee(Guid.NewGuid(), organizationId, name, emailResult.Value));
+            return Result.Success(new Employee(Guid.NewGuid(), organizationId, name, emailResult.Value));
         }
         catch (ArgumentException exception)
         {
-            return Result<Employee>.Failure(new Error("employee.invalid", exception.Message));
+            return Result.Failure<Employee>(new DomainError("employee.invalid", exception.Message));
         }
     }
 }
