@@ -1,26 +1,34 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PeopleSyncD.Api.Authentication;
 using PeopleSyncD.Application.DTOs;
 using PeopleSyncD.Application.Interfaces;
-using PeopleSyncD.Application.Organizations;
+using PeopleSyncD.Domain.Permissions;
 
 namespace PeopleSyncD.Api.Controllers;
 
 /// <summary>
-/// Organization lifecycle endpoints.
+/// Tenant-scoped organization endpoints.
 /// </summary>
 [ApiController]
 [Route("api/v1/organizations")]
-public sealed class OrganizationsController(
-    IOrganizationRepository repository,
-    CreateOrganizationService createService) : ControllerBase
+public sealed class OrganizationsController(IOrganizationRepository repository) : ControllerBase
 {
+    [Authorize(Policy = PermissionNames.OrganizationsRead)]
     [HttpGet("{id:guid}")]
     [ProducesResponseType<OrganizationDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<OrganizationDto>> GetById(
         Guid id,
         CancellationToken cancellationToken)
     {
+        if (!User.TryGetTenantId(out var tenantId) || tenantId != id)
+        {
+            return Forbid();
+        }
+
         var organization = await repository.GetByIdAsync(id, cancellationToken);
         return organization is null
             ? NotFound()
@@ -29,25 +37,5 @@ public sealed class OrganizationsController(
                 organization.Name,
                 organization.Slug,
                 organization.CreatedAt));
-    }
-
-    [HttpPost]
-    [ProducesResponseType<OrganizationDto>(StatusCodes.Status201Created)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<OrganizationDto>> Create(
-        CreateOrganizationRequest request,
-        CancellationToken cancellationToken)
-    {
-        var result = await createService.ExecuteAsync(request, cancellationToken);
-        if (result.IsSuccess)
-        {
-            return CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value);
-        }
-
-        var status = result.Error.Code == "organization.slug_conflict"
-            ? StatusCodes.Status409Conflict
-            : StatusCodes.Status400BadRequest;
-        return Problem(statusCode: status, title: result.Error.Code, detail: result.Error.Description);
     }
 }
