@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json.Serialization;
 using PeopleSyncD.Api.Authentication;
 using PeopleSyncD.Api.Configuration;
 using PeopleSyncD.Api.Middleware;
@@ -24,7 +25,9 @@ builder.Services.Configure<ApiOptions>(builder.Configuration.GetSection(ApiOptio
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration, jwtOptions);
 builder.Services.AddPlatformAuthentication(jwtOptions);
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
 

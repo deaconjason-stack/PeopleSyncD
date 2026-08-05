@@ -1,4 +1,4 @@
-name: M1 .NET Solution Foundation
+name: M1/M2 .NET Platform Foundation
 
 on:
   pull_request:
@@ -13,6 +13,7 @@ on:
       - 'docker-compose.yml'
       - 'infrastructure/terraform/**'
       - 'infrastructure/kubernetes/m1/**'
+      - 'infrastructure/postgres/**'
       - '.github/workflows/dotnet-foundation.yml'
   push:
     branches: [main]
@@ -38,7 +39,7 @@ jobs:
         run: dotnet test PeopleSyncD.slnx --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory TestResults
       - uses: actions/upload-artifact@v4
         with:
-          name: m1-dotnet-test-results-${{ github.sha }}
+          name: platform-dotnet-test-results-${{ github.sha }}
           path: TestResults
           if-no-files-found: error
 
@@ -53,20 +54,15 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: src/PeopleSyncD.Web/package.json
-      - name: Resolve dependencies and lockfile
-        run: npm install --no-fund
+          cache-dependency-path: src/PeopleSyncD.Web/package-lock.json
+      - name: Install deterministic dependencies
+        run: npm ci --no-fund
       - name: Typecheck
         run: npm run typecheck
       - name: Build
         run: npm run build
       - name: Audit high-severity vulnerabilities
         run: npm audit --audit-level=high
-      - uses: actions/upload-artifact@v4
-        with:
-          name: m1-web-lockfile-${{ github.sha }}
-          path: src/PeopleSyncD.Web/package-lock.json
-          if-no-files-found: error
 
   containers:
     runs-on: ubuntu-latest
@@ -75,6 +71,6 @@ jobs:
       - name: Validate Docker Compose
         run: docker compose config --quiet
       - name: Build API image
-        run: docker build --file Dockerfile.Api --tag peoplesyncd-api:m1 .
+        run: docker build --file Dockerfile.Api --tag peoplesyncd-api:m2 .
       - name: Build web image
-        run: docker build --file src/PeopleSyncD.Web/Dockerfile --tag peoplesyncd-web:m1 src/PeopleSyncD.Web
+        run: docker build --file src/PeopleSyncD.Web/Dockerfile --tag peoplesyncd-web:m2 src/PeopleSyncD.Web
