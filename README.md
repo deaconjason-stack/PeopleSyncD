@@ -13,6 +13,7 @@ The existing TypeScript Genesis implementation remains in place during the contr
 ### .NET Aspire
 
 ```bash
+dotnet workload restore PeopleSyncD.slnx
 dotnet restore PeopleSyncD.slnx
 dotnet run --project src/PeopleSyncD.AppHost
 ```

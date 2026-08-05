@@ -28,6 +28,8 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
+      - name: Restore Aspire workload
+        run: dotnet workload restore PeopleSyncD.slnx
       - name: Restore with NuGet audit
         run: dotnet restore PeopleSyncD.slnx -p:NuGetAudit=true -p:NuGetAuditMode=all
       - name: Verify formatting
@@ -54,7 +56,7 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: src/PeopleSyncD.Web/package.json
-      - name: Install dependencies
+      - name: Resolve dependencies and lockfile
         run: npm install --no-fund
       - name: Typecheck
         run: npm run typecheck
@@ -62,6 +64,11 @@ jobs:
         run: npm run build
       - name: Audit high-severity vulnerabilities
         run: npm audit --audit-level=high
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m1-web-lockfile-${{ github.sha }}
+          path: src/PeopleSyncD.Web/package-lock.json
+          if-no-files-found: error
 
   containers:
     runs-on: ubuntu-latest

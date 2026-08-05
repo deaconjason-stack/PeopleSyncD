@@ -10,6 +10,7 @@
 ## Restore and verify
 
 ```bash
+dotnet workload restore PeopleSyncD.slnx
 dotnet restore PeopleSyncD.slnx -p:NuGetAudit=true -p:NuGetAuditMode=all
 dotnet format PeopleSyncD.slnx --verify-no-changes --no-restore
 dotnet build PeopleSyncD.slnx -c Release --no-restore
@@ -23,6 +24,8 @@ npm run typecheck
 npm run build
 npm audit --audit-level=high
 ```
+
+The M1 workflow generates the initial reviewed lockfile. After it is committed, local and CI installs use `npm ci`.
 
 ## Local orchestration
 
