@@ -4,40 +4,32 @@ PeopleSyncD is an AI-powered enterprise workforce operating system. PeopleSyncD 
 
 ## Engineering status
 
-Milestone M1.2.1 introduces an additive .NET 9 Clean Architecture solution, Next.js presentation shell, PostgreSQL persistence foundation, Docker development environment, Aspire orchestration, OpenAPI starter, Terraform skeleton, Kubernetes starter manifests, and automated quality gates.
+Milestone M2.1 adds the first complete identity and tenant vertical slice on the .NET 9 and Next.js foundation.
 
-The existing TypeScript Genesis implementation remains in place during the controlled transition. Neither implementation is a certified production release.
+The implemented flow supports owner and organization registration, password authentication, active organization-membership selection, short-lived tenant-scoped JWTs, role-derived permissions, tenant-bound organization access, and a working browser workspace.
+
+The existing TypeScript Genesis implementation remains in place during the controlled transition. M2.1 is not a certified production release.
 
 ## Quick start
-
-### .NET Aspire
 
 ```bash
 dotnet restore PeopleSyncD.slnx
 dotnet run --project src/PeopleSyncD.AppHost
 ```
 
-### Docker Compose
+Or use containers:
 
 ```bash
 docker compose up --build
 ```
 
 - Web: `http://localhost:3000`
+- Identity workspace: `http://localhost:3000/auth`
 - API: `http://localhost:8080`
-- OpenAPI: `http://localhost:8080/openapi/v1.json`
+- Runtime OpenAPI: `http://localhost:8080/openapi/v1.json`
 - Health: `http://localhost:8080/health`
 
-### Quality gate
-
-```bash
-dotnet format PeopleSyncD.slnx --verify-no-changes
-dotnet build PeopleSyncD.slnx --configuration Release
-dotnet test PeopleSyncD.slnx --configuration Release
-cd src/PeopleSyncD.Web && npm install && npm run typecheck && npm run build
-```
-
-See [BUILD.md](BUILD.md), [ARCHITECTURE.md](ARCHITECTURE.md), and [CONTRIBUTING.md](CONTRIBUTING.md).
+See [BUILD.md](BUILD.md), [ARCHITECTURE.md](ARCHITECTURE.md), and [the M2.1 milestone record](docs/milestones/M2.1-identity-tenant.md).
 
 ## Mandatory evidence chain
 

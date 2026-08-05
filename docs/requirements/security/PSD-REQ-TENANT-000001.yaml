@@ -1,22 +1,12 @@
-requirement_id: PSD-REQ-TENANT-000001
-title: Forced Database Tenant Isolation
-status: Implemented
+id: PSD-REQ-TENANT-000001
+title: Tenant-Bound Permission Enforcement
+status: Approved
 priority: Critical
-specification: PSD-PEP-700
-statement: >-
-  Every tenant-owned PostgreSQL operation shall execute under a constrained
-  runtime role with transaction-scoped organization context, and row-level
-  security shall be forced on protected tenant tables.
+owner: Security Office
+specification: PSD-PEP-230
 acceptance_criteria:
-  - The runtime role is non-login, non-superuser, and cannot create roles or databases.
-  - The deployed repository assumes the runtime role for each tenant transaction.
-  - app.organization_id is set locally inside the active transaction.
-  - Row-level security is forced on persons, workers, and audit_events.
-  - A record created for one organization is not returned in another organization's query.
-implementation:
-  - apps/api/src/store.ts
-  - database/migrations/0002_phase7_postgres_runtime.sql
-tests:
-  - apps/api/src/postgres.integration.test.ts
-  - .github/workflows/build.yml
-release_status: production-beta-foundation
+  - Every tenant API requires an authenticated token containing a selected tenant identifier.
+  - Permission claims are derived from the active organization membership role.
+  - A valid permission claim cannot authorize access to a different organization identifier.
+  - Suspended or revoked memberships cannot receive a new tenant-scoped access token.
+implementation_status: Implemented Foundation

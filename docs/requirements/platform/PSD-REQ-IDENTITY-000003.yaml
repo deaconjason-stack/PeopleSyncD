@@ -1,22 +1,12 @@
-requirement_id: PSD-REQ-IDENTITY-000003
-title: Persistent Current Membership Authority
-status: Implemented
+id: PSD-REQ-IDENTITY-000003
+title: Password Authentication and Tenant Token Exchange
+status: Approved
 priority: Critical
-specification: PSD-PEP-710
-statement: >-
-  Every protected request shall be authorized using a current active organization
-  membership and its current permission set rather than relying solely on authority
-  embedded in a previously issued token.
+owner: Identity Domain
+specification: PSD-PEP-210
 acceptance_criteria:
-  - Active membership is retrieved for the selected organization on every protected request.
-  - Suspended or ended membership denies further protected requests.
-  - Removed permissions take effect without waiting for token expiration.
-  - Membership data is tenant protected by forced row-level security.
-implementation:
-  - apps/api/src/security.ts
-  - apps/api/src/identity.ts
-  - database/migrations/0003_phase7b_identity_sessions.sql
-tests:
-  - apps/api/src/server.test.ts
-  - apps/api/src/postgres.integration.test.ts
-release_status: identity-beta-foundation
+  - Tenant registration atomically creates an owner identity, organization, and active owner membership.
+  - Authentication failures do not disclose whether an email address exists.
+  - A user token cannot access tenant resources until an active organization is selected.
+  - Access tokens are signed, short-lived, issuer-validated, audience-validated, and expiration-validated.
+implementation_status: Implemented Foundation
