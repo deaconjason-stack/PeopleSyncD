@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: peoplesyncd
+  labels:
+    app.kubernetes.io/part-of: peoplesyncd
+    pod-security.kubernetes.io/enforce: restricted

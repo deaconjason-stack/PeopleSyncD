@@ -1,0 +1,20 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /source
+COPY PeopleSyncD.slnx global.json Directory.Build.props Directory.Packages.props NuGet.config ./
+COPY src/PeopleSyncD.SharedKernel/ src/PeopleSyncD.SharedKernel/
+COPY src/PeopleSyncD.Domain/ src/PeopleSyncD.Domain/
+COPY src/PeopleSyncD.Application/ src/PeopleSyncD.Application/
+COPY src/PeopleSyncD.Infrastructure/ src/PeopleSyncD.Infrastructure/
+COPY src/PeopleSyncD.ServiceDefaults/ src/PeopleSyncD.ServiceDefaults/
+COPY src/PeopleSyncD.Api/ src/PeopleSyncD.Api/
+RUN dotnet restore src/PeopleSyncD.Api/PeopleSyncD.Api.csproj
+RUN dotnet publish src/PeopleSyncD.Api/PeopleSyncD.Api.csproj -c Release --no-restore -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+WORKDIR /app
+RUN adduser --disabled-password --gecos "" --uid 10001 appuser
+COPY --from=build /app/publish .
+USER appuser
+EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:8080
+ENTRYPOINT ["dotnet", "PeopleSyncD.Api.dll"]

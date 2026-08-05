@@ -1,0 +1,80 @@
+name: M1 .NET Solution Foundation
+
+on:
+  pull_request:
+    paths:
+      - 'PeopleSyncD.slnx'
+      - 'global.json'
+      - 'Directory.*.props'
+      - 'NuGet.config'
+      - 'src/PeopleSyncD.**'
+      - 'tests/PeopleSyncD.**'
+      - 'Dockerfile.Api'
+      - 'docker-compose.yml'
+      - 'infrastructure/terraform/**'
+      - 'infrastructure/kubernetes/m1/**'
+      - '.github/workflows/dotnet-foundation.yml'
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  dotnet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: Restore with NuGet audit
+        run: dotnet restore PeopleSyncD.slnx -p:NuGetAudit=true -p:NuGetAuditMode=all
+      - name: Verify formatting
+        run: dotnet format PeopleSyncD.slnx --verify-no-changes --no-restore
+      - name: Build
+        run: dotnet build PeopleSyncD.slnx --configuration Release --no-restore
+      - name: Test with coverage
+        run: dotnet test PeopleSyncD.slnx --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory TestResults
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m1-dotnet-test-results-${{ github.sha }}
+          path: TestResults
+          if-no-files-found: error
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/PeopleSyncD.Web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: src/PeopleSyncD.Web/package.json
+      - name: Resolve dependencies and lockfile
+        run: npm install --no-fund
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Build
+        run: npm run build
+      - name: Audit high-severity vulnerabilities
+        run: npm audit --audit-level=high
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m1-web-lockfile-${{ github.sha }}
+          path: src/PeopleSyncD.Web/package-lock.json
+          if-no-files-found: error
+
+  containers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Docker Compose
+        run: docker compose config --quiet
+      - name: Build API image
+        run: docker build --file Dockerfile.Api --tag peoplesyncd-api:m1 .
+      - name: Build web image
+        run: docker build --file src/PeopleSyncD.Web/Dockerfile --tag peoplesyncd-web:m1 src/PeopleSyncD.Web

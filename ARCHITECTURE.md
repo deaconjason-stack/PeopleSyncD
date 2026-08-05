@@ -1,15 +1,34 @@
-# PeopleSyncD Enterprise Platform Architecture
+# PeopleSyncD Architecture
 
-Clients connect through the API Platform to reusable platform services. Business applications consume those services through governed contracts. Data services and infrastructure remain independently managed but release-coordinated.
+## M1.2.1 decisions
 
-## Shared platform services
+| Concern | Decision |
+|---|---|
+| Runtime | .NET 9 |
+| Application shape | Clean Architecture modular monolith |
+| Web | Next.js, React, TypeScript |
+| Database | PostgreSQL |
+| ORM | Entity Framework Core |
+| Cache | Redis |
+| Messaging | RabbitMQ planned after a concrete asynchronous workflow requires it |
+| Identity | ASP.NET Core Identity persistence with JWT and OIDC-ready boundaries |
+| API | REST first with OpenAPI |
+| Observability | OpenTelemetry and Serilog |
+| Local orchestration | .NET Aspire and Docker Compose |
+| Deployment | Kubernetes starter manifests and Terraform modules |
 
-Identity, Organizations, Permissions, Licensing, Workflow, Notifications, Documents, Audit, Search, Reporting, Configuration, AI Engine, Integration Hub, Telemetry, Monitoring, Logging, Localization, and Accessibility.
+## Dependency rule
 
-## Data platform
+`Api → Application → Domain → SharedKernel`
 
-PostgreSQL, Redis for approved ephemeral workloads, private object storage, search engine, event streaming, and a future governed data warehouse.
+`Infrastructure → Application + Domain + SharedKernel`
 
-## Rule
+Domain code has no EF Core, HTTP, ASP.NET Core, database, or vendor dependency. Infrastructure implements application-owned interfaces. API owns transport concerns only.
 
-Applications must not duplicate platform capabilities without an approved ADR describing the exception, trade-offs, migration, and removal plan.
+## Modular-monolith rule
+
+M1 begins as a modular monolith to preserve transactional consistency and reduce operational complexity. A module becomes a separate service only when scale, isolation, ownership, or deployment evidence justifies the split.
+
+## Security baseline
+
+Tenant context, authorization, immutable audit evidence, secrets management, migration safety, dependency auditing, non-root containers, health checks, and private vulnerability reporting are release requirements—not optional hardening tasks.
