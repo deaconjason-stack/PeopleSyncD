@@ -1,0 +1,61 @@
+namespace PeopleSyncD.SharedKernel;
+
+/// <summary>
+/// Represents success or a controlled failure without exceptions for expected outcomes.
+/// </summary>
+public class Result
+{
+    protected Result(bool isSuccess, Error error)
+    {
+        if (isSuccess && error != Error.None)
+        {
+            throw new ArgumentException("A successful result cannot contain an error.", nameof(error));
+        }
+
+        if (!isSuccess && error == Error.None)
+        {
+            throw new ArgumentException("A failed result must contain an error.", nameof(error));
+        }
+
+        IsSuccess = isSuccess;
+        Error = error;
+    }
+
+    public bool IsSuccess { get; }
+
+    public bool IsFailure => !IsSuccess;
+
+    public Error Error { get; }
+
+    public static Result Success() => new(true, Error.None);
+
+    public static Result Failure(Error error) => new(false, error);
+}
+
+/// <summary>
+/// Represents success with a value or a controlled failure.
+/// </summary>
+/// <typeparam name="T">The successful value type.</typeparam>
+public sealed class Result<T> : Result
+{
+    private readonly T? _value;
+
+    private Result(T value)
+        : base(true, Error.None)
+    {
+        _value = value;
+    }
+
+    private Result(Error error)
+        : base(false, error)
+    {
+    }
+
+    public T Value => IsSuccess
+        ? _value!
+        : throw new InvalidOperationException("A failed result does not contain a value.");
+
+    public static Result<T> Success(T value) => new(value);
+
+    public new static Result<T> Failure(Error error) => new(error);
+}
