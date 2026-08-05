@@ -6,7 +6,7 @@ namespace PeopleSyncD.Domain.Tests;
 public sealed class OrganizationTests
 {
     [Fact]
-    public void Create_WithValidInput_RaisesCreatedEvent()
+    public void CreateWithValidInputRaisesCreatedEvent()
     {
         var now = new DateTimeOffset(2026, 8, 5, 0, 0, 0, TimeSpan.Zero);
 
@@ -19,7 +19,7 @@ public sealed class OrganizationTests
     }
 
     [Fact]
-    public void Create_WithMissingName_ReturnsFailure()
+    public void CreateWithMissingNameReturnsFailure()
     {
         var result = Organization.Create(" ", "medisyncd", DateTimeOffset.UtcNow);
 

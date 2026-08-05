@@ -18,7 +18,7 @@ public sealed class ApiFoundationTests : IClassFixture<WebApplicationFactory<Pro
     }
 
     [Fact]
-    public async Task Alive_ReturnsSuccessAndCorrelationId()
+    public async Task AliveReturnsSuccessAndCorrelationId()
     {
         using var client = _factory.CreateClient();
 
@@ -29,7 +29,7 @@ public sealed class ApiFoundationTests : IClassFixture<WebApplicationFactory<Pro
     }
 
     [Fact]
-    public async Task CreateOrganization_ReturnsCreatedResource()
+    public async Task CreateOrganizationReturnsCreatedResource()
     {
         using var client = _factory.CreateClient();
 

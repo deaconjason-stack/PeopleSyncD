@@ -7,7 +7,7 @@ namespace PeopleSyncD.Integration.Tests;
 public sealed class OpenApiContractTests
 {
     [Fact]
-    public async Task OpenApiDocument_IsAvailable()
+    public async Task OpenApiDocumentIsAvailable()
     {
         await using var factory = new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder => builder.UseSetting("Database:Provider", "InMemory"));

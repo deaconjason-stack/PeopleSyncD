@@ -9,7 +9,7 @@ namespace PeopleSyncD.Application.Tests;
 public sealed class CreateOrganizationServiceTests
 {
     [Fact]
-    public async Task ExecuteAsync_WithUniqueSlug_PersistsOrganization()
+    public async Task ExecuteAsyncWithUniqueSlugPersistsOrganization()
     {
         var repository = new FakeOrganizationRepository();
         var unitOfWork = new FakeUnitOfWork();
@@ -28,7 +28,7 @@ public sealed class CreateOrganizationServiceTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_WithInvalidSlug_DoesNotPersist()
+    public async Task ExecuteAsyncWithInvalidSlugDoesNotPersist()
     {
         var repository = new FakeOrganizationRepository();
         var unitOfWork = new FakeUnitOfWork();

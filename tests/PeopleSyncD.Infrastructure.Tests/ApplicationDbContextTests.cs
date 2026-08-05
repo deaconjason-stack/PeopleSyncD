@@ -8,7 +8,7 @@ namespace PeopleSyncD.Infrastructure.Tests;
 public sealed class ApplicationDbContextTests
 {
     [Fact]
-    public async Task SaveChangesAsync_PersistsOrganization()
+    public async Task SaveChangesAsyncPersistsOrganization()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
