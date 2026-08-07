@@ -244,7 +244,7 @@ internal sealed class MfaSecurityGateway(
 
         if (!verified)
         {
-            challenge.FailedAttempts++;
+            await RecordFailedAttemptAsync(challenge, cancellationToken);
             database.SecurityAuditRecords.Add(NewAudit(
                 "identity.mfa.challenge_failed",
                 user.Id,
@@ -256,7 +256,11 @@ internal sealed class MfaSecurityGateway(
                 "The multi-factor challenge or code is invalid."));
         }
 
-        challenge.CompletedAt = clock.UtcNow;
+        if (!await TryCompleteChallengeAsync(challenge, cancellationToken))
+        {
+            return InvalidChallenge();
+        }
+
         database.SecurityAuditRecords.Add(NewAudit(
             "identity.mfa.challenge_completed",
             user.Id,
@@ -335,6 +339,20 @@ internal sealed class MfaSecurityGateway(
         CancellationToken cancellationToken)
     {
         var hash = Hash(NormalizeRecoveryCode(rawCode));
+        var now = clock.UtcNow;
+        if (database.Database.IsRelational())
+        {
+            var affected = await database.MfaRecoveryCodes
+                .Where(item => item.UserId == userId
+                    && item.CodeHash == hash
+                    && item.UsedAt == null
+                    && item.RevokedAt == null)
+                .ExecuteUpdateAsync(
+                    setters => setters.SetProperty(item => item.UsedAt, (DateTimeOffset?)now),
+                    cancellationToken);
+            return affected == 1;
+        }
+
         var code = await database.MfaRecoveryCodes.SingleOrDefaultAsync(
             item => item.UserId == userId
                 && item.CodeHash == hash
@@ -346,7 +364,56 @@ internal sealed class MfaSecurityGateway(
             return false;
         }
 
-        code.UsedAt = clock.UtcNow;
+        code.UsedAt = now;
+        return true;
+    }
+
+    private async Task RecordFailedAttemptAsync(
+        MfaChallenge challenge,
+        CancellationToken cancellationToken)
+    {
+        if (database.Database.IsRelational())
+        {
+            await database.MfaChallenges
+                .Where(item => item.Id == challenge.Id
+                    && item.CompletedAt == null
+                    && item.ExpiresAt > clock.UtcNow
+                    && item.FailedAttempts < MaxChallengeAttempts)
+                .ExecuteUpdateAsync(
+                    setters => setters.SetProperty(item => item.FailedAttempts, item => item.FailedAttempts + 1),
+                    cancellationToken);
+            return;
+        }
+
+        challenge.FailedAttempts++;
+    }
+
+    private async Task<bool> TryCompleteChallengeAsync(
+        MfaChallenge challenge,
+        CancellationToken cancellationToken)
+    {
+        var now = clock.UtcNow;
+        if (database.Database.IsRelational())
+        {
+            var affected = await database.MfaChallenges
+                .Where(item => item.Id == challenge.Id
+                    && item.CompletedAt == null
+                    && item.ExpiresAt > now
+                    && item.FailedAttempts < MaxChallengeAttempts)
+                .ExecuteUpdateAsync(
+                    setters => setters.SetProperty(item => item.CompletedAt, (DateTimeOffset?)now),
+                    cancellationToken);
+            return affected == 1;
+        }
+
+        if (challenge.CompletedAt is not null
+            || challenge.ExpiresAt <= now
+            || challenge.FailedAttempts >= MaxChallengeAttempts)
+        {
+            return false;
+        }
+
+        challenge.CompletedAt = now;
         return true;
     }
 
