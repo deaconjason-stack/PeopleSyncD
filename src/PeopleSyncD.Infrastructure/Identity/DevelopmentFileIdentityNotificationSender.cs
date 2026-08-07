@@ -1,11 +1,11 @@
 using System.Text.Json;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 using PeopleSyncD.Application.Interfaces;
 using PeopleSyncD.Domain.Identity;
 
 namespace PeopleSyncD.Infrastructure.Identity;
 
-internal sealed class DevelopmentFileIdentityNotificationSender(IHostEnvironment environment)
+internal sealed class DevelopmentFileIdentityNotificationSender(IConfiguration configuration)
     : IIdentityNotificationSender
 {
     public Task SendInvitationAsync(
@@ -44,13 +44,15 @@ internal sealed class DevelopmentFileIdentityNotificationSender(IHostEnvironment
         object payload,
         CancellationToken cancellationToken)
     {
-        if (environment.IsProduction())
+        var environmentName = configuration["DOTNET_ENVIRONMENT"]
+            ?? configuration["ASPNETCORE_ENVIRONMENT"];
+        if (string.Equals(environmentName, "Production", StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException(
                 "A production identity-notification transport must be configured before sending security tokens.");
         }
 
-        var directory = Path.Combine(environment.ContentRootPath, ".local-email");
+        var directory = Path.Combine(Directory.GetCurrentDirectory(), ".local-email");
         Directory.CreateDirectory(directory);
         var fileName = $"{DateTimeOffset.UtcNow:yyyyMMddHHmmssfff}-{Guid.NewGuid():N}-{kind}.json";
         var envelope = JsonSerializer.Serialize(new { kind, to = email, payload });

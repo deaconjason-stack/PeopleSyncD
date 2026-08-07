@@ -18,6 +18,7 @@ paths:
       security: []
       responses:
         '200': { description: Service is ready }
+        '400': { description: Malformed health request }
         '503': { description: Service is not ready }
   /api/v1/auth/register-tenant:
     post:
@@ -54,7 +55,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/AccessToken' }
         '400': { description: Login request is invalid }
-        '401': { description: Credentials are invalid, account is locked, or an enrolled MFA factor is required }
+        '401': { description: 'Credentials are invalid, account is locked, or an enrolled MFA factor is required' }
   /api/v1/auth/refresh:
     post:
       operationId: refreshSession
@@ -71,7 +72,7 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/AccessToken' }
-        '401': { description: Refresh token is invalid, reused, revoked, or no longer authorized }
+        '401': { description: 'Refresh token is invalid, reused, revoked, or no longer authorized' }
   /api/v1/auth/email-verification/request:
     post:
       operationId: requestEmailVerification
@@ -154,7 +155,7 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/OrganizationAccess' }
-        '400': { description: Invitation is invalid, expired, or password validation failed }
+        '400': { description: 'Invitation is invalid, expired, or password validation failed' }
         '409': { description: Membership already exists }
   /api/v1/organizations/{organizationId}/members:
     get:

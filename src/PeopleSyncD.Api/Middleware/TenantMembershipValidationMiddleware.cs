@@ -1,4 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
 using PeopleSyncD.Api.Authentication;
 using PeopleSyncD.Application.Interfaces;
 using PeopleSyncD.Domain.Identity;

@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using PeopleSyncD.Application.Identity;
-using PeopleSyncD.Domain.Identity;
 using PeopleSyncD.Infrastructure.Identity;
 using Xunit;
 
