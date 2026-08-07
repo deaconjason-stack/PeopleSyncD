@@ -37,7 +37,7 @@ public sealed class MfaSessionAssuranceApiTests
         Assert.False(string.IsNullOrWhiteSpace(enrollment.ManualEntryKey));
         Assert.StartsWith("otpauth://totp/", enrollment.OtpauthUri, StringComparison.Ordinal);
 
-        var enrollmentCode = await GenerateTotpAsync(factory, account.Session.User.Id);
+        var enrollmentCode = await GenerateTotpAsync(factory, account.Session.User.Id, -1);
         var confirmationResponse = await client.PostAsJsonAsync(
             "/api/v1/auth/mfa/totp/confirm",
             new ConfirmTotpEnrollmentRequest(enrollmentCode),
@@ -97,6 +97,38 @@ public sealed class MfaSessionAssuranceApiTests
     }
 
     [Fact]
+    public async Task TotpCounterCannotBeReusedAcrossDistinctChallenges()
+    {
+        await using var factory = CreateFactory();
+        using var client = factory.CreateClient();
+        var account = await RegisterVerifyAndEnableMfaAsync(factory, client);
+        var code = await GenerateTotpAsync(factory, account.UserId);
+
+        var firstChallenge = await LoginForChallengeAsync(client, account.Email, account.Password);
+        var firstCompletion = await client.PostAsJsonAsync(
+            "/api/v1/auth/mfa/complete",
+            new MfaChallengeRequest(firstChallenge.ChallengeToken, "totp", code),
+            JsonOptions);
+        Assert.Equal(HttpStatusCode.OK, firstCompletion.StatusCode);
+        var firstSession = await firstCompletion.Content.ReadFromJsonAsync<AccessTokenDto>(JsonOptions);
+        Assert.NotNull(firstSession);
+
+        var secondChallenge = await LoginForChallengeAsync(client, account.Email, account.Password);
+        var replay = await client.PostAsJsonAsync(
+            "/api/v1/auth/mfa/complete",
+            new MfaChallengeRequest(secondChallenge.ChallengeToken, "totp", code),
+            JsonOptions);
+        Assert.Equal(HttpStatusCode.Unauthorized, replay.StatusCode);
+
+        client.DefaultRequestHeaders.Authorization = Bearer(firstSession.AccessToken);
+        var events = await client.GetFromJsonAsync<IReadOnlyCollection<SecurityEventDto>>(
+            "/api/v1/auth/security-events",
+            JsonOptions);
+        Assert.NotNull(events);
+        Assert.Contains(events, item => item.EventType == "identity.mfa.totp_replay_denied");
+    }
+
+    [Fact]
     public async Task RecoveryCodeIsSingleUseAcrossLoginChallenges()
     {
         await using var factory = CreateFactory();
@@ -129,8 +161,8 @@ public sealed class MfaSessionAssuranceApiTests
         using var client = factory.CreateClient();
         var account = await RegisterVerifyAndEnableMfaAsync(factory, client);
 
-        var first = await CompleteTotpLoginAsync(factory, client, account);
-        var second = await CompleteTotpLoginAsync(factory, client, account);
+        var first = await CompleteTotpLoginAsync(factory, client, account, 0);
+        var second = await CompleteTotpLoginAsync(factory, client, account, 1);
         Assert.NotNull(first.SessionFamilyId);
         Assert.NotNull(second.SessionFamilyId);
         Assert.NotEqual(first.SessionFamilyId, second.SessionFamilyId);
@@ -162,7 +194,7 @@ public sealed class MfaSessionAssuranceApiTests
         client.DefaultRequestHeaders.Authorization = Bearer(account.Session.AccessToken);
         var enrollmentResponse = await client.PostAsync("/api/v1/auth/mfa/totp/enroll", null);
         enrollmentResponse.EnsureSuccessStatusCode();
-        var enrollmentCode = await GenerateTotpAsync(factory, account.Session.User.Id);
+        var enrollmentCode = await GenerateTotpAsync(factory, account.Session.User.Id, -1);
         var confirmationResponse = await client.PostAsJsonAsync(
             "/api/v1/auth/mfa/totp/confirm",
             new ConfirmTotpEnrollmentRequest(enrollmentCode),
@@ -218,10 +250,11 @@ public sealed class MfaSessionAssuranceApiTests
     private static async Task<AccessTokenDto> CompleteTotpLoginAsync(
         WebApplicationFactory<Program> factory,
         HttpClient client,
-        EnabledMfaAccount account)
+        EnabledMfaAccount account,
+        int counterOffset)
     {
         var challenge = await LoginForChallengeAsync(client, account.Email, account.Password);
-        var code = await GenerateTotpAsync(factory, account.UserId);
+        var code = await GenerateTotpAsync(factory, account.UserId, counterOffset);
         var response = await client.PostAsJsonAsync(
             "/api/v1/auth/mfa/complete",
             new MfaChallengeRequest(challenge.ChallengeToken, "totp", code),
@@ -232,7 +265,8 @@ public sealed class MfaSessionAssuranceApiTests
 
     private static async Task<string> GenerateTotpAsync(
         WebApplicationFactory<Program> factory,
-        Guid userId)
+        Guid userId,
+        int counterOffset = 0)
     {
         using var scope = factory.Services.CreateScope();
         var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
@@ -240,13 +274,13 @@ public sealed class MfaSessionAssuranceApiTests
         Assert.NotNull(user);
         var secret = await users.GetAuthenticatorKeyAsync(user);
         Assert.False(string.IsNullOrWhiteSpace(secret));
-        return ComputeTotp(secret);
+        return ComputeTotp(secret, counterOffset);
     }
 
-    private static string ComputeTotp(string base32Secret)
+    private static string ComputeTotp(string base32Secret, int counterOffset)
     {
         var key = DecodeBase32(base32Secret);
-        var counter = DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 30;
+        var counter = (DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 30) + counterOffset;
         Span<byte> counterBytes = stackalloc byte[8];
         BinaryPrimitives.WriteInt64BigEndian(counterBytes, counter);
 #pragma warning disable CA5350 // ASP.NET authenticator tokens use RFC 6238's interoperable HMAC-SHA1 profile.
