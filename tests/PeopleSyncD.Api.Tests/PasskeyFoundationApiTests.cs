@@ -6,7 +6,6 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using PeopleSyncD.Application.Identity;
-using PeopleSyncD.Application.Interfaces;
 using Xunit;
 
 namespace PeopleSyncD.Api.Tests;
@@ -61,8 +60,8 @@ public sealed class PasskeyFoundationApiTests
         using var client = factory.CreateClient();
         var account = await RegisterAsync(client);
         using var scope = factory.Services.CreateScope();
-        var issuer = scope.ServiceProvider.GetRequiredService<IAccessTokenIssuer>();
-        var stale = issuer.Issue(
+        var sessions = scope.ServiceProvider.GetRequiredService<SessionTokenService>();
+        var stale = await sessions.IssueAsync(
             account.User,
             authenticatedAt: DateTimeOffset.UtcNow.AddMinutes(-10),
             authenticationMethod: "pwd");
