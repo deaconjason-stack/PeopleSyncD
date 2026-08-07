@@ -5,10 +5,15 @@ interface ProblemDetails {
   detail?: string;
 }
 
+function isProblemDetails(value: unknown): value is ProblemDetails {
+  return typeof value === 'object' && value !== null;
+}
+
 export class ApiError extends Error {
   constructor(
     message: string,
     public readonly status: number,
+    public readonly payload?: unknown,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -34,18 +39,24 @@ export async function apiRequest<T>(
     headers,
     cache: 'no-store',
   });
-  if (!response.ok) {
-    let problem: ProblemDetails | undefined;
+  const text = await response.text();
+  let payload: unknown;
+  if (text) {
     try {
-      problem = await response.json() as ProblemDetails;
+      payload = JSON.parse(text) as unknown;
     } catch {
-      problem = undefined;
+      payload = text;
     }
+  }
+
+  if (!response.ok) {
+    const problem = isProblemDetails(payload) ? payload : undefined;
     throw new ApiError(
       problem?.detail ?? problem?.title ?? `Request failed with status ${response.status}.`,
       response.status,
+      payload,
     );
   }
 
-  return await response.json() as T;
+  return payload as T;
 }

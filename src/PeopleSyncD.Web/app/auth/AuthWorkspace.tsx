@@ -3,7 +3,13 @@
 import Link from 'next/link';
 import { type FormEvent, useCallback, useEffect, useState } from 'react';
 import { ApiError, apiRequest } from '../../lib/api';
-import type { AccessToken, CurrentSession, OrganizationAccess } from '../../lib/contracts';
+import type {
+  AccessToken,
+  CurrentSession,
+  MfaChallenge,
+  MfaMethod,
+  OrganizationAccess,
+} from '../../lib/contracts';
 
 const sessionKey = 'peoplesyncd.access-token';
 
@@ -11,10 +17,21 @@ function field(form: FormData, name: string): string {
   return String(form.get(name) ?? '').trim();
 }
 
+function isMfaChallenge(value: unknown): value is MfaChallenge {
+  if (typeof value !== 'object' || value === null) return false;
+  const challenge = value as Partial<MfaChallenge>;
+  return typeof challenge.challengeToken === 'string'
+    && typeof challenge.expiresAt === 'string'
+    && Array.isArray(challenge.methods)
+    && (challenge.purpose === 'login' || challenge.purpose === 'step_up');
+}
+
 export default function AuthWorkspace() {
   const [token, setToken] = useState<string>();
   const [session, setSession] = useState<CurrentSession>();
   const [organizations, setOrganizations] = useState<OrganizationAccess[]>([]);
+  const [challenge, setChallenge] = useState<MfaChallenge>();
+  const [method, setMethod] = useState<MfaMethod>('totp');
   const [status, setStatus] = useState('Register a tenant or sign in to begin.');
   const [busy, setBusy] = useState(false);
 
@@ -74,14 +91,44 @@ export default function AuthWorkspace() {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     void run(async () => {
-      const response = await apiRequest<AccessToken>('/api/v1/auth/login', {
+      try {
+        const response = await apiRequest<AccessToken>('/api/v1/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ email: field(form, 'email'), password: field(form, 'password') }),
+        });
+        await applyToken(response.accessToken);
+        setChallenge(undefined);
+        setStatus(response.user.emailConfirmed
+          ? 'Authenticated. Select an organization to activate tenant permissions.'
+          : 'Authenticated. Verify your email before selecting an organization.');
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 401 && isMfaChallenge(error.payload)) {
+          setChallenge(error.payload);
+          setMethod(error.payload.methods.includes('totp') ? 'totp' : error.payload.methods[0]);
+          setStatus('Password accepted. Complete multi-factor authentication to continue.');
+          return;
+        }
+        throw error;
+      }
+    });
+  }
+
+  function completeMfa(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!challenge) return;
+    const form = new FormData(event.currentTarget);
+    void run(async () => {
+      const response = await apiRequest<AccessToken>('/api/v1/auth/mfa/complete', {
         method: 'POST',
-        body: JSON.stringify({ email: field(form, 'email'), password: field(form, 'password') }),
+        body: JSON.stringify({
+          challengeToken: challenge.challengeToken,
+          method,
+          code: field(form, 'code'),
+        }),
       });
       await applyToken(response.accessToken);
-      setStatus(response.user.emailConfirmed
-        ? 'Authenticated. Select an organization to activate tenant permissions.'
-        : 'Authenticated. Verify your email before selecting an organization.');
+      setChallenge(undefined);
+      setStatus('Multi-factor authentication verified. The session is MFA-assured.');
     });
   }
 
@@ -110,6 +157,7 @@ export default function AuthWorkspace() {
     setToken(undefined);
     setSession(undefined);
     setOrganizations([]);
+    setChallenge(undefined);
     setStatus('Signed out of this browser session.');
   }
 
@@ -125,7 +173,7 @@ export default function AuthWorkspace() {
 
       <p className="status" aria-live="polite">{status}</p>
 
-      {!token && (
+      {!token && !challenge && (
         <div className="auth-grid">
           <form className="panel" onSubmit={register}>
             <h3>Create tenant</h3>
@@ -146,6 +194,31 @@ export default function AuthWorkspace() {
         </div>
       )}
 
+      {!token && challenge && (
+        <form className="panel" onSubmit={completeMfa}>
+          <h3>Verify your second factor</h3>
+          <p>The challenge expires at {new Date(challenge.expiresAt).toLocaleString()}.</p>
+          <label>
+            Verification method
+            <select value={method} onChange={(event) => setMethod(event.target.value as MfaMethod)}>
+              {challenge.methods.map((available) => (
+                <option key={available} value={available}>
+                  {available === 'totp' ? 'Authenticator code' : 'Recovery code'}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            {method === 'totp' ? '6-digit authenticator code' : 'Single-use recovery code'}
+            <input name="code" required autoComplete="one-time-code" maxLength={32} />
+          </label>
+          <div className="actions">
+            <button disabled={busy} type="submit">Verify and sign in</button>
+            <button type="button" className="secondary" onClick={() => setChallenge(undefined)}>Cancel</button>
+          </div>
+        </form>
+      )}
+
       {token && session && (
         <div className="auth-grid">
           <article className="panel">
@@ -161,7 +234,8 @@ export default function AuthWorkspace() {
             {!session.user.emailConfirmed && (
               <button disabled={busy} type="button" onClick={requestVerification}>Send verification</button>
             )}
-            {session.tenant && <Link className="primary-link inline-link" href="/members">Manage organization users</Link>}
+            <Link className="primary-link inline-link" href="/security">Account security</Link>
+            {session.tenant && <Link className="secondary-link" href="/members">Manage organization users</Link>}
             <Link className="secondary-link" href="/invite">Accept an invitation</Link>
           </article>
           <article className="panel">
