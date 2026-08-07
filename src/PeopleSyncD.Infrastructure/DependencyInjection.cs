@@ -62,6 +62,7 @@ public static class DependencyInjection
         services.AddScoped<IIdentityAdministrationGateway, IdentityAdministrationGateway>();
         services.AddScoped<ITenantProvisioningGateway, TenantProvisioningGateway>();
         services.AddScoped<IAccessTokenIssuer, JwtAccessTokenIssuer>();
+        services.AddScoped<IRefreshSessionGateway, RefreshSessionGateway>();
         services.AddSingleton<IInvitationSecretService, InvitationSecretService>();
         services.AddScoped<IIdentityNotificationSender, DevelopmentFileIdentityNotificationSender>();
         services.AddScoped<IAuditRecorder, DatabaseAuditRecorder>();

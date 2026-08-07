@@ -24,6 +24,8 @@ public sealed class ApplicationDbContext(
 
     public DbSet<OrganizationInvitation> OrganizationInvitations => Set<OrganizationInvitation>();
 
+    internal DbSet<RefreshSession> RefreshSessions => Set<RefreshSession>();
+
     internal DbSet<SecurityAuditRecord> SecurityAuditRecords => Set<SecurityAuditRecord>();
 
     protected override void OnModelCreating(ModelBuilder builder)

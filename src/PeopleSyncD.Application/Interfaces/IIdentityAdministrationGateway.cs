@@ -18,4 +18,13 @@ public interface IIdentityAdministrationGateway
     Task<Result> ConfirmEmailFromInvitationAsync(
         Guid userId,
         CancellationToken cancellationToken = default);
+
+    Task<Result<string>> GenerateEmailVerificationTokenAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default);
+
+    Task<Result> ConfirmEmailAsync(
+        Guid userId,
+        string token,
+        CancellationToken cancellationToken = default);
 }

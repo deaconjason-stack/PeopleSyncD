@@ -28,8 +28,7 @@ public static class JwtAuthentication
                     ValidateAudience = true,
                     ValidAudience = options.Audience,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(options.SigningKey)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.SigningKey)),
                     ValidateLifetime = true,
                     RequireExpirationTime = true,
                     RequireSignedTokens = true,
@@ -41,7 +40,10 @@ public static class JwtAuthentication
         {
             authorization.AddPolicy(
                 TenantSelectedPolicy,
-                policy => policy.RequireAuthenticatedUser().RequireClaim("tenant_id"));
+                policy => policy
+                    .RequireAuthenticatedUser()
+                    .RequireClaim("tenant_id")
+                    .RequireClaim("email_verified", "true"));
             AddPermissionPolicy(authorization, PermissionNames.OrganizationsRead);
             AddPermissionPolicy(authorization, PermissionNames.OrganizationsWrite);
             AddPermissionPolicy(authorization, PermissionNames.MembershipsRead);
@@ -61,6 +63,7 @@ public static class JwtAuthentication
             policy => policy
                 .RequireAuthenticatedUser()
                 .RequireClaim("tenant_id")
+                .RequireClaim("email_verified", "true")
                 .RequireClaim("permission", permission));
     }
 }

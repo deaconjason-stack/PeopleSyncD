@@ -63,12 +63,50 @@ internal sealed class IdentityAdministrationGateway(UserManager<ApplicationUser>
 
         user.EmailConfirmed = true;
         var result = await users.UpdateAsync(user);
-        return result.Succeeded
+        return ToResult(result, "identity.email_confirmation_failed");
+    }
+
+    public async Task<Result<string>> GenerateEmailVerificationTokenAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var user = await users.FindByIdAsync(userId.ToString("D"));
+        if (user is null || !user.IsActive)
+        {
+            return Result.Failure<string>(new DomainError("identity.user_missing", "The user is unavailable."));
+        }
+
+        return Result.Success(await users.GenerateEmailConfirmationTokenAsync(user));
+    }
+
+    public async Task<Result> ConfirmEmailAsync(
+        Guid userId,
+        string token,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var user = await users.FindByIdAsync(userId.ToString("D"));
+        if (user is null || !user.IsActive)
+        {
+            return Result.Failure(new DomainError("identity.user_missing", "The user is unavailable."));
+        }
+
+        if (user.EmailConfirmed)
+        {
+            return Result.Success();
+        }
+
+        var result = await users.ConfirmEmailAsync(user, token);
+        return ToResult(result, "identity.email_verification_failed");
+    }
+
+    private static Result ToResult(IdentityResult result, string code) =>
+        result.Succeeded
             ? Result.Success()
             : Result.Failure(new DomainError(
-                "identity.email_confirmation_failed",
+                code,
                 string.Join(" ", result.Errors.Select(error => error.Description))));
-    }
 
     private static IdentityAdministrationUserDto ToDto(ApplicationUser user) => new(
         user.Id,

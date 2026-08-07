@@ -14,13 +14,13 @@ namespace PeopleSyncD.Api.Tests;
 public sealed class MembershipAdministrationApiTests
 {
     [Fact]
-    public async Task OwnerCanCreateInvitation()
+    public async Task VerifiedOwnerCanCreateInvitation()
     {
         await using var factory = CreateFactory();
         using var client = factory.CreateClient();
-        var registration = await RegisterAsync(client);
-        var tenant = Assert.IsType<TenantContextDto>(registration.Tenant);
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", registration.AccessToken);
+        var selected = await RegisterVerifyAndSelectAsync(factory, client);
+        var tenant = Assert.IsType<TenantContextDto>(selected.Tenant);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", selected.AccessToken);
 
         var response = await client.PostAsJsonAsync(
             $"/api/v1/organizations/{tenant.OrganizationId:D}/invitations",
@@ -37,21 +37,19 @@ public sealed class MembershipAdministrationApiTests
     {
         await using var factory = CreateFactory();
         using var client = factory.CreateClient();
-        var registration = await RegisterAsync(client);
-        var tenant = Assert.IsType<TenantContextDto>(registration.Tenant);
+        var selected = await RegisterVerifyAndSelectAsync(factory, client);
+        var tenant = Assert.IsType<TenantContextDto>(selected.Tenant);
 
         using (var scope = factory.Services.CreateScope())
         {
             var database = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            var membership = await database.OrganizationMemberships.SingleAsync(
-                item => item.Id == tenant.MembershipId);
+            var membership = await database.OrganizationMemberships.SingleAsync(item => item.Id == tenant.MembershipId);
             Assert.True(membership.Suspend(DateTimeOffset.UtcNow).IsSuccess);
             await database.SaveChangesAsync();
         }
 
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", registration.AccessToken);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", selected.AccessToken);
         var response = await client.GetAsync($"/api/v1/organizations/{tenant.OrganizationId:D}");
-
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
@@ -59,10 +57,12 @@ public sealed class MembershipAdministrationApiTests
         new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder => builder.UseSetting("Database:Provider", "InMemory"));
 
-    private static async Task<AccessTokenDto> RegisterAsync(HttpClient client)
+    private static async Task<AccessTokenDto> RegisterVerifyAndSelectAsync(
+        WebApplicationFactory<Program> factory,
+        HttpClient client)
     {
         var suffix = Guid.NewGuid().ToString("N");
-        var response = await client.PostAsJsonAsync(
+        var registerResponse = await client.PostAsJsonAsync(
             "/api/v1/auth/register-tenant",
             new RegisterTenantRequest(
                 "M2 Test Organization",
@@ -70,7 +70,15 @@ public sealed class MembershipAdministrationApiTests
                 "Test Owner",
                 $"owner-{suffix}@example.com",
                 "Correct-Horse-9!Battery"));
-        response.EnsureSuccessStatusCode();
-        return (await response.Content.ReadFromJsonAsync<AccessTokenDto>())!;
+        registerResponse.EnsureSuccessStatusCode();
+        var registration = (await registerResponse.Content.ReadFromJsonAsync<AccessTokenDto>())!;
+        await ApiFoundationTests.ConfirmEmailAsync(factory, client, registration.User.Id);
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", registration.AccessToken);
+        var selectResponse = await client.PostAsJsonAsync(
+            "/api/v1/auth/select-organization",
+            new SelectOrganizationRequest(registration.Tenant!.OrganizationId));
+        selectResponse.EnsureSuccessStatusCode();
+        return (await selectResponse.Content.ReadFromJsonAsync<AccessTokenDto>())!;
     }
 }

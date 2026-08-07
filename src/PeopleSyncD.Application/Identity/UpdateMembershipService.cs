@@ -6,6 +6,7 @@ namespace PeopleSyncD.Application.Identity;
 
 public sealed class UpdateMembershipService(
     IOrganizationMembershipRepository memberships,
+    IRefreshSessionGateway refreshSessions,
     IAuditRecorder audit,
     IUnitOfWork unitOfWork,
     IClock clock)
@@ -58,6 +59,7 @@ public sealed class UpdateMembershipService(
                 "The final active owner cannot be demoted, suspended, or revoked."));
         }
 
+        var changed = false;
         if (request.Role is not null && request.Role != target.Role)
         {
             var roleResult = target.ChangeRole(request.Role.Value, clock.UtcNow);
@@ -65,6 +67,8 @@ public sealed class UpdateMembershipService(
             {
                 return roleResult;
             }
+
+            changed = true;
         }
 
         if (request.Status is not null && request.Status != target.Status)
@@ -80,9 +84,20 @@ public sealed class UpdateMembershipService(
             {
                 return statusResult;
             }
+
+            changed = true;
+        }
+
+        if (!changed)
+        {
+            return Result.Success();
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
+        await refreshSessions.RevokeForMembershipAsync(
+            target.Id,
+            "membership_changed",
+            cancellationToken);
         await audit.RecordAsync(new SecurityAuditEvent(
             "membership.updated",
             actorUserId,

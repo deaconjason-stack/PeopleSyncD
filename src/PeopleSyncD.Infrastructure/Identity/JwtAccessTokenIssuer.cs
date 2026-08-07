@@ -23,6 +23,7 @@ internal sealed class JwtAccessTokenIssuer(JwtOptions options, IClock clock) : I
             new(JwtRegisteredClaimNames.Name, user.DisplayName),
             new("email_verified", user.EmailConfirmed ? "true" : "false", ClaimValueTypes.Boolean),
             new("account_active", user.IsActive ? "true" : "false", ClaimValueTypes.Boolean),
+            new("mfa_enrolled", user.MfaEnabled ? "true" : "false", ClaimValueTypes.Boolean),
         };
 
         TenantContextDto? tenant = null;
