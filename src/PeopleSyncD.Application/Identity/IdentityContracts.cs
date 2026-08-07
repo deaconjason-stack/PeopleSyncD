@@ -65,7 +65,9 @@ public sealed record AccessTokenDto(
     IdentityUserDto User,
     TenantContextDto? Tenant,
     string? RefreshToken = null,
-    DateTimeOffset? RefreshTokenExpiresAt = null);
+    DateTimeOffset? RefreshTokenExpiresAt = null,
+    string AssuranceLevel = "pwd",
+    Guid? SessionFamilyId = null);
 
 /// <summary>
 /// Result produced by atomic owner-and-tenant provisioning.
@@ -74,7 +76,10 @@ public sealed record ProvisionedTenantDto(
     IdentityUserDto User,
     OrganizationAccessDto Access);
 
-public sealed record RefreshTokenDto(string Token, DateTimeOffset ExpiresAt);
+public sealed record RefreshTokenDto(
+    string Token,
+    DateTimeOffset ExpiresAt,
+    Guid FamilyId = default);
 
 public sealed record RefreshTokenRequest(string RefreshToken);
 
@@ -83,7 +88,9 @@ public sealed record RefreshRotationDto(
     Guid UserId,
     Guid? OrganizationId,
     Guid? MembershipId,
-    RefreshTokenDto Replacement);
+    RefreshTokenDto Replacement,
+    string AssuranceLevel = "pwd",
+    string? DeviceLabel = null);
 
 public sealed record ConfirmEmailRequest(Guid UserId, string Token);
 
@@ -91,4 +98,52 @@ public sealed record AccountSecurityDto(
     Guid UserId,
     bool EmailConfirmed,
     bool MfaEnabled,
-    bool PasswordOnlyLoginAllowed);
+    bool PasswordOnlyLoginAllowed,
+    int RecoveryCodesRemaining = 0);
+
+public sealed record MfaChallengeDto(
+    string ChallengeToken,
+    DateTimeOffset ExpiresAt,
+    IReadOnlyCollection<string> Methods,
+    string Purpose);
+
+public sealed record MfaChallengeRequest(
+    string ChallengeToken,
+    string Method,
+    string Code);
+
+public sealed record MfaChallengeCompletionDto(
+    Guid UserId,
+    string Purpose,
+    string Method,
+    Guid? OrganizationId,
+    Guid? MembershipId);
+
+public sealed record LoginOutcomeDto(
+    AccessTokenDto? Session,
+    MfaChallengeDto? Challenge);
+
+public sealed record MfaTotpEnrollmentDto(
+    string ManualEntryKey,
+    string OtpauthUri);
+
+public sealed record ConfirmTotpEnrollmentRequest(string Code);
+
+public sealed record RecoveryCodeBatchDto(
+    IReadOnlyCollection<string> RecoveryCodes,
+    DateTimeOffset GeneratedAt);
+
+public sealed record SessionSummaryDto(
+    Guid FamilyId,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset ExpiresAt,
+    DateTimeOffset LastSeenAt,
+    string AssuranceLevel,
+    string? DeviceLabel,
+    bool IsCurrent);
+
+public sealed record SecurityEventDto(
+    string EventType,
+    DateTimeOffset OccurredAt,
+    string TargetType,
+    string TargetId);

@@ -10,16 +10,18 @@ namespace PeopleSyncD.Application.Identity;
 public sealed class LoginService(
     IValidator<LoginRequest> validator,
     IIdentityGateway identities,
+    IMfaSecurityGateway mfa,
     SessionTokenService sessions)
 {
-    public async Task<Result<AccessTokenDto>> ExecuteAsync(
+    public async Task<Result<LoginOutcomeDto>> ExecuteAsync(
         LoginRequest request,
+        string? deviceLabel = null,
         CancellationToken cancellationToken = default)
     {
         var validation = await validator.ValidateAsync(request, cancellationToken);
         if (!validation.IsValid)
         {
-            return Result.Failure<AccessTokenDto>(new DomainError(
+            return Result.Failure<LoginOutcomeDto>(new DomainError(
                 "authentication.validation_failed",
                 string.Join(" ", validation.Errors.Select(error => error.ErrorMessage))));
         }
@@ -30,9 +32,25 @@ public sealed class LoginService(
             cancellationToken);
         if (identity.IsFailure)
         {
-            return Result.Failure<AccessTokenDto>(identity.Error);
+            return Result.Failure<LoginOutcomeDto>(identity.Error);
         }
 
-        return Result.Success(await sessions.IssueAsync(identity.Value, cancellationToken: cancellationToken));
+        if (identity.Value.MfaEnabled)
+        {
+            var challenge = await mfa.CreateChallengeAsync(
+                identity.Value.Id,
+                "login",
+                cancellationToken: cancellationToken);
+            return challenge.IsFailure
+                ? Result.Failure<LoginOutcomeDto>(challenge.Error)
+                : Result.Success(new LoginOutcomeDto(null, challenge.Value));
+        }
+
+        var session = await sessions.IssueAsync(
+            identity.Value,
+            assuranceLevel: "pwd",
+            deviceLabel: deviceLabel,
+            cancellationToken: cancellationToken);
+        return Result.Success(new LoginOutcomeDto(session, null));
     }
 }

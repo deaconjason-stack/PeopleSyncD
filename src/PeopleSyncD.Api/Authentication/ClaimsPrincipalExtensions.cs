@@ -16,6 +16,14 @@ public static class ClaimsPrincipalExtensions
     public static bool TryGetTenantId(this ClaimsPrincipal principal, out Guid tenantId) =>
         Guid.TryParse(principal.FindFirst("tenant_id")?.Value, out tenantId);
 
+    public static bool TryGetSessionFamilyId(this ClaimsPrincipal principal, out Guid familyId) =>
+        Guid.TryParse(principal.FindFirst("sid")?.Value, out familyId);
+
+    public static string GetAssuranceLevel(this ClaimsPrincipal principal) =>
+        string.Equals(principal.FindFirst("psd_assurance")?.Value, "mfa", StringComparison.Ordinal)
+            ? "mfa"
+            : "pwd";
+
     public static TenantContextDto? GetTenantContext(this ClaimsPrincipal principal)
     {
         if (!Guid.TryParse(principal.FindFirst("membership_id")?.Value, out var membershipId)
