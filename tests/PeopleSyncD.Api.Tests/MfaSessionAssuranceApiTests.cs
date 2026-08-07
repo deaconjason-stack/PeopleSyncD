@@ -1,6 +1,9 @@
+using System.Buffers.Binary;
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
@@ -235,7 +238,60 @@ public sealed class MfaSessionAssuranceApiTests
         var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var user = await users.FindByIdAsync(userId.ToString("D"));
         Assert.NotNull(user);
-        return await users.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultAuthenticatorProvider);
+        var secret = await users.GetAuthenticatorKeyAsync(user);
+        Assert.False(string.IsNullOrWhiteSpace(secret));
+        return ComputeTotp(secret);
+    }
+
+    private static string ComputeTotp(string base32Secret)
+    {
+        var key = DecodeBase32(base32Secret);
+        var counter = DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 30;
+        Span<byte> counterBytes = stackalloc byte[8];
+        BinaryPrimitives.WriteInt64BigEndian(counterBytes, counter);
+#pragma warning disable CA5350 // ASP.NET authenticator tokens use RFC 6238's interoperable HMAC-SHA1 profile.
+        var digest = HMACSHA1.HashData(key, counterBytes);
+#pragma warning restore CA5350
+        var offset = digest[^1] & 0x0f;
+        var binary = ((digest[offset] & 0x7f) << 24)
+            | (digest[offset + 1] << 16)
+            | (digest[offset + 2] << 8)
+            | digest[offset + 3];
+        return (binary % 1_000_000).ToString("D6", CultureInfo.InvariantCulture);
+    }
+
+    private static byte[] DecodeBase32(string value)
+    {
+        const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+        var output = new List<byte>();
+        var buffer = 0;
+        var bits = 0;
+        foreach (var raw in value)
+        {
+            if (raw is '=' or ' ' or '-')
+            {
+                continue;
+            }
+
+            var index = alphabet.IndexOf(char.ToUpperInvariant(raw));
+            if (index < 0)
+            {
+                throw new FormatException("Authenticator key is not valid Base32.");
+            }
+
+            buffer = (buffer << 5) | index;
+            bits += 5;
+            if (bits < 8)
+            {
+                continue;
+            }
+
+            bits -= 8;
+            output.Add((byte)(buffer >> bits));
+            buffer &= bits == 0 ? 0 : (1 << bits) - 1;
+        }
+
+        return output.ToArray();
     }
 
     private static AuthenticationHeaderValue Bearer(string token) => new("Bearer", token);
