@@ -93,8 +93,9 @@ public sealed class MfaSecurityService(
         return Result.Success(await sessions.IssueAsync(
             user,
             access,
-            assuranceLevel: "mfa",
+            assuranceLevel: AuthenticationAssurance.Mfa,
             deviceLabel: deviceLabel,
+            authenticationMethod: completed.Value.Method,
             cancellationToken: cancellationToken));
     }
 

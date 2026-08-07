@@ -152,7 +152,7 @@ public sealed class AuthController(
     public async Task<ActionResult<RecoveryCodeBatchDto>> RegenerateRecoveryCodes(CancellationToken cancellationToken)
     {
         if (!User.TryGetUserId(out var userId)
-            || !string.Equals(User.GetAssuranceLevel(), "mfa", StringComparison.Ordinal))
+            || !AuthenticationAssurance.SatisfiesMfa(User.GetAssuranceLevel()))
         {
             return Unauthorized();
         }
@@ -276,6 +276,8 @@ public sealed class AuthController(
             request,
             User.GetAssuranceLevel(),
             Request.Headers.UserAgent.ToString(),
+            User.GetAuthenticationTime(),
+            User.GetAuthenticationMethod(),
             cancellationToken);
         if (result.IsSuccess)
         {

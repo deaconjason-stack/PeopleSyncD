@@ -24,6 +24,10 @@ internal sealed class RefreshSession
 
     public string AssuranceLevel { get; set; } = "pwd";
 
+    public DateTimeOffset AuthenticatedAt { get; set; }
+
+    public string AuthenticationMethod { get; set; } = "pwd";
+
     public string? DeviceLabel { get; set; }
 
     public DateTimeOffset? UsedAt { get; set; }

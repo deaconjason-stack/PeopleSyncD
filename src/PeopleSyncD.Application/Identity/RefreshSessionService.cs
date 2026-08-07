@@ -37,7 +37,7 @@ public sealed class RefreshSessionService(
                 "Reauthentication is required."));
         }
 
-        if (user.MfaEnabled && !string.Equals(grant.AssuranceLevel, "mfa", StringComparison.Ordinal))
+        if (user.MfaEnabled && !AuthenticationAssurance.SatisfiesMfa(grant.AssuranceLevel))
         {
             await refreshSessions.RevokeFamilyAsync(grant.FamilyId, "mfa_assurance_required", cancellationToken);
             return Result.Failure<AccessTokenDto>(new DomainError(
@@ -79,7 +79,13 @@ public sealed class RefreshSessionService(
             }
         }
 
-        var accessToken = accessTokens.Issue(user, access, grant.AssuranceLevel, grant.FamilyId);
+        var accessToken = accessTokens.Issue(
+            user,
+            access,
+            grant.AssuranceLevel,
+            grant.FamilyId,
+            grant.AuthenticatedAt,
+            grant.AuthenticationMethod);
         return Result.Success(accessToken with
         {
             RefreshToken = grant.Replacement.Token,

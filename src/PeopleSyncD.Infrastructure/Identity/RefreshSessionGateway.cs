@@ -21,16 +21,21 @@ internal sealed class RefreshSessionGateway(
         Guid? familyId = null,
         string assuranceLevel = "pwd",
         string? deviceLabel = null,
+        DateTimeOffset? authenticatedAt = null,
+        string? authenticationMethod = null,
         CancellationToken cancellationToken = default)
     {
+        var assurance = AuthenticationAssurance.Normalize(assuranceLevel);
         var issued = CreateSession(
             userId,
             organizationId,
             membershipId,
             familyId ?? Guid.NewGuid(),
             null,
-            NormalizeAssurance(assuranceLevel),
-            NormalizeDeviceLabel(deviceLabel));
+            assurance,
+            NormalizeDeviceLabel(deviceLabel),
+            authenticatedAt ?? clock.UtcNow,
+            NormalizeAuthenticationMethod(authenticationMethod, assurance));
         await database.RefreshSessions.AddAsync(issued.Session, cancellationToken);
         await database.SaveChangesAsync(cancellationToken);
         return issued.Token;
@@ -78,7 +83,9 @@ internal sealed class RefreshSessionGateway(
             current.FamilyId,
             current.Id,
             current.AssuranceLevel,
-            current.DeviceLabel);
+            current.DeviceLabel,
+            current.AuthenticatedAt,
+            current.AuthenticationMethod);
         await database.RefreshSessions.AddAsync(replacement.Session, cancellationToken);
         try
         {
@@ -101,7 +108,9 @@ internal sealed class RefreshSessionGateway(
             current.MembershipId,
             replacement.Token,
             current.AssuranceLevel,
-            current.DeviceLabel));
+            current.DeviceLabel,
+            current.AuthenticatedAt,
+            current.AuthenticationMethod));
     }
 
     public async Task RevokeFamilyAsync(
@@ -239,7 +248,9 @@ internal sealed class RefreshSessionGateway(
                 session.LastSeenAt,
                 session.AssuranceLevel,
                 session.DeviceLabel,
-                currentFamilyId == session.FamilyId))
+                currentFamilyId == session.FamilyId,
+                session.AuthenticatedAt,
+                session.AuthenticationMethod))
             .OrderByDescending(session => session.LastSeenAt)
             .ToArray();
         return Array.AsReadOnly(summaries);
@@ -267,7 +278,9 @@ internal sealed class RefreshSessionGateway(
         Guid familyId,
         Guid? parentSessionId,
         string assuranceLevel,
-        string? deviceLabel)
+        string? deviceLabel,
+        DateTimeOffset authenticatedAt,
+        string authenticationMethod)
     {
         var raw = CreateToken();
         var now = clock.UtcNow;
@@ -286,6 +299,8 @@ internal sealed class RefreshSessionGateway(
                 ExpiresAt = expiresAt,
                 LastSeenAt = now,
                 AssuranceLevel = assuranceLevel,
+                AuthenticatedAt = authenticatedAt,
+                AuthenticationMethod = authenticationMethod,
                 DeviceLabel = deviceLabel,
             },
             new RefreshTokenDto(raw, expiresAt, familyId));
@@ -308,8 +323,16 @@ internal sealed class RefreshSessionGateway(
             MetadataJson = "{}",
         };
 
-    private static string NormalizeAssurance(string assuranceLevel) =>
-        string.Equals(assuranceLevel, "mfa", StringComparison.Ordinal) ? "mfa" : "pwd";
+    private static string NormalizeAuthenticationMethod(string? value, string assuranceLevel)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return AuthenticationAssurance.DefaultMethod(assuranceLevel);
+        }
+
+        var normalized = value.Trim().ToLowerInvariant();
+        return normalized.Length <= 32 ? normalized : normalized[..32];
+    }
 
     private static string? NormalizeDeviceLabel(string? value)
     {

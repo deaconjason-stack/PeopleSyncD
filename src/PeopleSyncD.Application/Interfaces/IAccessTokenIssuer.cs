@@ -11,5 +11,7 @@ public interface IAccessTokenIssuer
         IdentityUserDto user,
         OrganizationAccessDto? access = null,
         string assuranceLevel = "pwd",
-        Guid? sessionFamilyId = null);
+        Guid? sessionFamilyId = null,
+        DateTimeOffset? authenticatedAt = null,
+        string? authenticationMethod = null);
 }

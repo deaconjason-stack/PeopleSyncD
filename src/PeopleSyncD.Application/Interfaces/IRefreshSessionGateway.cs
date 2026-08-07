@@ -12,6 +12,8 @@ public interface IRefreshSessionGateway
         Guid? familyId = null,
         string assuranceLevel = "pwd",
         string? deviceLabel = null,
+        DateTimeOffset? authenticatedAt = null,
+        string? authenticationMethod = null,
         CancellationToken cancellationToken = default);
 
     Task<Result<RefreshRotationDto>> RotateAsync(

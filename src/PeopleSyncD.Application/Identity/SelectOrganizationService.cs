@@ -17,6 +17,8 @@ public sealed class SelectOrganizationService(
         SelectOrganizationRequest request,
         string assuranceLevel = "pwd",
         string? deviceLabel = null,
+        DateTimeOffset? authenticatedAt = null,
+        string? authenticationMethod = null,
         CancellationToken cancellationToken = default)
     {
         if (userId == Guid.Empty || request.OrganizationId == Guid.Empty)
@@ -41,7 +43,7 @@ public sealed class SelectOrganizationService(
                 "Email verification is required before tenant access can be issued."));
         }
 
-        if (user.MfaEnabled && !string.Equals(assuranceLevel, "mfa", StringComparison.Ordinal))
+        if (user.MfaEnabled && !AuthenticationAssurance.SatisfiesMfa(assuranceLevel))
         {
             return Result.Failure<AccessTokenDto>(new DomainError(
                 "authentication.mfa_required",
@@ -67,6 +69,8 @@ public sealed class SelectOrganizationService(
                 access,
                 assuranceLevel,
                 deviceLabel,
+                authenticatedAt,
+                authenticationMethod,
                 cancellationToken));
     }
 }
