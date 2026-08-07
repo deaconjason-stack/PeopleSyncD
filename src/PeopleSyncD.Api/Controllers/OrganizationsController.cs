@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PeopleSyncD.Api.Authentication;
 using PeopleSyncD.Application.DTOs;
 using PeopleSyncD.Application.Interfaces;
 using PeopleSyncD.Domain.Permissions;
@@ -35,7 +36,6 @@ public sealed class OrganizationsController(IOrganizationRepository repository) 
                 organization.Id,
                 organization.Name,
                 organization.Slug,
-                organization.Status.ToString(),
                 organization.CreatedAt));
     }
 }
