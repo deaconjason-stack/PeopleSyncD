@@ -33,6 +33,7 @@ public sealed class SessionAuthenticationFreshnessTests
         response.EnsureSuccessStatusCode();
         var first = (await response.Content.ReadFromJsonAsync<AccessTokenDto>(JsonOptions))!;
         Assert.NotNull(first.RefreshToken);
+        await ApiFoundationTests.ConfirmEmailAsync(factory, client, first.User.Id);
         var firstClaims = ReadClaims(first.AccessToken);
 
         var rotation = await client.PostAsJsonAsync(
