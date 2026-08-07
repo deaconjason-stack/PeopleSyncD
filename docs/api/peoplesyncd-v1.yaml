@@ -79,7 +79,7 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/AccessToken' }
-        '401': { description: Refresh token is invalid, reused, revoked, expired, or lacks required MFA assurance }
+        '401': { description: 'Refresh token is invalid, reused, revoked, expired, or lacks required MFA assurance' }
   /api/v1/auth/mfa/complete:
     post:
       operationId: completeMfaChallenge
@@ -96,7 +96,7 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/AccessToken' }
-        '401': { description: Challenge or factor is invalid, expired, replayed, or exhausted }
+        '401': { description: 'Challenge or factor is invalid, expired, replayed, or exhausted' }
   /api/v1/auth/mfa/totp/enroll:
     post:
       operationId: beginTotpEnrollment
@@ -247,7 +247,7 @@ paths:
               schema: { $ref: '#/components/schemas/AccessToken' }
         '400': { description: Tenant selection request is invalid }
         '401': { description: Authentication or live session validation failed }
-        '403': { description: Verified email, active membership, and required MFA assurance are not satisfied }
+        '403': { description: 'Verified email, active membership, and required MFA assurance are not satisfied' }
   /api/v1/auth/me:
     get:
       operationId: getCurrentSession
@@ -286,7 +286,7 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/OrganizationAccess' }
-        '400': { description: Invitation is invalid, expired, or password validation failed }
+        '400': { description: 'Invitation is invalid, expired, or password validation failed' }
         '409': { description: Membership already exists }
   /api/v1/organizations/{organizationId}/members:
     get:
