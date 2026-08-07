@@ -10,7 +10,7 @@ using PeopleSyncD.Infrastructure.Identity;
 namespace PeopleSyncD.Infrastructure.Persistence;
 
 /// <summary>
-/// EF Core unit of work for platform foundation aggregates and identity records.
+/// EF Core unit of work for platform aggregates and identity records.
 /// </summary>
 public sealed class ApplicationDbContext(
     DbContextOptions<ApplicationDbContext> options)
@@ -21,6 +21,12 @@ public sealed class ApplicationDbContext(
     public DbSet<Employee> Employees => Set<Employee>();
 
     public DbSet<OrganizationMembership> OrganizationMemberships => Set<OrganizationMembership>();
+
+    public DbSet<OrganizationInvitation> OrganizationInvitations => Set<OrganizationInvitation>();
+
+    internal DbSet<RefreshSession> RefreshSessions => Set<RefreshSession>();
+
+    internal DbSet<SecurityAuditRecord> SecurityAuditRecords => Set<SecurityAuditRecord>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

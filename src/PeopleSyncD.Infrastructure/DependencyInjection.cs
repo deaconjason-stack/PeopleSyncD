@@ -51,14 +51,21 @@ public static class DependencyInjection
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
             })
             .AddRoles<IdentityRole<Guid>>()
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
 
         services.AddSingleton(jwtOptions);
         services.AddScoped<IOrganizationRepository, OrganizationRepository>();
         services.AddScoped<IOrganizationMembershipRepository, OrganizationMembershipRepository>();
+        services.AddScoped<IOrganizationInvitationRepository, OrganizationInvitationRepository>();
         services.AddScoped<IIdentityGateway, IdentityGateway>();
+        services.AddScoped<IIdentityAdministrationGateway, IdentityAdministrationGateway>();
         services.AddScoped<ITenantProvisioningGateway, TenantProvisioningGateway>();
         services.AddScoped<IAccessTokenIssuer, JwtAccessTokenIssuer>();
+        services.AddScoped<IRefreshSessionGateway, RefreshSessionGateway>();
+        services.AddSingleton<IInvitationSecretService, InvitationSecretService>();
+        services.AddScoped<IIdentityNotificationSender, DevelopmentFileIdentityNotificationSender>();
+        services.AddScoped<IAuditRecorder, DatabaseAuditRecorder>();
         services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<ApplicationDbContext>());
         services.AddSingleton<IClock, SystemClock>();
         return services;

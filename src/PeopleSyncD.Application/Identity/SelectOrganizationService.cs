@@ -10,7 +10,7 @@ namespace PeopleSyncD.Application.Identity;
 public sealed class SelectOrganizationService(
     IIdentityGateway identities,
     IOrganizationMembershipRepository memberships,
-    IAccessTokenIssuer tokenIssuer)
+    SessionTokenService sessions)
 {
     public async Task<Result<AccessTokenDto>> ExecuteAsync(
         Guid userId,
@@ -32,10 +32,21 @@ public sealed class SelectOrganizationService(
                 "The authenticated user is unavailable."));
         }
 
-        var membership = await memberships.GetActiveAsync(
-            userId,
-            request.OrganizationId,
-            cancellationToken);
+        if (!user.EmailConfirmed)
+        {
+            return Result.Failure<AccessTokenDto>(new DomainError(
+                "authentication.email_verification_required",
+                "Email verification is required before tenant access can be issued."));
+        }
+
+        if (user.MfaEnabled)
+        {
+            return Result.Failure<AccessTokenDto>(new DomainError(
+                "authentication.mfa_required",
+                "A configured second factor is required before tenant access can be issued."));
+        }
+
+        var membership = await memberships.GetActiveAsync(userId, request.OrganizationId, cancellationToken);
         if (membership is null || membership.Status != MembershipStatus.Active)
         {
             return Result.Failure<AccessTokenDto>(new DomainError(
@@ -49,6 +60,6 @@ public sealed class SelectOrganizationService(
             ? Result.Failure<AccessTokenDto>(new DomainError(
                 "tenant.access_unavailable",
                 "The tenant access projection is unavailable."))
-            : Result.Success(tokenIssuer.Issue(user, access));
+            : Result.Success(await sessions.IssueAsync(user, access, cancellationToken));
     }
 }

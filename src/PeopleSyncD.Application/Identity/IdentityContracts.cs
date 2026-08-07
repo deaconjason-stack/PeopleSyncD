@@ -30,7 +30,8 @@ public sealed record IdentityUserDto(
     string DisplayName,
     string Email,
     bool EmailConfirmed,
-    bool IsActive);
+    bool IsActive,
+    bool MfaEnabled = false);
 
 /// <summary>
 /// Organization membership visible to the authenticated user.
@@ -55,14 +56,16 @@ public sealed record TenantContextDto(
     IReadOnlyCollection<string> Permissions);
 
 /// <summary>
-/// Access token response returned by authentication operations.
+/// Access and rotating refresh token response.
 /// </summary>
 public sealed record AccessTokenDto(
     string AccessToken,
     string TokenType,
     DateTimeOffset ExpiresAt,
     IdentityUserDto User,
-    TenantContextDto? Tenant);
+    TenantContextDto? Tenant,
+    string? RefreshToken = null,
+    DateTimeOffset? RefreshTokenExpiresAt = null);
 
 /// <summary>
 /// Result produced by atomic owner-and-tenant provisioning.
@@ -70,3 +73,22 @@ public sealed record AccessTokenDto(
 public sealed record ProvisionedTenantDto(
     IdentityUserDto User,
     OrganizationAccessDto Access);
+
+public sealed record RefreshTokenDto(string Token, DateTimeOffset ExpiresAt);
+
+public sealed record RefreshTokenRequest(string RefreshToken);
+
+public sealed record RefreshRotationDto(
+    Guid FamilyId,
+    Guid UserId,
+    Guid? OrganizationId,
+    Guid? MembershipId,
+    RefreshTokenDto Replacement);
+
+public sealed record ConfirmEmailRequest(Guid UserId, string Token);
+
+public sealed record AccountSecurityDto(
+    Guid UserId,
+    bool EmailConfirmed,
+    bool MfaEnabled,
+    bool PasswordOnlyLoginAllowed);

@@ -13,7 +13,26 @@ public interface IOrganizationMembershipRepository
         Guid organizationId,
         CancellationToken cancellationToken = default);
 
+    Task<OrganizationMembership?> GetByIdAsync(
+        Guid membershipId,
+        CancellationToken cancellationToken = default);
+
+    Task<OrganizationMembership?> GetAsync(
+        Guid userId,
+        Guid organizationId,
+        CancellationToken cancellationToken = default);
+
+    Task AddAsync(OrganizationMembership membership, CancellationToken cancellationToken = default);
+
+    Task<int> CountActiveOwnersAsync(
+        Guid organizationId,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyCollection<OrganizationAccessDto>> ListForUserAsync(
         Guid userId,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<MembershipAdminDto>> ListForOrganizationAsync(
+        Guid organizationId,
         CancellationToken cancellationToken = default);
 }

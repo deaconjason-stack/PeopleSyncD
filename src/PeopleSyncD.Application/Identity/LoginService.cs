@@ -10,7 +10,7 @@ namespace PeopleSyncD.Application.Identity;
 public sealed class LoginService(
     IValidator<LoginRequest> validator,
     IIdentityGateway identities,
-    IAccessTokenIssuer tokenIssuer)
+    SessionTokenService sessions)
 {
     public async Task<Result<AccessTokenDto>> ExecuteAsync(
         LoginRequest request,
@@ -28,8 +28,11 @@ public sealed class LoginService(
             request.Email.Trim().ToLowerInvariant(),
             request.Password,
             cancellationToken);
-        return identity.IsFailure
-            ? Result.Failure<AccessTokenDto>(identity.Error)
-            : Result.Success(tokenIssuer.Issue(identity.Value));
+        if (identity.IsFailure)
+        {
+            return Result.Failure<AccessTokenDto>(identity.Error);
+        }
+
+        return Result.Success(await sessions.IssueAsync(identity.Value, cancellationToken: cancellationToken));
     }
 }

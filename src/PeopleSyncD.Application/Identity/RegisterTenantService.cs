@@ -14,7 +14,7 @@ public sealed class RegisterTenantService(
     IOrganizationRepository organizations,
     IIdentityGateway identities,
     ITenantProvisioningGateway provisioning,
-    IAccessTokenIssuer tokenIssuer,
+    SessionTokenService sessions,
     IClock clock)
 {
     public async Task<Result<AccessTokenDto>> ExecuteAsync(
@@ -45,10 +45,7 @@ public sealed class RegisterTenantService(
                 "An organization already exists for this slug."));
         }
 
-        var organizationResult = Organization.Create(
-            request.OrganizationName,
-            normalizedSlug,
-            clock.UtcNow);
+        var organizationResult = Organization.Create(request.OrganizationName, normalizedSlug, clock.UtcNow);
         if (organizationResult.IsFailure)
         {
             return Result.Failure<AccessTokenDto>(organizationResult.Error);
@@ -78,6 +75,9 @@ public sealed class RegisterTenantService(
             return Result.Failure<AccessTokenDto>(provisioned.Error);
         }
 
-        return Result.Success(tokenIssuer.Issue(provisioned.Value.User, provisioned.Value.Access));
+        return Result.Success(await sessions.IssueAsync(
+            provisioned.Value.User,
+            provisioned.Value.Access,
+            cancellationToken));
     }
 }

@@ -22,11 +22,23 @@ internal sealed class IdentityGateway(UserManager<ApplicationUser> users) : IIde
     {
         cancellationToken.ThrowIfCancellationRequested();
         var user = await users.FindByEmailAsync(email);
-        if (user is null || !user.IsActive || !await users.CheckPasswordAsync(user, password))
+        if (user is null || !user.IsActive || await users.IsLockedOutAsync(user))
+        {
+            return InvalidCredentials();
+        }
+
+        if (!await users.CheckPasswordAsync(user, password))
+        {
+            await users.AccessFailedAsync(user);
+            return InvalidCredentials();
+        }
+
+        await users.ResetAccessFailedCountAsync(user);
+        if (user.TwoFactorEnabled)
         {
             return Result.Failure<IdentityUserDto>(new DomainError(
-                "authentication.invalid_credentials",
-                "The email address or password is invalid."));
+                "authentication.mfa_required",
+                "A configured second factor is required to complete authentication."));
         }
 
         return Result.Success(ToDto(user));
@@ -41,10 +53,16 @@ internal sealed class IdentityGateway(UserManager<ApplicationUser> users) : IIde
         return user is null ? null : ToDto(user);
     }
 
+    private static Result<IdentityUserDto> InvalidCredentials() =>
+        Result.Failure<IdentityUserDto>(new DomainError(
+            "authentication.invalid_credentials",
+            "The email address or password is invalid."));
+
     private static IdentityUserDto ToDto(ApplicationUser user) => new(
         user.Id,
         user.DisplayName,
         user.Email ?? string.Empty,
         user.EmailConfirmed,
-        user.IsActive);
+        user.IsActive,
+        user.TwoFactorEnabled);
 }

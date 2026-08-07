@@ -14,10 +14,18 @@ public static class DependencyInjection
     {
         services.AddValidatorsFromAssemblyContaining<CreateOrganizationValidator>();
         services.AddScoped<CreateOrganizationService>();
+        services.AddScoped<SessionTokenService>();
         services.AddScoped<RegisterTenantService>();
         services.AddScoped<LoginService>();
         services.AddScoped<ListOrganizationsService>();
         services.AddScoped<SelectOrganizationService>();
+        services.AddScoped<InviteMemberService>();
+        services.AddScoped<AcceptInvitationService>();
+        services.AddScoped<ListMembersService>();
+        services.AddScoped<UpdateMembershipService>();
+        services.AddScoped<RequestEmailVerificationService>();
+        services.AddScoped<ConfirmEmailService>();
+        services.AddScoped<RefreshSessionService>();
         return services;
     }
 }

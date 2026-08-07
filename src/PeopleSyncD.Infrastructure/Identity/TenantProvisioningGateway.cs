@@ -47,12 +47,9 @@ internal sealed class TenantProvisioningGateway(
                     await transaction.RollbackAsync(cancellationToken);
                 }
 
-                var description = string.Join(
-                    " ",
-                    identityResult.Errors.Select(error => error.Description));
                 return Result.Failure<ProvisionedTenantDto>(new DomainError(
                     "registration.identity_rejected",
-                    description));
+                    string.Join(" ", identityResult.Errors.Select(error => error.Description))));
             }
 
             await database.Organizations.AddAsync(organization, cancellationToken);
@@ -69,7 +66,8 @@ internal sealed class TenantProvisioningGateway(
                     user.DisplayName,
                     user.Email ?? string.Empty,
                     user.EmailConfirmed,
-                    user.IsActive),
+                    user.IsActive,
+                    user.TwoFactorEnabled),
                 new OrganizationAccessDto(
                     membership.Id,
                     organization.Id,

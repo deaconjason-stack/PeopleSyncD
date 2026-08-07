@@ -7,7 +7,7 @@ using PeopleSyncD.Application.Interfaces;
 namespace PeopleSyncD.Api.Controllers;
 
 /// <summary>
-/// Authentication and tenant-context endpoints.
+/// Authentication, account security, and tenant-context endpoints.
 /// </summary>
 [ApiController]
 [Route("api/v1/auth")]
@@ -16,34 +16,30 @@ public sealed class AuthController(
     LoginService login,
     ListOrganizationsService organizations,
     SelectOrganizationService selection,
+    RequestEmailVerificationService emailVerificationRequest,
+    ConfirmEmailService emailConfirmation,
+    RefreshSessionService refresh,
     IIdentityGateway identities) : ControllerBase
 {
     [AllowAnonymous]
     [HttpPost("register-tenant")]
-    [ProducesResponseType<AccessTokenDto>(StatusCodes.Status201Created)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<AccessTokenDto>> RegisterTenant(
         RegisterTenantRequest request,
         CancellationToken cancellationToken)
     {
         var result = await registration.ExecuteAsync(request, cancellationToken);
-        if (result.IsSuccess)
-        {
-            return StatusCode(StatusCodes.Status201Created, result.Value);
-        }
-
-        var status = result.Error.Code.Contains("conflict", StringComparison.Ordinal)
-            ? StatusCodes.Status409Conflict
-            : StatusCodes.Status400BadRequest;
-        return Problem(statusCode: status, title: result.Error.Code, detail: result.Error.Description);
+        return result.IsSuccess
+            ? StatusCode(StatusCodes.Status201Created, result.Value)
+            : Problem(
+                statusCode: result.Error.Code.Contains("conflict", StringComparison.Ordinal)
+                    ? StatusCodes.Status409Conflict
+                    : StatusCodes.Status400BadRequest,
+                title: result.Error.Code,
+                detail: result.Error.Description);
     }
 
     [AllowAnonymous]
     [HttpPost("login")]
-    [ProducesResponseType<AccessTokenDto>(StatusCodes.Status200OK)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<AccessTokenDto>> Login(
         LoginRequest request,
         CancellationToken cancellationToken)
@@ -54,16 +50,56 @@ public sealed class AuthController(
             return Ok(result.Value);
         }
 
-        var status = result.Error.Code == "authentication.invalid_credentials"
+        var status = result.Error.Code is "authentication.invalid_credentials" or "authentication.mfa_required"
             ? StatusCodes.Status401Unauthorized
             : StatusCodes.Status400BadRequest;
         return Problem(statusCode: status, title: result.Error.Code, detail: result.Error.Description);
     }
 
+    [AllowAnonymous]
+    [HttpPost("refresh")]
+    public async Task<ActionResult<AccessTokenDto>> Refresh(
+        RefreshTokenRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await refresh.ExecuteAsync(request, cancellationToken);
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: result.Error.Code,
+                detail: result.Error.Description);
+    }
+
+    [Authorize]
+    [HttpPost("email-verification/request")]
+    public async Task<IActionResult> RequestEmailVerification(CancellationToken cancellationToken)
+    {
+        if (!User.TryGetUserId(out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var result = await emailVerificationRequest.ExecuteAsync(userId, cancellationToken);
+        return result.IsSuccess
+            ? Accepted()
+            : Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.Code, detail: result.Error.Description);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("email-verification/confirm")]
+    public async Task<IActionResult> ConfirmEmail(
+        ConfirmEmailRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await emailConfirmation.ExecuteAsync(request, cancellationToken);
+        return result.IsSuccess
+            ? NoContent()
+            : Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.Code, detail: result.Error.Description);
+    }
+
     [Authorize]
     [HttpGet("organizations")]
-    [ProducesResponseType<IReadOnlyCollection<OrganizationAccessDto>>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<IReadOnlyCollection<OrganizationAccessDto>>> ListOrganizations(
         CancellationToken cancellationToken)
     {
@@ -77,10 +113,6 @@ public sealed class AuthController(
 
     [Authorize]
     [HttpPost("select-organization")]
-    [ProducesResponseType<AccessTokenDto>(StatusCodes.Status200OK)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<AccessTokenDto>> SelectOrganization(
         SelectOrganizationRequest request,
         CancellationToken cancellationToken)
@@ -91,22 +123,35 @@ public sealed class AuthController(
         }
 
         var result = await selection.ExecuteAsync(userId, request, cancellationToken);
-        return result.IsSuccess
-            ? Ok(result.Value)
-            : Problem(
-                statusCode: result.Error.Code == "tenant.access_denied"
-                    ? StatusCodes.Status403Forbidden
-                    : StatusCodes.Status400BadRequest,
-                title: result.Error.Code,
-                detail: result.Error.Description);
+        if (result.IsSuccess)
+        {
+            return Ok(result.Value);
+        }
+
+        var status = result.Error.Code is "tenant.access_denied"
+            or "authentication.email_verification_required"
+            or "authentication.mfa_required"
+            ? StatusCodes.Status403Forbidden
+            : StatusCodes.Status400BadRequest;
+        return Problem(statusCode: status, title: result.Error.Code, detail: result.Error.Description);
     }
 
     [Authorize]
     [HttpGet("me")]
-    [ProducesResponseType<CurrentSessionDto>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<CurrentSessionDto>> GetCurrentSession(
-        CancellationToken cancellationToken)
+    public async Task<ActionResult<CurrentSessionDto>> GetCurrentSession(CancellationToken cancellationToken)
+    {
+        if (!User.TryGetUserId(out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var user = await identities.GetByIdAsync(userId, cancellationToken);
+        return user is null ? Unauthorized() : Ok(new CurrentSessionDto(user, User.GetTenantContext()));
+    }
+
+    [Authorize]
+    [HttpGet("security")]
+    public async Task<ActionResult<AccountSecurityDto>> GetSecurity(CancellationToken cancellationToken)
     {
         if (!User.TryGetUserId(out var userId))
         {
@@ -116,6 +161,10 @@ public sealed class AuthController(
         var user = await identities.GetByIdAsync(userId, cancellationToken);
         return user is null
             ? Unauthorized()
-            : Ok(new CurrentSessionDto(user, User.GetTenantContext()));
+            : Ok(new AccountSecurityDto(
+                user.Id,
+                user.EmailConfirmed,
+                user.MfaEnabled,
+                !user.MfaEnabled));
     }
 }
