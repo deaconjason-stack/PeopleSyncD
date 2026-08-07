@@ -1,62 +1,46 @@
+# .NET
+bin/
+obj/
+TestResults/
+*.user
+*.suo
+*.nupkg
+
+# Node
+node_modules/
+.next/
+dist/
+coverage/
+
+# Local security-token outbox
+.local-email/
+**/.local-email/
+
 # Environment and secrets
 .env
 .env.*
 !.env.example
-*.pem
-*.key
 *.pfx
 *.p12
-*.jks
-*.keystore
-secrets.json
+*.snk
+*.key
+*.pem
 
-# .NET
-bin/
-obj/
-artifacts/
-TestResults/
-*.user
-*.suo
-*.ncrunch*
-.packages/
+# IDE
 .vs/
+.vscode/
+.idea/
 
-# Node and Next.js
-node_modules/
-.next/
-out/
-*.tsbuildinfo
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# Local data and backups
-.local-data/
-backups/
-restore-work/
-support-bundles/
-release-work/
-dist/
-
-# Tooling
-.venv/
-__pycache__/
-*.pyc
-coverage/
+# OS
+.DS_Store
+Thumbs.db
 
 # Terraform
 .terraform/
 *.tfstate
 *.tfstate.*
 crash.log
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
 
-# Operating systems and editors
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
+# Existing repository generated artifacts
+artifacts/
+*.log

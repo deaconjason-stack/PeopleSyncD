@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/PeopleSyncD.Api/PeopleSyncD.Api.csproj" />
+    <ProjectReference Include="../../src/PeopleSyncD.Infrastructure/PeopleSyncD.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />

@@ -18,6 +18,10 @@ public static class DependencyInjection
         services.AddScoped<LoginService>();
         services.AddScoped<ListOrganizationsService>();
         services.AddScoped<SelectOrganizationService>();
+        services.AddScoped<InviteMemberService>();
+        services.AddScoped<AcceptInvitationService>();
+        services.AddScoped<ListMembersService>();
+        services.AddScoped<UpdateMembershipService>();
         return services;
     }
 }
