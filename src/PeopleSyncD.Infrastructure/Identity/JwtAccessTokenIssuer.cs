@@ -89,7 +89,7 @@ internal sealed class JwtAccessTokenIssuer(JwtOptions options, IClock clock) : I
     }
 
     private static void AddAuthenticationMethodClaims(
-        ICollection<Claim> claims,
+        List<Claim> claims,
         string assurance,
         string method)
     {
