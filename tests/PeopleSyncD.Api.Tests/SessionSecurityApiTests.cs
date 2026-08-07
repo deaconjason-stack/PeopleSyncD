@@ -1,5 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +13,11 @@ namespace PeopleSyncD.Api.Tests;
 
 public sealed class SessionSecurityApiTests
 {
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        Converters = { new JsonStringEnumConverter() },
+    };
+
     [Fact]
     public async Task RefreshTokenRotatesAndReuseRevokesFamily()
     {
@@ -24,28 +31,32 @@ public sealed class SessionSecurityApiTests
                 $"refresh-{suffix}",
                 "Refresh Owner",
                 $"refresh-{suffix}@example.com",
-                "Correct-Horse-9!Battery"));
+                "Correct-Horse-9!Battery"),
+            JsonOptions);
         registrationResponse.EnsureSuccessStatusCode();
-        var registration = (await registrationResponse.Content.ReadFromJsonAsync<AccessTokenDto>())!;
+        var registration = (await registrationResponse.Content.ReadFromJsonAsync<AccessTokenDto>(JsonOptions))!;
         Assert.NotNull(registration.RefreshToken);
         await ApiFoundationTests.ConfirmEmailAsync(factory, client, registration.User.Id);
 
         var firstRotation = await client.PostAsJsonAsync(
             "/api/v1/auth/refresh",
-            new RefreshTokenRequest(registration.RefreshToken));
+            new RefreshTokenRequest(registration.RefreshToken),
+            JsonOptions);
         Assert.Equal(HttpStatusCode.OK, firstRotation.StatusCode);
-        var rotated = await firstRotation.Content.ReadFromJsonAsync<AccessTokenDto>();
+        var rotated = await firstRotation.Content.ReadFromJsonAsync<AccessTokenDto>(JsonOptions);
         Assert.NotNull(rotated);
         Assert.NotEqual(registration.RefreshToken, rotated.RefreshToken);
 
         var reuse = await client.PostAsJsonAsync(
             "/api/v1/auth/refresh",
-            new RefreshTokenRequest(registration.RefreshToken));
+            new RefreshTokenRequest(registration.RefreshToken),
+            JsonOptions);
         Assert.Equal(HttpStatusCode.Unauthorized, reuse.StatusCode);
 
         var replacementAfterReuse = await client.PostAsJsonAsync(
             "/api/v1/auth/refresh",
-            new RefreshTokenRequest(rotated.RefreshToken!));
+            new RefreshTokenRequest(rotated.RefreshToken!),
+            JsonOptions);
         Assert.Equal(HttpStatusCode.Unauthorized, replacementAfterReuse.StatusCode);
     }
 
@@ -59,7 +70,8 @@ public sealed class SessionSecurityApiTests
         var password = "Correct-Horse-9!Battery";
         var registrationResponse = await client.PostAsJsonAsync(
             "/api/v1/auth/register-tenant",
-            new RegisterTenantRequest("MFA Test", $"mfa-{suffix}", "MFA Owner", email, password));
+            new RegisterTenantRequest("MFA Test", $"mfa-{suffix}", "MFA Owner", email, password),
+            JsonOptions);
         registrationResponse.EnsureSuccessStatusCode();
 
         using (var scope = factory.Services.CreateScope())
@@ -71,7 +83,10 @@ public sealed class SessionSecurityApiTests
             Assert.True((await users.UpdateAsync(user)).Succeeded);
         }
 
-        var login = await client.PostAsJsonAsync("/api/v1/auth/login", new LoginRequest(email, password));
+        var login = await client.PostAsJsonAsync(
+            "/api/v1/auth/login",
+            new LoginRequest(email, password),
+            JsonOptions);
         Assert.Equal(HttpStatusCode.Unauthorized, login.StatusCode);
     }
 
