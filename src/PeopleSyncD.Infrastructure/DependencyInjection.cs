@@ -1,3 +1,4 @@
+using Fido2NetLib;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -54,6 +55,29 @@ public static class DependencyInjection
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
+        var passkeyOptions = configuration.GetSection(PasskeyOptions.SectionName).Get<PasskeyOptions>()
+            ?? new PasskeyOptions();
+        var relyingPartyId = string.IsNullOrWhiteSpace(passkeyOptions.RelyingPartyId)
+            ? throw new InvalidOperationException("WebAuthn relying-party ID is required.")
+            : passkeyOptions.RelyingPartyId.Trim();
+        var origins = passkeyOptions.Origins
+            .Where(origin => !string.IsNullOrWhiteSpace(origin))
+            .Select(origin => origin.Trim())
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        if (origins.Count == 0)
+        {
+            throw new InvalidOperationException("At least one WebAuthn origin is required.");
+        }
+
+        services.AddSingleton(passkeyOptions);
+        services.AddSingleton<IFido2>(new Fido2(new Fido2Configuration
+        {
+            ServerDomain = relyingPartyId,
+            ServerName = string.IsNullOrWhiteSpace(passkeyOptions.RelyingPartyName)
+                ? "PeopleSyncD"
+                : passkeyOptions.RelyingPartyName.Trim(),
+            Origins = origins,
+        }));
         services.AddSingleton(jwtOptions);
         services.AddScoped<IOrganizationRepository, OrganizationRepository>();
         services.AddScoped<IOrganizationMembershipRepository, OrganizationMembershipRepository>();
@@ -61,6 +85,7 @@ public static class DependencyInjection
         services.AddScoped<IIdentityGateway, IdentityGateway>();
         services.AddScoped<IIdentityAdministrationGateway, IdentityAdministrationGateway>();
         services.AddScoped<IMfaSecurityGateway, MfaSecurityGateway>();
+        services.AddScoped<IPasskeySecurityGateway, PasskeySecurityGateway>();
         services.AddScoped<ITenantProvisioningGateway, TenantProvisioningGateway>();
         services.AddScoped<IAccessTokenIssuer, JwtAccessTokenIssuer>();
         services.AddScoped<IRefreshSessionGateway, RefreshSessionGateway>();

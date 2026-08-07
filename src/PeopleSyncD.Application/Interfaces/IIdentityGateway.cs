@@ -16,4 +16,6 @@ public interface IIdentityGateway
         CancellationToken cancellationToken = default);
 
     Task<IdentityUserDto?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default);
+
+    Task<IdentityUserDto?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
 }
