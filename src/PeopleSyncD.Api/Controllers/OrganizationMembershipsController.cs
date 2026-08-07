@@ -13,7 +13,8 @@ public sealed class OrganizationMembershipsController(
     ListMembersService listMembers,
     InviteMemberService inviteMember,
     UpdateMembershipService updateMembership,
-    IOrganizationInvitationRepository invitations) : ControllerBase
+    IOrganizationInvitationRepository invitations,
+    PrivilegedAuthenticationPolicy privilegedAuthentication) : ControllerBase
 {
     [Authorize(Policy = PermissionNames.MembershipsRead)]
     [HttpGet("members")]
@@ -55,6 +56,15 @@ public sealed class OrganizationMembershipsController(
             return Forbid();
         }
 
+        var freshness = privilegedAuthentication.Validate(User.GetAuthenticationTime());
+        if (freshness.IsFailure)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: freshness.Error.Code,
+                detail: freshness.Error.Description);
+        }
+
         var result = await inviteMember.ExecuteAsync(userId, organizationId, request, cancellationToken);
         if (result.IsSuccess)
         {
@@ -80,6 +90,15 @@ public sealed class OrganizationMembershipsController(
         if (!HasTenant(organizationId) || !User.TryGetUserId(out var userId))
         {
             return Forbid();
+        }
+
+        var freshness = privilegedAuthentication.Validate(User.GetAuthenticationTime());
+        if (freshness.IsFailure)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: freshness.Error.Code,
+                detail: freshness.Error.Description);
         }
 
         var result = await updateMembership.ExecuteAsync(

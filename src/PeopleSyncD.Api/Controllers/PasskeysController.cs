@@ -7,7 +7,9 @@ namespace PeopleSyncD.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/auth/passkeys")]
-public sealed class PasskeysController(PasskeySecurityService passkeys) : ControllerBase
+public sealed class PasskeysController(
+    PasskeySecurityService passkeys,
+    PrivilegedAuthenticationPolicy privilegedAuthentication) : ControllerBase
 {
     [Authorize]
     [HttpPost("registration/options")]
@@ -16,6 +18,12 @@ public sealed class PasskeysController(PasskeySecurityService passkeys) : Contro
         if (!User.TryGetUserId(out var userId))
         {
             return Unauthorized();
+        }
+
+        var freshness = privilegedAuthentication.Validate(User.GetAuthenticationTime());
+        if (freshness.IsFailure)
+        {
+            return ReauthenticationRequired(freshness.Error);
         }
 
         var result = await passkeys.BeginRegistrationAsync(userId, cancellationToken);
@@ -33,6 +41,12 @@ public sealed class PasskeysController(PasskeySecurityService passkeys) : Contro
         if (!User.TryGetUserId(out var userId))
         {
             return Unauthorized();
+        }
+
+        var freshness = privilegedAuthentication.Validate(User.GetAuthenticationTime());
+        if (freshness.IsFailure)
+        {
+            return ReauthenticationRequired(freshness.Error);
         }
 
         var result = await passkeys.CompleteRegistrationAsync(userId, request, cancellationToken);
@@ -125,9 +139,21 @@ public sealed class PasskeysController(PasskeySecurityService passkeys) : Contro
             return Unauthorized();
         }
 
+        var freshness = privilegedAuthentication.Validate(User.GetAuthenticationTime());
+        if (freshness.IsFailure)
+        {
+            return ReauthenticationRequired(freshness.Error);
+        }
+
         var result = await passkeys.RevokeAsync(userId, credentialId, cancellationToken);
         return result.IsSuccess
             ? NoContent()
             : Problem(statusCode: StatusCodes.Status404NotFound, title: result.Error.Code, detail: result.Error.Description);
     }
+
+    private ObjectResult ReauthenticationRequired(PeopleSyncD.SharedKernel.DomainError error) =>
+        Problem(
+            statusCode: StatusCodes.Status401Unauthorized,
+            title: error.Code,
+            detail: error.Description);
 }
