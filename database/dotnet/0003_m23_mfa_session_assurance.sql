@@ -59,4 +59,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_mfa_recovery_code_hash
 CREATE INDEX IF NOT EXISTS ix_mfa_recovery_user_active
     ON mfa_recovery_codes ("UserId", "RevokedAt", "UsedAt");
 
+CREATE TABLE IF NOT EXISTS mfa_totp_states (
+    "UserId" uuid PRIMARY KEY REFERENCES "AspNetUsers" ("Id") ON DELETE CASCADE,
+    "LastAcceptedCounter" bigint NOT NULL,
+    "EnrolledAt" timestamptz NOT NULL,
+    "UpdatedAt" timestamptz NOT NULL,
+    CONSTRAINT ck_mfa_totp_counter_nonnegative CHECK ("LastAcceptedCounter" >= 0),
+    CONSTRAINT ck_mfa_totp_timestamps CHECK ("UpdatedAt" >= "EnrolledAt")
+);
+
 COMMIT;

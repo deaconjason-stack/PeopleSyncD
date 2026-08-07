@@ -30,6 +30,8 @@ public sealed class ApplicationDbContext(
 
     internal DbSet<MfaRecoveryCode> MfaRecoveryCodes => Set<MfaRecoveryCode>();
 
+    internal DbSet<MfaTotpState> MfaTotpStates => Set<MfaTotpState>();
+
     internal DbSet<SecurityAuditRecord> SecurityAuditRecords => Set<SecurityAuditRecord>();
 
     protected override void OnModelCreating(ModelBuilder builder)

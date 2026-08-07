@@ -1,3 +1,5 @@
+using System.Buffers.Binary;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
@@ -16,6 +18,7 @@ internal sealed class MfaSecurityGateway(
 {
     private const int RecoveryCodeCount = 10;
     private const int MaxChallengeAttempts = 5;
+    private const int TotpWindow = 2;
     private static readonly TimeSpan ChallengeLifetime = TimeSpan.FromMinutes(5);
     private static readonly IReadOnlyCollection<string> ChallengeMethods =
         Array.AsReadOnly(new[] { "totp", "recovery_code" });
@@ -60,7 +63,7 @@ internal sealed class MfaSecurityGateway(
         var normalizedKey = key.Replace(" ", string.Empty, StringComparison.Ordinal).ToUpperInvariant();
         var account = Uri.EscapeDataString(user.Email ?? user.UserName ?? user.Id.ToString("D"));
         var issuer = Uri.EscapeDataString("PeopleSyncD");
-        var uri = $"otpauth://totp/{issuer}:{account}?secret={normalizedKey}&issuer={issuer}&digits=6";
+        var uri = $"otpauth://totp/{issuer}:{account}?secret={normalizedKey}&issuer={issuer}&digits=6&period=30&algorithm=SHA1";
         return Result.Success(new MfaTotpEnrollmentDto(normalizedKey, uri));
     }
 
@@ -83,32 +86,60 @@ internal sealed class MfaSecurityGateway(
                 "Multi-factor authentication is already enabled."));
         }
 
-        var verified = await users.VerifyTwoFactorTokenAsync(
-            user,
-            TokenOptions.DefaultAuthenticatorProvider,
-            NormalizeTotp(code));
-        if (!verified)
+        var matchedCounter = await MatchTotpCounterAsync(user, code);
+        if (matchedCounter is null)
         {
             return Result.Failure<RecoveryCodeBatchDto>(new DomainError(
                 "mfa.invalid_code",
                 "The authenticator code is invalid."));
         }
 
-        var enabled = await users.SetTwoFactorEnabledAsync(user, true);
-        if (!enabled.Succeeded)
+        var transaction = database.Database.IsRelational()
+            ? await database.Database.BeginTransactionAsync(cancellationToken)
+            : null;
+        try
         {
-            return IdentityFailure<RecoveryCodeBatchDto>(enabled, "mfa.enable_failed");
-        }
+            if (!await TryAdvanceTotpCounterAsync(user.Id, matchedCounter.Value, cancellationToken))
+            {
+                database.SecurityAuditRecords.Add(NewAudit(
+                    "identity.mfa.enrollment_replay_denied",
+                    user.Id,
+                    "user",
+                    user.Id.ToString("D")));
+                await database.SaveChangesAsync(cancellationToken);
+                return Result.Failure<RecoveryCodeBatchDto>(new DomainError(
+                    "mfa.invalid_code",
+                    "The authenticator code is invalid."));
+            }
 
-        var batch = await ReplaceRecoveryCodesAsync(user.Id, cancellationToken);
-        await RevokeUserSessionsAsync(user.Id, "mfa_enabled", cancellationToken);
-        database.SecurityAuditRecords.Add(NewAudit(
-            "identity.mfa.enabled",
-            user.Id,
-            "user",
-            user.Id.ToString("D")));
-        await database.SaveChangesAsync(cancellationToken);
-        return Result.Success(batch);
+            var enabled = await users.SetTwoFactorEnabledAsync(user, true);
+            if (!enabled.Succeeded)
+            {
+                return IdentityFailure<RecoveryCodeBatchDto>(enabled, "mfa.enable_failed");
+            }
+
+            var batch = await ReplaceRecoveryCodesAsync(user.Id, cancellationToken);
+            await RevokeUserSessionsAsync(user.Id, "mfa_enabled", cancellationToken);
+            database.SecurityAuditRecords.Add(NewAudit(
+                "identity.mfa.enabled",
+                user.Id,
+                "user",
+                user.Id.ToString("D")));
+            await database.SaveChangesAsync(cancellationToken);
+            if (transaction is not null)
+            {
+                await transaction.CommitAsync(cancellationToken);
+            }
+
+            return Result.Success(batch);
+        }
+        finally
+        {
+            if (transaction is not null)
+            {
+                await transaction.DisposeAsync();
+            }
+        }
     }
 
     public async Task<Result<RecoveryCodeBatchDto>> RegenerateRecoveryCodesAsync(
@@ -232,21 +263,14 @@ internal sealed class MfaSecurityGateway(
         }
 
         var method = request.Method.Trim().ToLowerInvariant();
-        var verified = method switch
-        {
-            "totp" => await users.VerifyTwoFactorTokenAsync(
-                user,
-                TokenOptions.DefaultAuthenticatorProvider,
-                NormalizeTotp(request.Code)),
-            "recovery_code" => await ConsumeRecoveryCodeAsync(user.Id, request.Code, cancellationToken),
-            _ => false,
-        };
-
-        if (!verified)
+        var factor = await VerifyFactorAsync(user, method, request.Code, cancellationToken);
+        if (factor != FactorVerification.Verified)
         {
             await RecordFailedAttemptAsync(challenge, cancellationToken);
             database.SecurityAuditRecords.Add(NewAudit(
-                "identity.mfa.challenge_failed",
+                factor == FactorVerification.Replay
+                    ? "identity.mfa.totp_replay_denied"
+                    : "identity.mfa.challenge_failed",
                 user.Id,
                 "mfa_challenge",
                 challenge.Id.ToString("D")));
@@ -300,6 +324,114 @@ internal sealed class MfaSecurityGateway(
                 item.TargetId))
             .ToListAsync(cancellationToken);
         return events.AsReadOnly();
+    }
+
+    private async Task<FactorVerification> VerifyFactorAsync(
+        ApplicationUser user,
+        string method,
+        string code,
+        CancellationToken cancellationToken)
+    {
+        if (method == "recovery_code")
+        {
+            return await ConsumeRecoveryCodeAsync(user.Id, code, cancellationToken)
+                ? FactorVerification.Verified
+                : FactorVerification.Invalid;
+        }
+
+        if (method != "totp")
+        {
+            return FactorVerification.Invalid;
+        }
+
+        var counter = await MatchTotpCounterAsync(user, code);
+        if (counter is null)
+        {
+            return FactorVerification.Invalid;
+        }
+
+        return await TryAdvanceTotpCounterAsync(user.Id, counter.Value, cancellationToken)
+            ? FactorVerification.Verified
+            : FactorVerification.Replay;
+    }
+
+    private async Task<long?> MatchTotpCounterAsync(ApplicationUser user, string rawCode)
+    {
+        var normalized = NormalizeTotp(rawCode);
+        if (normalized.Length != 6
+            || !int.TryParse(normalized, NumberStyles.None, CultureInfo.InvariantCulture, out var suppliedCode))
+        {
+            return null;
+        }
+
+        var key = await users.GetAuthenticatorKeyAsync(user);
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return null;
+        }
+
+        var keyBytes = DecodeBase32(key);
+        var currentCounter = clock.UtcNow.ToUnixTimeSeconds() / 30;
+        long? matched = null;
+        for (var offset = -TotpWindow; offset <= TotpWindow; offset++)
+        {
+            var counter = currentCounter + offset;
+            if (counter < 0 || ComputeTotpCode(keyBytes, counter) != suppliedCode)
+            {
+                continue;
+            }
+
+            if (matched is null || counter > matched.Value)
+            {
+                matched = counter;
+            }
+        }
+
+        return matched;
+    }
+
+    private async Task<bool> TryAdvanceTotpCounterAsync(
+        Guid userId,
+        long counter,
+        CancellationToken cancellationToken)
+    {
+        var now = clock.UtcNow;
+        if (database.Database.IsRelational())
+        {
+            var affected = await database.Database.ExecuteSqlInterpolatedAsync($$"""
+                INSERT INTO mfa_totp_states ("UserId", "LastAcceptedCounter", "EnrolledAt", "UpdatedAt")
+                VALUES ({{userId}}, {{counter}}, {{now}}, {{now}})
+                ON CONFLICT ("UserId") DO UPDATE
+                SET "LastAcceptedCounter" = EXCLUDED."LastAcceptedCounter",
+                    "UpdatedAt" = EXCLUDED."UpdatedAt"
+                WHERE mfa_totp_states."LastAcceptedCounter" < EXCLUDED."LastAcceptedCounter";
+                """, cancellationToken);
+            return affected == 1;
+        }
+
+        var state = await database.MfaTotpStates.SingleOrDefaultAsync(
+            item => item.UserId == userId,
+            cancellationToken);
+        if (state is null)
+        {
+            await database.MfaTotpStates.AddAsync(new MfaTotpState
+            {
+                UserId = userId,
+                LastAcceptedCounter = counter,
+                EnrolledAt = now,
+                UpdatedAt = now,
+            }, cancellationToken);
+            return true;
+        }
+
+        if (counter <= state.LastAcceptedCounter)
+        {
+            return false;
+        }
+
+        state.LastAcceptedCounter = counter;
+        state.UpdatedAt = now;
+        return true;
     }
 
     private async Task<RecoveryCodeBatchDto> ReplaceRecoveryCodesAsync(
@@ -447,6 +579,55 @@ internal sealed class MfaSecurityGateway(
             MetadataJson = "{}",
         };
 
+    private static int ComputeTotpCode(byte[] key, long counter)
+    {
+        Span<byte> counterBytes = stackalloc byte[8];
+        BinaryPrimitives.WriteInt64BigEndian(counterBytes, counter);
+#pragma warning disable CA5350 // RFC 6238 interoperable authenticator profile required by ASP.NET Core Identity.
+        var digest = HMACSHA1.HashData(key, counterBytes);
+#pragma warning restore CA5350
+        var offset = digest[^1] & 0x0f;
+        var binary = ((digest[offset] & 0x7f) << 24)
+            | (digest[offset + 1] << 16)
+            | (digest[offset + 2] << 8)
+            | digest[offset + 3];
+        return binary % 1_000_000;
+    }
+
+    private static byte[] DecodeBase32(string value)
+    {
+        const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+        var output = new List<byte>();
+        var buffer = 0;
+        var bits = 0;
+        foreach (var raw in value)
+        {
+            if (raw is '=' or ' ' or '-')
+            {
+                continue;
+            }
+
+            var index = alphabet.IndexOf(char.ToUpperInvariant(raw));
+            if (index < 0)
+            {
+                return Array.Empty<byte>();
+            }
+
+            buffer = (buffer << 5) | index;
+            bits += 5;
+            if (bits < 8)
+            {
+                continue;
+            }
+
+            bits -= 8;
+            output.Add((byte)(buffer >> bits));
+            buffer &= bits == 0 ? 0 : (1 << bits) - 1;
+        }
+
+        return output.ToArray();
+    }
+
     private static string NormalizeTotp(string code) =>
         code.Trim().Replace(" ", string.Empty, StringComparison.Ordinal).Replace("-", string.Empty, StringComparison.Ordinal);
 
@@ -482,4 +663,11 @@ internal sealed class MfaSecurityGateway(
         Result.Failure<MfaChallengeCompletionDto>(new DomainError(
             "mfa.challenge_invalid",
             "The multi-factor challenge is invalid or expired."));
+
+    private enum FactorVerification
+    {
+        Invalid,
+        Verified,
+        Replay,
+    }
 }

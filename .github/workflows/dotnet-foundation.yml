@@ -73,9 +73,10 @@ jobs:
           done
       - name: Verify M2.3 assurance schema
         run: |
-          test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from information_schema.tables where table_schema='public' and table_name in ('organizations','organization_memberships','organization_invitations','refresh_sessions','security_audit_records','mfa_challenges','mfa_recovery_codes');")" = "7"
+          test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from information_schema.tables where table_schema='public' and table_name in ('organizations','organization_memberships','organization_invitations','refresh_sessions','security_audit_records','mfa_challenges','mfa_recovery_codes','mfa_totp_states');")" = "8"
           test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from pg_indexes where schemaname='public' and indexname in ('ux_invitation_token_hash','ux_refresh_token_hash','ux_refresh_parent_session','ux_mfa_challenge_token_hash','ux_mfa_recovery_code_hash','ix_refresh_user_family_active');")" = "6"
           test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from information_schema.columns where table_schema='public' and table_name='refresh_sessions' and column_name in ('AssuranceLevel','LastSeenAt','DeviceLabel');")" = "3"
+          test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from information_schema.columns where table_schema='public' and table_name='mfa_totp_states' and column_name in ('UserId','LastAcceptedCounter','EnrolledAt','UpdatedAt');")" = "4"
 
   web:
     runs-on: ubuntu-latest
