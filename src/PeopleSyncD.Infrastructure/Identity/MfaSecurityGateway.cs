@@ -17,6 +17,8 @@ internal sealed class MfaSecurityGateway(
     private const int RecoveryCodeCount = 10;
     private const int MaxChallengeAttempts = 5;
     private static readonly TimeSpan ChallengeLifetime = TimeSpan.FromMinutes(5);
+    private static readonly IReadOnlyCollection<string> ChallengeMethods =
+        Array.AsReadOnly(new[] { "totp", "recovery_code" });
 
     public async Task<Result<MfaTotpEnrollmentDto>> BeginTotpEnrollmentAsync(
         Guid userId,
@@ -195,7 +197,7 @@ internal sealed class MfaSecurityGateway(
         return Result.Success(new MfaChallengeDto(
             raw,
             challenge.ExpiresAt,
-            Array.AsReadOnly(new[] { "totp", "recovery_code" }),
+            ChallengeMethods,
             purpose));
     }
 
