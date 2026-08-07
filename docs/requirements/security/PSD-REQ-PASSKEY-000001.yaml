@@ -1,0 +1,26 @@
+requirement_id: PSD-REQ-PASSKEY-000001
+title: Phishing-Resistant WebAuthn Passkeys
+status: Implemented Foundation
+priority: Critical
+specification: PSD-PEP-740
+statement: >-
+  PeopleSyncD shall support WebAuthn public-key credentials with relying-party
+  and origin validation, required user verification, server-side credential
+  ownership checks, single-use ceremony state, and revocable public credential
+  persistence without storing authenticator private keys.
+acceptance_criteria:
+  - Registration options require user verification and request a resident credential.
+  - The relying-party identifier and accepted origins are configuration-driven.
+  - Only public credential material and verification metadata are persisted.
+  - Assertion verification binds the credential to the expected PeopleSyncD user.
+  - Successful passkey authentication issues phishing-resistant assurance.
+  - Revoked passkeys are excluded from subsequent authentication ceremonies.
+implementation:
+  - src/PeopleSyncD.Infrastructure/Identity/PasskeySecurityGateway.cs
+  - src/PeopleSyncD.Application/Identity/PasskeySecurityService.cs
+  - src/PeopleSyncD.Api/Controllers/PasskeysController.cs
+  - src/PeopleSyncD.Web/lib/webauthn.ts
+  - database/dotnet/0004_m24_passkeys_privileged_reauth.sql
+tests:
+  - tests/PeopleSyncD.Api.Tests/PasskeyFoundationApiTests.cs
+release_status: 0.2.4-engineering

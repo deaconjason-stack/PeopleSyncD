@@ -1,0 +1,164 @@
+openapi: 3.1.0
+info:
+  title: PeopleSyncD Passkey API
+  version: 0.2.4
+  description: WebAuthn passkey registration, authentication, step-up, inventory, and revocation contract for M2.4.
+  license:
+    name: PeopleSyncD Proprietary License
+    url: https://github.com/deaconjason-stack/PeopleSyncD/blob/main/LICENSE
+servers:
+  - url: https://api.peoplesyncd.com
+security:
+  - bearerAuth: []
+paths:
+  /api/v1/auth/passkeys/registration/options:
+    post:
+      operationId: beginPasskeyRegistration
+      summary: Begin an authenticated WebAuthn passkey registration ceremony
+      responses:
+        '200':
+          description: Registration options created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PasskeyCeremonyOptions' }
+        '401': { description: Authentication is missing or too old for credential enrollment }
+        '400': { description: Registration options could not be created }
+  /api/v1/auth/passkeys/registration/complete:
+    post:
+      operationId: completePasskeyRegistration
+      summary: Verify an attestation response and persist the public credential
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CompleteRegistrationRequest' }
+      responses:
+        '200':
+          description: Passkey registered
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PasskeyCredential' }
+        '401': { description: Authentication is missing or too old }
+        '400': { description: Ceremony or attestation is invalid }
+  /api/v1/auth/passkeys/authentication/options:
+    post:
+      operationId: beginPasskeyAuthentication
+      summary: Begin email-first passwordless passkey authentication
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '200':
+          description: Assertion options created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PasskeyCeremonyOptions' }
+        '401': { description: Passkey authentication is unavailable }
+  /api/v1/auth/passkeys/authentication/complete:
+    post:
+      operationId: completePasskeyAuthentication
+      summary: Verify a passkey assertion and issue phishing-resistant session assurance
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CompleteAuthenticationRequest' }
+      responses:
+        '200': { description: Phishing-resistant session issued }
+        '401': { description: Ceremony, credential, or assertion is invalid }
+  /api/v1/auth/passkeys/step-up/options:
+    post:
+      operationId: beginPasskeyStepUp
+      summary: Begin a passkey step-up ceremony for the current identity and tenant context
+      responses:
+        '200':
+          description: Step-up assertion options created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PasskeyCeremonyOptions' }
+        '401': { description: Authentication required }
+        '400': { description: No eligible passkey is available }
+  /api/v1/auth/passkeys/step-up/complete:
+    post:
+      operationId: completePasskeyStepUp
+      summary: Verify passkey step-up and issue a fresh phishing-resistant session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CompleteAuthenticationRequest' }
+      responses:
+        '200': { description: Fresh phishing-resistant session issued }
+        '401': { description: Assertion or ceremony is invalid }
+  /api/v1/auth/passkeys:
+    get:
+      operationId: listPasskeys
+      summary: List active passkeys for the current identity
+      responses:
+        '200':
+          description: Active passkeys
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PasskeyCredential' }
+        '401': { description: Authentication required }
+  /api/v1/auth/passkeys/{credentialId}:
+    delete:
+      operationId: revokePasskey
+      summary: Revoke one active passkey
+      parameters:
+        - in: path
+          name: credentialId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Passkey revoked }
+        '401': { description: Authentication is missing or too old }
+        '404': { description: Passkey not found }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    PasskeyCeremonyOptions:
+      type: object
+      required: [ceremonyId, publicKeyOptionsJson, expiresAt, purpose]
+      properties:
+        ceremonyId: { type: string, format: uuid }
+        publicKeyOptionsJson: { type: string }
+        expiresAt: { type: string, format: date-time }
+        purpose: { type: string, enum: [registration, login, step_up] }
+    CompleteRegistrationRequest:
+      type: object
+      required: [ceremonyId, credentialJson]
+      properties:
+        ceremonyId: { type: string, format: uuid }
+        credentialJson: { type: string }
+        displayName: { type: [string, 'null'], maxLength: 200 }
+    CompleteAuthenticationRequest:
+      type: object
+      required: [ceremonyId, credentialJson]
+      properties:
+        ceremonyId: { type: string, format: uuid }
+        credentialJson: { type: string }
+    PasskeyCredential:
+      type: object
+      required: [id, displayName, createdAt, backupEligible, backedUp]
+      properties:
+        id: { type: string, format: uuid }
+        displayName: { type: string }
+        createdAt: { type: string, format: date-time }
+        lastUsedAt: { type: [string, 'null'], format: date-time }
+        backupEligible: { type: boolean }
+        backedUp: { type: boolean }
