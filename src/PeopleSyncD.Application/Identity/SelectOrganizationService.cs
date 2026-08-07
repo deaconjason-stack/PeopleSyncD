@@ -15,9 +15,9 @@ public sealed class SelectOrganizationService(
     public async Task<Result<AccessTokenDto>> ExecuteAsync(
         Guid userId,
         SelectOrganizationRequest request,
-        CancellationToken cancellationToken = default,
         string assuranceLevel = "pwd",
-        string? deviceLabel = null)
+        string? deviceLabel = null,
+        CancellationToken cancellationToken = default)
     {
         if (userId == Guid.Empty || request.OrganizationId == Guid.Empty)
         {
@@ -65,8 +65,8 @@ public sealed class SelectOrganizationService(
             : Result.Success(await sessions.IssueAsync(
                 user,
                 access,
-                cancellationToken,
                 assuranceLevel,
-                deviceLabel));
+                deviceLabel,
+                cancellationToken));
     }
 }

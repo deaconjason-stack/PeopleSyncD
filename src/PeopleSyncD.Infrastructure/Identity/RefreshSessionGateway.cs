@@ -19,9 +19,9 @@ internal sealed class RefreshSessionGateway(
         Guid? organizationId,
         Guid? membershipId,
         Guid? familyId = null,
-        CancellationToken cancellationToken = default,
         string assuranceLevel = "pwd",
-        string? deviceLabel = null)
+        string? deviceLabel = null,
+        CancellationToken cancellationToken = default)
     {
         var issued = CreateSession(
             userId,

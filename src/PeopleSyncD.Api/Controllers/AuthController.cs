@@ -48,8 +48,8 @@ public sealed class AuthController(
     {
         var result = await login.ExecuteAsync(
             request,
-            cancellationToken,
-            Request.Headers.UserAgent.ToString());
+            Request.Headers.UserAgent.ToString(),
+            cancellationToken);
         if (result.IsFailure)
         {
             var status = result.Error.Code == "authentication.invalid_credentials"
@@ -89,8 +89,8 @@ public sealed class AuthController(
     {
         var result = await mfa.CompleteChallengeAsync(
             request,
-            cancellationToken,
-            Request.Headers.UserAgent.ToString());
+            Request.Headers.UserAgent.ToString(),
+            cancellationToken);
         return result.IsSuccess
             ? Ok(result.Value)
             : Problem(
@@ -274,9 +274,9 @@ public sealed class AuthController(
         var result = await selection.ExecuteAsync(
             userId,
             request,
-            cancellationToken,
             User.GetAssuranceLevel(),
-            Request.Headers.UserAgent.ToString());
+            Request.Headers.UserAgent.ToString(),
+            cancellationToken);
         if (result.IsSuccess)
         {
             return Ok(result.Value);

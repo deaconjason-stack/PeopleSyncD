@@ -15,8 +15,8 @@ public sealed class LoginService(
 {
     public async Task<Result<LoginOutcomeDto>> ExecuteAsync(
         LoginRequest request,
-        CancellationToken cancellationToken = default,
-        string? deviceLabel = null)
+        string? deviceLabel = null,
+        CancellationToken cancellationToken = default)
     {
         var validation = await validator.ValidateAsync(request, cancellationToken);
         if (!validation.IsValid)
@@ -48,9 +48,9 @@ public sealed class LoginService(
 
         var session = await sessions.IssueAsync(
             identity.Value,
-            cancellationToken: cancellationToken,
             assuranceLevel: "pwd",
-            deviceLabel: deviceLabel);
+            deviceLabel: deviceLabel,
+            cancellationToken: cancellationToken);
         return Result.Success(new LoginOutcomeDto(session, null));
     }
 }

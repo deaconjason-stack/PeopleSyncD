@@ -42,8 +42,8 @@ public sealed class MfaSecurityService(
 
     public async Task<Result<AccessTokenDto>> CompleteChallengeAsync(
         MfaChallengeRequest request,
-        CancellationToken cancellationToken = default,
-        string? deviceLabel = null)
+        string? deviceLabel = null,
+        CancellationToken cancellationToken = default)
     {
         var completed = await mfa.CompleteChallengeAsync(request, cancellationToken);
         if (completed.IsFailure)
@@ -93,9 +93,9 @@ public sealed class MfaSecurityService(
         return Result.Success(await sessions.IssueAsync(
             user,
             access,
-            cancellationToken,
             assuranceLevel: "mfa",
-            deviceLabel: deviceLabel));
+            deviceLabel: deviceLabel,
+            cancellationToken: cancellationToken));
     }
 
     public Task<int> GetRecoveryCodeCountAsync(

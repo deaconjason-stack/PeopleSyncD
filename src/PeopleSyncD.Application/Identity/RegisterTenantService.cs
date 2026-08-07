@@ -78,6 +78,6 @@ public sealed class RegisterTenantService(
         return Result.Success(await sessions.IssueAsync(
             provisioned.Value.User,
             provisioned.Value.Access,
-            cancellationToken));
+            cancellationToken: cancellationToken));
     }
 }

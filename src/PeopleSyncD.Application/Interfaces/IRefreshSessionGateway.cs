@@ -10,9 +10,9 @@ public interface IRefreshSessionGateway
         Guid? organizationId,
         Guid? membershipId,
         Guid? familyId = null,
-        CancellationToken cancellationToken = default,
         string assuranceLevel = "pwd",
-        string? deviceLabel = null);
+        string? deviceLabel = null,
+        CancellationToken cancellationToken = default);
 
     Task<Result<RefreshRotationDto>> RotateAsync(
         string refreshToken,
