@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -16,10 +17,16 @@ internal sealed class JwtAccessTokenIssuer(JwtOptions options, IClock clock) : I
         IdentityUserDto user,
         OrganizationAccessDto? access = null,
         string assuranceLevel = "pwd",
-        Guid? sessionFamilyId = null)
+        Guid? sessionFamilyId = null,
+        DateTimeOffset? authenticatedAt = null,
+        string? authenticationMethod = null)
     {
-        var assurance = string.Equals(assuranceLevel, "mfa", StringComparison.Ordinal) ? "mfa" : "pwd";
+        var assurance = AuthenticationAssurance.Normalize(assuranceLevel);
         var now = clock.UtcNow;
+        var authenticationTime = authenticatedAt ?? now;
+        var method = string.IsNullOrWhiteSpace(authenticationMethod)
+            ? AuthenticationAssurance.DefaultMethod(assurance)
+            : authenticationMethod.Trim().ToLowerInvariant();
         var expiresAt = now.AddMinutes(options.AccessTokenMinutes);
         var claims = new List<Claim>
         {
@@ -30,13 +37,9 @@ internal sealed class JwtAccessTokenIssuer(JwtOptions options, IClock clock) : I
             new("account_active", user.IsActive ? "true" : "false", ClaimValueTypes.Boolean),
             new("mfa_enrolled", user.MfaEnabled ? "true" : "false", ClaimValueTypes.Boolean),
             new("psd_assurance", assurance),
-            new("amr", "pwd"),
-            new("auth_time", now.ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture), ClaimValueTypes.Integer64),
+            new("auth_time", authenticationTime.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture), ClaimValueTypes.Integer64),
         };
-        if (string.Equals(assurance, "mfa", StringComparison.Ordinal))
-        {
-            claims.Add(new Claim("amr", "mfa"));
-        }
+        AddAuthenticationMethodClaims(claims, assurance, method);
 
         if (sessionFamilyId is not null)
         {
@@ -83,5 +86,23 @@ internal sealed class JwtAccessTokenIssuer(JwtOptions options, IClock clock) : I
             tenant,
             AssuranceLevel: assurance,
             SessionFamilyId: sessionFamilyId);
+    }
+
+    private static void AddAuthenticationMethodClaims(
+        List<Claim> claims,
+        string assurance,
+        string method)
+    {
+        if (assurance == AuthenticationAssurance.PhishingResistant)
+        {
+            claims.Add(new Claim("amr", "passkey"));
+            return;
+        }
+
+        claims.Add(new Claim("amr", "pwd"));
+        if (assurance == AuthenticationAssurance.Mfa && method != "pwd")
+        {
+            claims.Add(new Claim("amr", method));
+        }
     }
 }

@@ -1,0 +1,22 @@
+requirement_id: PSD-REQ-REAUTH-000001
+title: Privileged Operation Reauthentication
+status: Implemented Foundation
+priority: Critical
+specification: PSD-PEP-740
+statement: >-
+  PeopleSyncD shall require a recent authentication ceremony before designated
+  sensitive identity and membership operations, and refresh-token rotation
+  shall not by itself satisfy the maximum-authentication-age policy.
+acceptance_criteria:
+  - The initial privileged maximum authentication age is five minutes.
+  - Passkey registration and revocation reject stale authentication.
+  - Organization invitation and membership mutation reject stale authentication.
+  - A fresh passkey step-up issues a new phishing-resistant authentication instant.
+implementation:
+  - src/PeopleSyncD.Application/Identity/PrivilegedAuthenticationPolicy.cs
+  - src/PeopleSyncD.Api/Controllers/PasskeysController.cs
+  - src/PeopleSyncD.Api/Controllers/OrganizationMembershipsController.cs
+tests:
+  - tests/PeopleSyncD.Application.Tests/PrivilegedAuthenticationPolicyTests.cs
+  - tests/PeopleSyncD.Api.Tests/PasskeyFoundationApiTests.cs
+release_status: 0.2.4-engineering

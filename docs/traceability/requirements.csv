@@ -51,3 +51,6 @@ PSD-REQ-DESKTOP-000001,PSD-PEP-600,,apps/desktop/src/main.ts,,,.github/workflows
 PSD-REQ-TEST-000001,PSD-PEP-600,,apps/api/src/server.ts,,database/migrations/0001_phase6_runtime.sql,apps/api/src/server.test.ts,internal-alpha
 PSD-REQ-IDENTITY-000003,PSD-PEP-210,identity,docs/api/peoplesyncd-v1.yaml,,infrastructure/postgres/migrations/0001-platform-identity.sql,tests/PeopleSyncD.Api.Tests/ApiFoundationTests.cs,implemented-foundation
 PSD-REQ-TENANT-000001,PSD-PEP-230,permissions,docs/api/peoplesyncd-v1.yaml,,infrastructure/postgres/migrations/0001-platform-identity.sql,tests/PeopleSyncD.Api.Tests/ApiFoundationTests.cs,implemented-foundation
+PSD-REQ-PASSKEY-000001,PSD-PEP-740,,docs/api/passkeys.yaml,,database/dotnet/0004_m24_passkeys_privileged_reauth.sql,tests/PeopleSyncD.Api.Tests/PasskeyFoundationApiTests.cs,implemented-foundation
+PSD-REQ-REAUTH-000001,PSD-PEP-740,,docs/api/passkeys.yaml,,database/dotnet/0004_m24_passkeys_privileged_reauth.sql,tests/PeopleSyncD.Application.Tests/PrivilegedAuthenticationPolicyTests.cs,implemented-foundation
+PSD-REQ-AUTHSESSION-000001,PSD-PEP-740,,docs/api/peoplesyncd-v1.yaml,,database/dotnet/0004_m24_passkeys_privileged_reauth.sql,tests/PeopleSyncD.Api.Tests/SessionAuthenticationFreshnessTests.cs,implemented

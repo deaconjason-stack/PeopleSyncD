@@ -32,6 +32,10 @@ public sealed class ApplicationDbContext(
 
     internal DbSet<MfaTotpState> MfaTotpStates => Set<MfaTotpState>();
 
+    internal DbSet<PasskeyCredential> PasskeyCredentials => Set<PasskeyCredential>();
+
+    internal DbSet<PasskeyCeremony> PasskeyCeremonies => Set<PasskeyCeremony>();
+
     internal DbSet<SecurityAuditRecord> SecurityAuditRecords => Set<SecurityAuditRecord>();
 
     protected override void OnModelCreating(ModelBuilder builder)

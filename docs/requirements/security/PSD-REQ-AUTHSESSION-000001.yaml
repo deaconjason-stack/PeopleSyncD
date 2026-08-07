@@ -1,0 +1,24 @@
+requirement_id: PSD-REQ-AUTHSESSION-000001
+title: Immutable Authentication Freshness Across Refresh Rotation
+status: Implemented
+priority: Critical
+specification: PSD-PEP-740
+statement: >-
+  PeopleSyncD shall persist the actual authentication instant and method in the
+  server-side session family and shall preserve those values unchanged when a
+  refresh token rotates.
+acceptance_criteria:
+  - Access tokens distinguish token issue time from authentication time.
+  - Refresh-session records persist authenticated-at and authentication method.
+  - Rotation copies authenticated-at and method unchanged into the replacement session.
+  - Tenant-context exchange preserves the existing authentication evidence.
+  - Only a new authentication ceremony can advance authentication freshness.
+implementation:
+  - src/PeopleSyncD.Application/Identity/SessionTokenService.cs
+  - src/PeopleSyncD.Application/Identity/RefreshSessionService.cs
+  - src/PeopleSyncD.Infrastructure/Identity/RefreshSessionGateway.cs
+  - src/PeopleSyncD.Infrastructure/Identity/JwtAccessTokenIssuer.cs
+  - database/dotnet/0004_m24_passkeys_privileged_reauth.sql
+tests:
+  - tests/PeopleSyncD.Api.Tests/SessionAuthenticationFreshnessTests.cs
+release_status: 0.2.4-engineering

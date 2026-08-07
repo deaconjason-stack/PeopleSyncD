@@ -46,6 +46,20 @@ internal sealed class IdentityGateway(UserManager<ApplicationUser> users) : IIde
         return user is null ? null : ToDto(user);
     }
 
+    public async Task<IdentityUserDto?> GetByEmailAsync(
+        string email,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return null;
+        }
+
+        var user = await users.FindByEmailAsync(email.Trim());
+        return user is null ? null : ToDto(user);
+    }
+
     private static Result<IdentityUserDto> InvalidCredentials() =>
         Result.Failure<IdentityUserDto>(new DomainError(
             "authentication.invalid_credentials",

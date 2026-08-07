@@ -90,7 +90,9 @@ public sealed record RefreshRotationDto(
     Guid? MembershipId,
     RefreshTokenDto Replacement,
     string AssuranceLevel = "pwd",
-    string? DeviceLabel = null);
+    string? DeviceLabel = null,
+    DateTimeOffset? AuthenticatedAt = null,
+    string AuthenticationMethod = "pwd");
 
 public sealed record ConfirmEmailRequest(Guid UserId, string Token);
 
@@ -140,7 +142,9 @@ public sealed record SessionSummaryDto(
     DateTimeOffset LastSeenAt,
     string AssuranceLevel,
     string? DeviceLabel,
-    bool IsCurrent);
+    bool IsCurrent,
+    DateTimeOffset? AuthenticatedAt = null,
+    string AuthenticationMethod = "pwd");
 
 public sealed record SecurityEventDto(
     string EventType,

@@ -1,6 +1,6 @@
 registry:
   id: PSD-REQ-000001
-  version: 1.7.0
+  version: 1.8.0
   status: Approved
 
 requirements:
@@ -220,3 +220,15 @@ requirements:
     title: Dedicated Deployed Runtime Database Identity
     status: Implemented Foundation
     path: docs/requirements/deployment/PSD-REQ-DBIDENTITY-000001.yaml
+  - requirement_id: PSD-REQ-PASSKEY-000001
+    title: Phishing-Resistant WebAuthn Passkeys
+    status: Implemented Foundation
+    path: docs/requirements/security/PSD-REQ-PASSKEY-000001.yaml
+  - requirement_id: PSD-REQ-REAUTH-000001
+    title: Privileged Operation Reauthentication
+    status: Implemented Foundation
+    path: docs/requirements/security/PSD-REQ-REAUTH-000001.yaml
+  - requirement_id: PSD-REQ-AUTHSESSION-000001
+    title: Immutable Authentication Freshness Across Refresh Rotation
+    status: Implemented
+    path: docs/requirements/security/PSD-REQ-AUTHSESSION-000001.yaml

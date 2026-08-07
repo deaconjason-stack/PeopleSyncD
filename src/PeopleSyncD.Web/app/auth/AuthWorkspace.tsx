@@ -9,7 +9,9 @@ import type {
   MfaChallenge,
   MfaMethod,
   OrganizationAccess,
+  PasskeyCeremonyOptions,
 } from '../../lib/contracts';
+import { createPasskeyAssertion } from '../../lib/webauthn';
 
 const sessionKey = 'peoplesyncd.access-token';
 
@@ -62,7 +64,7 @@ export default function AuthWorkspace() {
     try {
       await action();
     } catch (error) {
-      setStatus(error instanceof ApiError ? error.message : 'The request could not be completed.');
+      setStatus(error instanceof ApiError ? error.message : error instanceof Error ? error.message : 'The request could not be completed.');
     } finally {
       setBusy(false);
     }
@@ -110,6 +112,25 @@ export default function AuthWorkspace() {
         }
         throw error;
       }
+    });
+  }
+
+  function passkeyLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    void run(async () => {
+      const ceremony = await apiRequest<PasskeyCeremonyOptions>('/api/v1/auth/passkeys/authentication/options', {
+        method: 'POST',
+        body: JSON.stringify({ email: field(form, 'email') }),
+      });
+      const credentialJson = await createPasskeyAssertion(ceremony.publicKeyOptionsJson);
+      const response = await apiRequest<AccessToken>('/api/v1/auth/passkeys/authentication/complete', {
+        method: 'POST',
+        body: JSON.stringify({ ceremonyId: ceremony.ceremonyId, credentialJson }),
+      });
+      await applyToken(response.accessToken);
+      setChallenge(undefined);
+      setStatus('Passkey verified. This session has phishing-resistant assurance.');
     });
   }
 
@@ -186,10 +207,17 @@ export default function AuthWorkspace() {
           </form>
 
           <form className="panel" onSubmit={login}>
-            <h3>Sign in</h3>
+            <h3>Sign in with password</h3>
             <label>Email<input name="email" type="email" required maxLength={320} /></label>
             <label>Password<input name="password" type="password" required maxLength={128} /></label>
             <button disabled={busy} type="submit">Sign in</button>
+          </form>
+
+          <form className="panel" onSubmit={passkeyLogin}>
+            <h3>Sign in with passkey</h3>
+            <p>Use a registered passkey for phishing-resistant passwordless authentication.</p>
+            <label>Email<input name="email" type="email" required maxLength={320} autoComplete="username webauthn" /></label>
+            <button disabled={busy} type="submit">Use passkey</button>
           </form>
         </div>
       )}
