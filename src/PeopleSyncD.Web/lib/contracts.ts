@@ -1,7 +1,7 @@
 export type TenantRole = 'Owner' | 'Administrator' | 'Manager' | 'Member' | 'Auditor';
 export type MembershipStatus = 'Active' | 'Suspended' | 'Revoked';
 export type InvitationStatus = 'Pending' | 'Accepted' | 'Revoked' | 'Expired';
-export type AssuranceLevel = 'pwd' | 'mfa';
+export type AssuranceLevel = 'pwd' | 'mfa' | 'phishing_resistant';
 export type MfaMethod = 'totp' | 'recovery_code';
 
 export interface IdentityUser {
@@ -104,6 +104,8 @@ export interface SessionSummary {
   assuranceLevel: AssuranceLevel;
   deviceLabel: string | null;
   isCurrent: boolean;
+  authenticatedAt: string | null;
+  authenticationMethod: string;
 }
 
 export interface SecurityEvent {
@@ -111,4 +113,20 @@ export interface SecurityEvent {
   occurredAt: string;
   targetType: string;
   targetId: string;
+}
+
+export interface PasskeyCeremonyOptions {
+  ceremonyId: string;
+  publicKeyOptionsJson: string;
+  expiresAt: string;
+  purpose: 'registration' | 'login' | 'step_up';
+}
+
+export interface PasskeyCredential {
+  id: string;
+  displayName: string;
+  createdAt: string;
+  lastUsedAt: string | null;
+  backupEligible: boolean;
+  backedUp: boolean;
 }
