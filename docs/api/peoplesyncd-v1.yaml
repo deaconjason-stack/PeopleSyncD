@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: PeopleSyncD API
-  version: 0.2.0
-  description: Identity and tenant-context vertical slice for the PeopleSyncD platform.
+  version: 0.2.2
+  description: User administration, invitation, verified-email, rotating-session, and tenant-context API for M2.2.
   license:
     name: PeopleSyncD Proprietary License
     url: https://github.com/deaconjason-stack/PeopleSyncD/blob/main/LICENSE
@@ -17,10 +17,8 @@ paths:
       summary: Get service readiness status
       security: []
       responses:
-        '200':
-          description: Service is ready
-        '503':
-          description: Service is not ready
+        '200': { description: Service is ready }
+        '503': { description: Service is not ready }
   /api/v1/auth/register-tenant:
     post:
       operationId: registerTenant
@@ -30,41 +28,71 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/RegisterTenantRequest'
+            schema: { $ref: '#/components/schemas/RegisterTenantRequest' }
       responses:
         '201':
           description: Tenant and owner created
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/AccessToken'
-        '400':
-          description: Registration validation failed
-        '409':
-          description: Email or organization slug already exists
+              schema: { $ref: '#/components/schemas/AccessToken' }
+        '400': { description: Registration validation failed }
+        '409': { description: Email or organization slug already exists }
   /api/v1/auth/login:
     post:
       operationId: login
-      summary: Authenticate a platform user
+      summary: Authenticate a platform user with password credentials
       security: []
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/LoginRequest'
+            schema: { $ref: '#/components/schemas/LoginRequest' }
       responses:
         '200':
-          description: Authentication succeeded
+          description: Password authentication succeeded and MFA is not enrolled
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/AccessToken'
-        '400':
-          description: Login request is invalid
-        '401':
-          description: Credentials are invalid
+              schema: { $ref: '#/components/schemas/AccessToken' }
+        '400': { description: Login request is invalid }
+        '401': { description: Credentials are invalid, account is locked, or an enrolled MFA factor is required }
+  /api/v1/auth/refresh:
+    post:
+      operationId: refreshSession
+      summary: Rotate a refresh token and issue a new access token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefreshTokenRequest' }
+      responses:
+        '200':
+          description: Refresh token rotated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AccessToken' }
+        '401': { description: Refresh token is invalid, reused, revoked, or no longer authorized }
+  /api/v1/auth/email-verification/request:
+    post:
+      operationId: requestEmailVerification
+      summary: Queue an email-verification message for the authenticated user
+      responses:
+        '202': { description: Verification delivery accepted }
+        '400': { description: Verification could not be generated }
+        '401': { description: Authentication required }
+  /api/v1/auth/email-verification/confirm:
+    post:
+      operationId: confirmEmail
+      summary: Confirm an email address using an Identity verification token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConfirmEmailRequest' }
+      responses:
+        '204': { description: Email confirmed }
+        '400': { description: Verification token is invalid }
   /api/v1/auth/organizations:
     get:
       operationId: listMyOrganizations
@@ -76,42 +104,130 @@ paths:
             application/json:
               schema:
                 type: array
-                items:
-                  $ref: '#/components/schemas/OrganizationAccess'
-        '401':
-          description: Authentication required
+                items: { $ref: '#/components/schemas/OrganizationAccess' }
+        '401': { description: Authentication required }
   /api/v1/auth/select-organization:
     post:
       operationId: selectOrganization
-      summary: Exchange a user token for a tenant-scoped token
+      summary: Exchange a verified user token for a tenant-scoped token
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/SelectOrganizationRequest'
+            schema: { $ref: '#/components/schemas/SelectOrganizationRequest' }
       responses:
         '200':
           description: Tenant-scoped token issued
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/AccessToken'
-        '400':
-          description: Tenant selection request is invalid
-        '401':
-          description: Authentication required
-        '403':
-          description: Active organization membership required
+              schema: { $ref: '#/components/schemas/AccessToken' }
+        '400': { description: Tenant selection request is invalid }
+        '401': { description: Authentication required }
+        '403': { description: Verified email and active membership required; MFA enrollment requires step-up authentication }
   /api/v1/auth/me:
     get:
       operationId: getCurrentSession
       summary: Get the current identity and tenant context
       responses:
+        '200': { description: Current validated session }
+        '401': { description: Authentication required }
+  /api/v1/auth/security:
+    get:
+      operationId: getAccountSecurity
+      summary: Get verified-email and MFA-enrollment state
+      responses:
+        '200': { description: Current account-security state }
+        '401': { description: Authentication required }
+  /api/v1/invitations/accept:
+    post:
+      operationId: acceptOrganizationInvitation
+      summary: Accept a single-use organization invitation
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AcceptInvitationRequest' }
+      responses:
         '200':
-          description: Current validated session
-        '401':
-          description: Authentication required
+          description: Invitation accepted and membership created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OrganizationAccess' }
+        '400': { description: Invitation is invalid, expired, or password validation failed }
+        '409': { description: Membership already exists }
+  /api/v1/organizations/{organizationId}/members:
+    get:
+      operationId: listOrganizationMembers
+      summary: List organization memberships and account-security posture
+      parameters:
+        - $ref: '#/components/parameters/OrganizationId'
+      responses:
+        '200':
+          description: Organization members
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/MembershipAdmin' }
+        '401': { description: Authentication required or tenant session is stale }
+        '403': { description: Tenant or memberships.read permission required }
+  /api/v1/organizations/{organizationId}/invitations:
+    get:
+      operationId: listOrganizationInvitations
+      summary: List invitation history for an organization
+      parameters:
+        - $ref: '#/components/parameters/OrganizationId'
+      responses:
+        '200':
+          description: Invitation history
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Invitation' }
+        '401': { description: Authentication required or tenant session is stale }
+        '403': { description: Tenant or memberships.read permission required }
+    post:
+      operationId: createOrganizationInvitation
+      summary: Invite a user into an organization
+      parameters:
+        - $ref: '#/components/parameters/OrganizationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateInvitationRequest' }
+      responses:
+        '201':
+          description: Invitation persisted and delivery queued
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Invitation' }
+        '400': { description: Invitation request is invalid }
+        '401': { description: Authentication required or tenant session is stale }
+        '403': { description: Owner or administrator membership required }
+        '409': { description: Existing membership or pending invitation conflict }
+  /api/v1/organizations/{organizationId}/members/{membershipId}:
+    patch:
+      operationId: updateOrganizationMembership
+      summary: Change a member role or lifecycle status
+      parameters:
+        - $ref: '#/components/parameters/OrganizationId'
+        - in: path
+          name: membershipId
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateMembershipRequest' }
+      responses:
+        '204': { description: Membership updated and refresh sessions revoked }
+        '400': { description: Invalid role or lifecycle transition }
+        '401': { description: Authentication required or tenant session is stale }
+        '403': { description: Membership administration denied or protected owner rule applies }
   /api/v1/organizations/{id}:
     get:
       operationId: getOrganization
@@ -120,115 +236,127 @@ paths:
         - in: path
           name: id
           required: true
-          schema:
-            type: string
-            format: uuid
+          schema: { type: string, format: uuid }
       responses:
-        '200':
-          description: Organization found
-        '401':
-          description: Authentication required
-        '403':
-          description: Requested organization does not match the selected tenant
-        '404':
-          description: Organization not found
+        '200': { description: Organization found }
+        '401': { description: Authentication required or tenant session is stale }
+        '403': { description: Requested organization does not match selected tenant }
+        '404': { description: Organization not found }
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  parameters:
+    OrganizationId:
+      in: path
+      name: organizationId
+      required: true
+      schema: { type: string, format: uuid }
   schemas:
     RegisterTenantRequest:
       type: object
-      required:
-        - organizationName
-        - organizationSlug
-        - displayName
-        - email
-        - password
+      required: [organizationName, organizationSlug, displayName, email, password]
       properties:
-        organizationName:
-          type: string
-          maxLength: 200
+        organizationName: { type: string, maxLength: 200 }
         organizationSlug:
           type: string
           maxLength: 80
           pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$'
-        displayName:
-          type: string
-          maxLength: 200
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          format: password
-          minLength: 12
-          maxLength: 128
+        displayName: { type: string, maxLength: 200 }
+        email: { type: string, format: email }
+        password: { type: string, format: password, minLength: 12, maxLength: 128 }
     LoginRequest:
       type: object
-      required:
-        - email
-        - password
+      required: [email, password]
       properties:
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          format: password
+        email: { type: string, format: email }
+        password: { type: string, format: password }
+    RefreshTokenRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken: { type: string, minLength: 32 }
+    ConfirmEmailRequest:
+      type: object
+      required: [userId, token]
+      properties:
+        userId: { type: string, format: uuid }
+        token: { type: string }
     SelectOrganizationRequest:
       type: object
-      required:
-        - organizationId
+      required: [organizationId]
       properties:
-        organizationId:
-          type: string
-          format: uuid
-    OrganizationAccess:
+        organizationId: { type: string, format: uuid }
+    CreateInvitationRequest:
       type: object
-      required:
-        - membershipId
-        - organizationId
-        - organizationName
-        - organizationSlug
-        - role
-        - status
+      required: [email, displayName, role]
       properties:
-        membershipId:
-          type: string
-          format: uuid
-        organizationId:
-          type: string
-          format: uuid
-        organizationName:
-          type: string
-        organizationSlug:
-          type: string
+        email: { type: string, format: email, maxLength: 320 }
+        displayName: { type: string, maxLength: 200 }
         role:
           type: string
-          enum: [Owner, Administrator, Manager, Member, Auditor]
+          enum: [Administrator, Manager, Member, Auditor]
+    AcceptInvitationRequest:
+      type: object
+      required: [token, displayName, password]
+      properties:
+        token: { type: string, maxLength: 512 }
+        displayName: { type: string, maxLength: 200 }
+        password: { type: string, format: password, minLength: 12, maxLength: 256 }
+    UpdateMembershipRequest:
+      type: object
+      properties:
+        role:
+          type: [string, 'null']
+          enum: [Administrator, Manager, Member, Auditor, null]
         status:
-          type: string
-          enum: [Active, Suspended, Revoked]
+          type: [string, 'null']
+          enum: [Active, Suspended, Revoked, null]
+    OrganizationAccess:
+      type: object
+      required: [membershipId, organizationId, organizationName, organizationSlug, role, status]
+      properties:
+        membershipId: { type: string, format: uuid }
+        organizationId: { type: string, format: uuid }
+        organizationName: { type: string }
+        organizationSlug: { type: string }
+        role: { type: string, enum: [Owner, Administrator, Manager, Member, Auditor] }
+        status: { type: string, enum: [Active, Suspended, Revoked] }
+    MembershipAdmin:
+      type: object
+      required: [membershipId, userId, organizationId, displayName, email, role, status, emailConfirmed, mfaEnabled]
+      properties:
+        membershipId: { type: string, format: uuid }
+        userId: { type: string, format: uuid }
+        organizationId: { type: string, format: uuid }
+        displayName: { type: string }
+        email: { type: string, format: email }
+        role: { type: string, enum: [Owner, Administrator, Manager, Member, Auditor] }
+        status: { type: string, enum: [Active, Suspended, Revoked] }
+        emailConfirmed: { type: boolean }
+        mfaEnabled: { type: boolean }
+    Invitation:
+      type: object
+      required: [id, organizationId, email, displayName, role, status, createdAt, expiresAt]
+      properties:
+        id: { type: string, format: uuid }
+        organizationId: { type: string, format: uuid }
+        email: { type: string, format: email }
+        displayName: { type: string }
+        role: { type: string, enum: [Administrator, Manager, Member, Auditor] }
+        status: { type: string, enum: [Pending, Accepted, Revoked, Expired] }
+        createdAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
     AccessToken:
       type: object
-      required:
-        - accessToken
-        - tokenType
-        - expiresAt
-        - user
+      required: [accessToken, tokenType, expiresAt, user]
       properties:
-        accessToken:
-          type: string
-        tokenType:
-          type: string
-          const: Bearer
-        expiresAt:
-          type: string
-          format: date-time
-        user:
-          type: object
-        tenant:
-          type: [object, 'null']
+        accessToken: { type: string }
+        tokenType: { type: string, const: Bearer }
+        expiresAt: { type: string, format: date-time }
+        user: { type: object }
+        tenant: { type: [object, 'null'] }
+        refreshToken: { type: [string, 'null'] }
+        refreshTokenExpiresAt: { type: [string, 'null'], format: date-time }

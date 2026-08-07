@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { type FormEvent, useCallback, useEffect, useState } from 'react';
 import { ApiError, apiRequest } from '../../lib/api';
 import type { AccessToken, CurrentSession, OrganizationAccess } from '../../lib/contracts';
@@ -30,10 +31,7 @@ export default function AuthWorkspace() {
 
   useEffect(() => {
     const stored = sessionStorage.getItem(sessionKey);
-    if (!stored) {
-      return;
-    }
-
+    if (!stored) return;
     void applyToken(stored).catch(() => {
       sessionStorage.removeItem(sessionKey);
       setToken(undefined);
@@ -68,8 +66,7 @@ export default function AuthWorkspace() {
         }),
       });
       await applyToken(response.accessToken);
-      setSession({ user: response.user, tenant: response.tenant });
-      setStatus(`Owner account created for ${response.tenant?.organizationName ?? 'the organization'}.`);
+      setStatus('Owner account created. Verify the email address before using tenant permissions.');
     });
   }
 
@@ -79,28 +76,31 @@ export default function AuthWorkspace() {
     void run(async () => {
       const response = await apiRequest<AccessToken>('/api/v1/auth/login', {
         method: 'POST',
-        body: JSON.stringify({
-          email: field(form, 'email'),
-          password: field(form, 'password'),
-        }),
+        body: JSON.stringify({ email: field(form, 'email'), password: field(form, 'password') }),
       });
       await applyToken(response.accessToken);
-      setStatus('Authenticated. Select an organization to activate tenant permissions.');
+      setStatus(response.user.emailConfirmed
+        ? 'Authenticated. Select an organization to activate tenant permissions.'
+        : 'Authenticated. Verify your email before selecting an organization.');
+    });
+  }
+
+  function requestVerification() {
+    if (!token) return;
+    void run(async () => {
+      await apiRequest('/api/v1/auth/email-verification/request', { method: 'POST' }, token);
+      setStatus('Verification message queued. Local development writes it to the protected .local-email outbox.');
     });
   }
 
   function selectOrganization(organizationId: string) {
-    if (!token) {
-      return;
-    }
-
+    if (!token) return;
     void run(async () => {
       const response = await apiRequest<AccessToken>('/api/v1/auth/select-organization', {
         method: 'POST',
         body: JSON.stringify({ organizationId }),
       }, token);
       await applyToken(response.accessToken);
-      setSession({ user: response.user, tenant: response.tenant });
       setStatus(`${response.tenant?.organizationName ?? 'Organization'} is now the active tenant.`);
     });
   }
@@ -153,9 +153,16 @@ export default function AuthWorkspace() {
             <dl>
               <dt>Name</dt><dd>{session.user.displayName}</dd>
               <dt>Email</dt><dd>{session.user.email}</dd>
+              <dt>Email verified</dt><dd>{session.user.emailConfirmed ? 'Yes' : 'No'}</dd>
+              <dt>MFA enrolled</dt><dd>{session.user.mfaEnabled ? 'Yes' : 'No'}</dd>
               <dt>Tenant</dt><dd>{session.tenant?.organizationName ?? 'Not selected'}</dd>
               <dt>Role</dt><dd>{session.tenant?.role ?? 'Authenticated user'}</dd>
             </dl>
+            {!session.user.emailConfirmed && (
+              <button disabled={busy} type="button" onClick={requestVerification}>Send verification</button>
+            )}
+            {session.tenant && <Link className="primary-link inline-link" href="/members">Manage organization users</Link>}
+            <Link className="secondary-link" href="/invite">Accept an invitation</Link>
           </article>
           <article className="panel">
             <h3>Authorized organizations</h3>
@@ -165,7 +172,7 @@ export default function AuthWorkspace() {
                 <button
                   type="button"
                   className="organization"
-                  disabled={busy || organization.status !== 'Active'}
+                  disabled={busy || organization.status !== 'Active' || !session.user.emailConfirmed}
                   key={organization.membershipId}
                   onClick={() => selectOrganization(organization.organizationId)}
                 >
