@@ -26,6 +26,10 @@ public sealed class ApplicationDbContext(
 
     internal DbSet<RefreshSession> RefreshSessions => Set<RefreshSession>();
 
+    internal DbSet<MfaChallenge> MfaChallenges => Set<MfaChallenge>();
+
+    internal DbSet<MfaRecoveryCode> MfaRecoveryCodes => Set<MfaRecoveryCode>();
+
     internal DbSet<SecurityAuditRecord> SecurityAuditRecords => Set<SecurityAuditRecord>();
 
     protected override void OnModelCreating(ModelBuilder builder)

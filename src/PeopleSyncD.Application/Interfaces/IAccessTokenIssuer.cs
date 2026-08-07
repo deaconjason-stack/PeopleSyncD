@@ -7,5 +7,9 @@ namespace PeopleSyncD.Application.Interfaces;
 /// </summary>
 public interface IAccessTokenIssuer
 {
-    AccessTokenDto Issue(IdentityUserDto user, OrganizationAccessDto? access = null);
+    AccessTokenDto Issue(
+        IdentityUserDto user,
+        OrganizationAccessDto? access = null,
+        string assuranceLevel = "pwd",
+        Guid? sessionFamilyId = null);
 }

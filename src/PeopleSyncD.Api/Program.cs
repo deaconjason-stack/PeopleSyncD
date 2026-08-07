@@ -37,6 +37,7 @@ app.UseExceptionHandler();
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseSerilogRequestLogging();
 app.UseAuthentication();
+app.UseMiddleware<AccountSecurityValidationMiddleware>();
 app.UseMiddleware<TenantMembershipValidationMiddleware>();
 app.UseAuthorization();
 app.MapOpenApi();

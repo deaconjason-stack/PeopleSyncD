@@ -34,13 +34,6 @@ internal sealed class IdentityGateway(UserManager<ApplicationUser> users) : IIde
         }
 
         await users.ResetAccessFailedCountAsync(user);
-        if (user.TwoFactorEnabled)
-        {
-            return Result.Failure<IdentityUserDto>(new DomainError(
-                "authentication.mfa_required",
-                "A configured second factor is required to complete authentication."));
-        }
-
         return Result.Success(ToDto(user));
     }
 

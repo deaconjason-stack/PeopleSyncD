@@ -9,14 +9,22 @@ public sealed class SessionTokenService(
     public async Task<AccessTokenDto> IssueAsync(
         IdentityUserDto user,
         OrganizationAccessDto? access = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        string assuranceLevel = "pwd",
+        string? deviceLabel = null)
     {
-        var accessToken = accessTokens.Issue(user, access);
         var refreshToken = await refreshSessions.IssueAsync(
             user.Id,
             access?.OrganizationId,
             access?.MembershipId,
-            cancellationToken: cancellationToken);
+            cancellationToken: cancellationToken,
+            assuranceLevel: assuranceLevel,
+            deviceLabel: deviceLabel);
+        var accessToken = accessTokens.Issue(
+            user,
+            access,
+            assuranceLevel,
+            refreshToken.FamilyId);
         return accessToken with
         {
             RefreshToken = refreshToken.Token,

@@ -20,6 +20,12 @@ internal sealed class RefreshSession
 
     public DateTimeOffset ExpiresAt { get; set; }
 
+    public DateTimeOffset LastSeenAt { get; set; }
+
+    public string AssuranceLevel { get; set; } = "pwd";
+
+    public string? DeviceLabel { get; set; }
+
     public DateTimeOffset? UsedAt { get; set; }
 
     public DateTimeOffset? RevokedAt { get; set; }

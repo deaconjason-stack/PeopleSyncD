@@ -12,8 +12,13 @@ namespace PeopleSyncD.Infrastructure.Identity;
 
 internal sealed class JwtAccessTokenIssuer(JwtOptions options, IClock clock) : IAccessTokenIssuer
 {
-    public AccessTokenDto Issue(IdentityUserDto user, OrganizationAccessDto? access = null)
+    public AccessTokenDto Issue(
+        IdentityUserDto user,
+        OrganizationAccessDto? access = null,
+        string assuranceLevel = "pwd",
+        Guid? sessionFamilyId = null)
     {
+        var assurance = string.Equals(assuranceLevel, "mfa", StringComparison.Ordinal) ? "mfa" : "pwd";
         var now = clock.UtcNow;
         var expiresAt = now.AddMinutes(options.AccessTokenMinutes);
         var claims = new List<Claim>
@@ -24,7 +29,19 @@ internal sealed class JwtAccessTokenIssuer(JwtOptions options, IClock clock) : I
             new("email_verified", user.EmailConfirmed ? "true" : "false", ClaimValueTypes.Boolean),
             new("account_active", user.IsActive ? "true" : "false", ClaimValueTypes.Boolean),
             new("mfa_enrolled", user.MfaEnabled ? "true" : "false", ClaimValueTypes.Boolean),
+            new("psd_assurance", assurance),
+            new("amr", "pwd"),
+            new("auth_time", now.ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture), ClaimValueTypes.Integer64),
         };
+        if (string.Equals(assurance, "mfa", StringComparison.Ordinal))
+        {
+            claims.Add(new Claim("amr", "mfa"));
+        }
+
+        if (sessionFamilyId is not null)
+        {
+            claims.Add(new Claim("sid", sessionFamilyId.Value.ToString("D")));
+        }
 
         TenantContextDto? tenant = null;
         if (access is not null)
@@ -63,6 +80,8 @@ internal sealed class JwtAccessTokenIssuer(JwtOptions options, IClock clock) : I
             "Bearer",
             expiresAt,
             user,
-            tenant);
+            tenant,
+            AssuranceLevel: assurance,
+            SessionFamilyId: sessionFamilyId);
     }
 }

@@ -29,12 +29,20 @@ public sealed class RefreshSessionService(
 
         var grant = rotation.Value;
         var user = await identities.GetByIdAsync(grant.UserId, cancellationToken);
-        if (user is null || !user.IsActive || user.MfaEnabled)
+        if (user is null || !user.IsActive)
         {
             await refreshSessions.RevokeFamilyAsync(grant.FamilyId, "account_security_changed", cancellationToken);
             return Result.Failure<AccessTokenDto>(new DomainError(
-                user?.MfaEnabled == true ? "authentication.mfa_required" : "authentication.user_unavailable",
+                "authentication.user_unavailable",
                 "Reauthentication is required."));
+        }
+
+        if (user.MfaEnabled && !string.Equals(grant.AssuranceLevel, "mfa", StringComparison.Ordinal))
+        {
+            await refreshSessions.RevokeFamilyAsync(grant.FamilyId, "mfa_assurance_required", cancellationToken);
+            return Result.Failure<AccessTokenDto>(new DomainError(
+                "authentication.mfa_required",
+                "Multi-factor reauthentication is required."));
         }
 
         OrganizationAccessDto? access = null;
@@ -71,7 +79,7 @@ public sealed class RefreshSessionService(
             }
         }
 
-        var accessToken = accessTokens.Issue(user, access);
+        var accessToken = accessTokens.Issue(user, access, grant.AssuranceLevel, grant.FamilyId);
         return Result.Success(accessToken with
         {
             RefreshToken = grant.Replacement.Token,

@@ -15,7 +15,9 @@ public sealed class SelectOrganizationService(
     public async Task<Result<AccessTokenDto>> ExecuteAsync(
         Guid userId,
         SelectOrganizationRequest request,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        string assuranceLevel = "pwd",
+        string? deviceLabel = null)
     {
         if (userId == Guid.Empty || request.OrganizationId == Guid.Empty)
         {
@@ -39,11 +41,11 @@ public sealed class SelectOrganizationService(
                 "Email verification is required before tenant access can be issued."));
         }
 
-        if (user.MfaEnabled)
+        if (user.MfaEnabled && !string.Equals(assuranceLevel, "mfa", StringComparison.Ordinal))
         {
             return Result.Failure<AccessTokenDto>(new DomainError(
                 "authentication.mfa_required",
-                "A configured second factor is required before tenant access can be issued."));
+                "A verified second factor is required before tenant access can be issued."));
         }
 
         var membership = await memberships.GetActiveAsync(userId, request.OrganizationId, cancellationToken);
@@ -60,6 +62,11 @@ public sealed class SelectOrganizationService(
             ? Result.Failure<AccessTokenDto>(new DomainError(
                 "tenant.access_unavailable",
                 "The tenant access projection is unavailable."))
-            : Result.Success(await sessions.IssueAsync(user, access, cancellationToken));
+            : Result.Success(await sessions.IssueAsync(
+                user,
+                access,
+                cancellationToken,
+                assuranceLevel,
+                deviceLabel));
     }
 }

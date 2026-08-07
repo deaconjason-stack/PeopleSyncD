@@ -10,7 +10,9 @@ public interface IRefreshSessionGateway
         Guid? organizationId,
         Guid? membershipId,
         Guid? familyId = null,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        string assuranceLevel = "pwd",
+        string? deviceLabel = null);
 
     Task<Result<RefreshRotationDto>> RotateAsync(
         string refreshToken,
@@ -24,5 +26,32 @@ public interface IRefreshSessionGateway
     Task RevokeForMembershipAsync(
         Guid membershipId,
         string reason,
+        CancellationToken cancellationToken = default);
+
+    Task RevokeAllForUserAsync(
+        Guid userId,
+        string reason,
+        CancellationToken cancellationToken = default);
+
+    Task<Result> RevokeUserFamilyAsync(
+        Guid userId,
+        Guid familyId,
+        string reason,
+        CancellationToken cancellationToken = default);
+
+    Task RevokeOtherFamiliesAsync(
+        Guid userId,
+        Guid currentFamilyId,
+        string reason,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> IsFamilyActiveAsync(
+        Guid userId,
+        Guid familyId,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<SessionSummaryDto>> ListForUserAsync(
+        Guid userId,
+        Guid? currentFamilyId,
         CancellationToken cancellationToken = default);
 }

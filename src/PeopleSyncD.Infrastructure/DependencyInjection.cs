@@ -60,6 +60,7 @@ public static class DependencyInjection
         services.AddScoped<IOrganizationInvitationRepository, OrganizationInvitationRepository>();
         services.AddScoped<IIdentityGateway, IdentityGateway>();
         services.AddScoped<IIdentityAdministrationGateway, IdentityAdministrationGateway>();
+        services.AddScoped<IMfaSecurityGateway, MfaSecurityGateway>();
         services.AddScoped<ITenantProvisioningGateway, TenantProvisioningGateway>();
         services.AddScoped<IAccessTokenIssuer, JwtAccessTokenIssuer>();
         services.AddScoped<IRefreshSessionGateway, RefreshSessionGateway>();
