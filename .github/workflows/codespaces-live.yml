@@ -1,0 +1,86 @@
+name: Codespaces Live
+
+on:
+  pull_request:
+    paths:
+      - '.devcontainer/**'
+      - 'docker-compose.codespaces.yml'
+      - 'deploy/codespaces/**'
+      - 'scripts/codespaces/**'
+      - 'src/PeopleSyncD.Web/Dockerfile'
+      - '.github/workflows/codespaces-live.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-stack:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      CODESPACE_NAME: peoplesyncd-ci
+      GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN: app.github.dev
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate dev container JSON
+        run: jq empty .devcontainer/devcontainer.json
+
+      - name: Validate Codespaces Compose contract
+        run: |
+          docker compose -f docker-compose.codespaces.yml config --quiet
+          docker compose -f docker-compose.codespaces.yml config --format json > /tmp/codespaces-compose.json
+          jq -e '.services.gateway.ports | length == 1' /tmp/codespaces-compose.json
+          for service in postgres redis api web; do
+            jq -e --arg service "$service" '(.services[$service].ports // []) | length == 0' /tmp/codespaces-compose.json
+          done
+          jq -e '.services.api.environment.WebAuthn__RelyingPartyId == "peoplesyncd-ci-3000.app.github.dev"' /tmp/codespaces-compose.json
+          jq -e '.services.api.environment.WebAuthn__Origins__0 == "https://peoplesyncd-ci-3000.app.github.dev"' /tmp/codespaces-compose.json
+
+      - name: Validate gateway configuration
+        run: |
+          docker run --rm \
+            -v "$PWD/deploy/codespaces/Caddyfile:/etc/caddy/Caddyfile:ro" \
+            caddy:2-alpine \
+            caddy validate --config /etc/caddy/Caddyfile
+
+      - name: Build Codespaces application images
+        run: docker compose -f docker-compose.codespaces.yml build api web
+
+      - name: Start complete live stack
+        run: docker compose -f docker-compose.codespaces.yml up --detach
+
+      - name: Verify browser and API gateway
+        run: |
+          ready=false
+          for attempt in $(seq 1 90); do
+            if curl --fail --silent http://127.0.0.1:3000/ >/dev/null; then
+              ready=true
+              break
+            fi
+            sleep 2
+          done
+          test "$ready" = "true"
+          status=$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:3000/api/v1/auth/security)
+          test "$status" = "401"
+
+      - name: Capture service state
+        if: always()
+        run: |
+          docker compose -f docker-compose.codespaces.yml ps
+          docker compose -f docker-compose.codespaces.yml logs --no-color --tail=200 > /tmp/codespaces-live.log || true
+
+      - name: Upload Codespaces validation log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codespaces-live-${{ github.sha }}
+          path: /tmp/codespaces-live.log
+          retention-days: 30
+
+      - name: Stop live stack
+        if: always()
+        run: docker compose -f docker-compose.codespaces.yml down --volumes --remove-orphans
