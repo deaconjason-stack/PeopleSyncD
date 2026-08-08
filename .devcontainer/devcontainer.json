@@ -1,0 +1,20 @@
+{
+  "name": "PeopleSyncD Live GitHub Demo",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "PeopleSyncD Live",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "postStartCommand": "bash scripts/codespaces/start-live.sh",
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb"
+  },
+  "remoteUser": "vscode"
+}
