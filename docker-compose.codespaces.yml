@@ -1,0 +1,70 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: peoplesyncd
+      POSTGRES_USER: peoplesyncd
+      POSTGRES_PASSWORD: codespaces-development-only
+    volumes:
+      - peoplesyncd-codespaces-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U peoplesyncd -d peoplesyncd"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - peoplesyncd-codespaces-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.Api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__peoplesyncd: Host=postgres;Port=5432;Database=peoplesyncd;Username=peoplesyncd;Password=codespaces-development-only
+      OTEL_SERVICE_NAME: peoplesyncd-api-codespaces
+      WebAuthn__RelyingPartyId: ${CODESPACE_NAME}-3000.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}
+      WebAuthn__RelyingPartyName: PeopleSyncD Codespaces
+      WebAuthn__Origins__0: https://${CODESPACE_NAME}-3000.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}
+      WebAuthn__CeremonyMinutes: 5
+    expose:
+      - "8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: src/PeopleSyncD.Web
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ""
+    expose:
+      - "3000"
+    depends_on:
+      - api
+
+  gateway:
+    image: caddy:2-alpine
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./deploy/codespaces/Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - web
+      - api
+
+volumes:
+  peoplesyncd-codespaces-postgres:
+  peoplesyncd-codespaces-redis:
