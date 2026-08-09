@@ -1,31 +1,33 @@
 using System.Net;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection;
-using Xunit;
+using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace PeopleSyncD.IntegrationTests;
 
 public sealed class ApiContractTests
 {
     [Fact]
-    public async Task Unauthenticated_current_user_request_is_rejected()
+    public async Task Api_root_reports_platform_identity()
     {
-        var builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = "Testing" });
-        builder.WebHost.UseTestServer();
-        builder.Services.AddAuthentication();
-        builder.Services.AddAuthorization();
-        var app = builder.Build();
-        app.UseAuthentication();
-        app.UseAuthorization();
-        app.MapGet("/api/v1/me", () => Results.Ok());
-        await app.StartAsync();
+        await using var factory = new WebApplicationFactory<Program>();
+        using var client = factory.CreateClient();
 
-        var client = app.GetTestClient();
-        var response = await client.GetAsync("/api/v1/me");
+        var response = await client.GetAsync("/api");
+        response.EnsureSuccessStatusCode();
+        var body = await response.Content.ReadAsStringAsync();
 
-        Assert.True(response.StatusCode is HttpStatusCode.OK or HttpStatusCode.Unauthorized);
-        await app.StopAsync();
-        await app.DisposeAsync();
+        Assert.Contains("PeopleSyncD Enterprise Platform", body);
+        Assert.Contains("0.1.0-alpha", body);
+    }
+
+    [Fact]
+    public async Task Version_endpoint_reports_foundation_release()
+    {
+        await using var factory = new WebApplicationFactory<Program>();
+        using var client = factory.CreateClient();
+
+        var response = await client.GetAsync("/version");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.Contains("foundation", body);
     }
 }
