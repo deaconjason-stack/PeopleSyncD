@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: peoplesyncd
+      POSTGRES_USER: peoplesyncd
+      POSTGRES_PASSWORD: peoplesyncd-local
+    ports:
+      - "5432:5432"
+    volumes:
+      - peoplesyncd-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U peoplesyncd -d peoplesyncd"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: src/PeopleSyncD.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=peoplesyncd;Username=peoplesyncd;Password=peoplesyncd-local
+    ports:
+      - "5000:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  peoplesyncd-postgres:
