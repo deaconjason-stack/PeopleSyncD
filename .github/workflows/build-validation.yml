@@ -1,0 +1,28 @@
+name: Build Validation
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  repository-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate required platform files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s src/PeopleSyncD.Api/Program.cs
+          test -s src/PeopleSyncD.Infrastructure/Persistence/Migrations/0001_InitialSchema.sql
+          test -s apps/web/app/page.tsx
+          test -s apps/web/app/people/page.tsx
+          test -s apps/web/lib/api.ts
+      - name: Validate web API contract references
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q '/api/v1/me' apps/web/lib/api.ts
+          grep -q '/api/v1/people' apps/web/lib/api.ts
+          grep -q '/api/v1/organizations/' apps/web/lib/organization.ts
