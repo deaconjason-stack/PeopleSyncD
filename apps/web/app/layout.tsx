@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./page.css";
 
 export const metadata: Metadata = {
   title: "PeopleSyncD Enterprise Platform",
