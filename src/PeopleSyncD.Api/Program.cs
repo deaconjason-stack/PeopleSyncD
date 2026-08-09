@@ -26,6 +26,7 @@ app.MapGet("/version", () => Results.Ok(new
     build = "foundation"
 }));
 
+app.MapAuthenticationEndpoints();
 app.MapOrganizationEndpoints();
 app.MapPeopleEndpoints();
 
