@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>PeopleSyncD.Application</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../PeopleSyncD.Domain/PeopleSyncD.Domain.csproj" />
+  </ItemGroup>
+</Project>
