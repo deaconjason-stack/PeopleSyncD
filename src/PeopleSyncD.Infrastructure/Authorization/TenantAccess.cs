@@ -12,7 +12,7 @@ public sealed class TenantAccess(PeopleSyncDDbContext db)
         if (principal.Identity?.IsAuthenticated != true || organizationId == Guid.Empty) return null;
         var subject = principal.FindFirstValue("sub") ?? principal.FindFirstValue(ClaimTypes.NameIdentifier);
         if (!Guid.TryParse(subject, out var userId)) return null;
-        return await db.OrganizationMemberships
+        return await db.OrganizationMemberships.AsNoTracking()
             .Where(x => x.UserId == userId && x.OrganizationId == organizationId)
             .Select(x => (MembershipRole?)x.Role)
             .SingleOrDefaultAsync(cancellationToken);
