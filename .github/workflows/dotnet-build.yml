@@ -1,9 +1,13 @@
 name: .NET Build and Test
 
 on:
+  workflow_dispatch:
   pull_request:
   push:
     branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   dotnet:
@@ -18,7 +22,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          find . -maxdepth 4 \( -name '*.sln' -o -name '*.slnx' \) -print
+          find . -maxdepth 5 \( -name '*.sln' -o -name '*.slnx' \) -print
       - name: Restore
         shell: bash
         run: dotnet restore
