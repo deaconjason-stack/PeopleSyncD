@@ -18,5 +18,8 @@ public sealed class TenantAccess(PeopleSyncDDbContext db)
             .SingleOrDefaultAsync(cancellationToken);
     }
 
+    public async Task<bool> RequireMinimumRoleAsync(ClaimsPrincipal principal, Guid organizationId, MembershipRole minimumRole, CancellationToken cancellationToken)
+        => MeetsMinimum(await GetRoleAsync(principal, organizationId, cancellationToken), minimumRole);
+
     public static bool MeetsMinimum(MembershipRole? role, MembershipRole minimum) => role.HasValue && role.Value >= minimum;
 }
