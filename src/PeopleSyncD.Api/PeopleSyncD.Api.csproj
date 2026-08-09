@@ -5,6 +5,7 @@
   <ItemGroup>
     <ProjectReference Include="../PeopleSyncD.Application/PeopleSyncD.Application.csproj" />
     <ProjectReference Include="../PeopleSyncD.Infrastructure/PeopleSyncD.Infrastructure.csproj" />
+    <ProjectReference Include="../PeopleSyncD.ServiceDefaults/PeopleSyncD.ServiceDefaults.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
