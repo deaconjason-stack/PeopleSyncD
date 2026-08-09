@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>PeopleSyncD.Infrastructure</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../PeopleSyncD.Application/PeopleSyncD.Application.csproj" />
+  </ItemGroup>
+</Project>
