@@ -1,104 +1,61 @@
-const capabilities = [
-  { title: "People Operations", text: "Manage people, organizations, teams, roles, and workforce data from one governed platform." },
-  { title: "Enterprise Knowledge", text: "Connect policies, documents, organizational knowledge, and operational context." },
-  { title: "Domonique Intelligence", text: "Give authorized teams an AI assistant designed around enterprise context and controls." },
-  { title: "Governance & Audit", text: "Make important actions traceable with permissions, audit history, and enterprise controls." },
+import "./page.css";
+
+const modules = [
+  ["People", "Workforce profiles, teams, roles, and organizational relationships."],
+  ["Organizations", "Manage tenants, business units, departments, and governance."],
+  ["Documents", "Secure enterprise documents with permissions and audit history."],
+  ["Onboarding", "Coordinate repeatable employee and organization workflows."],
+  ["Audit", "Trace important activity across the platform."],
+  ["Domonique", "AI-assisted enterprise work with governed organizational context."],
 ];
 
 export default function Home() {
   return (
-    <main>
-      <header className="site-header">
-        <div className="container nav">
-          <div className="brand">PeopleSyncD</div>
-          <nav>
-            <a href="#platform">Platform</a>
-            <a href="#intelligence">Domonique</a>
-            <a href="#enterprise">Enterprise</a>
-            <a href="#contact">Contact</a>
-          </nav>
-          <a className="nav-button" href="#contact">Request a demo</a>
+    <main className="app-shell">
+      <aside className="sidebar">
+        <div className="logo">PeopleSyncD</div>
+        <div className="workspace">ACME ORGANIZATION <span>⌄</span></div>
+        <nav className="side-nav">
+          <a className="active" href="#dashboard">⌂ <span>Dashboard</span></a>
+          <a href="#people">♙ <span>People</span></a>
+          <a href="#organizations">▦ <span>Organizations</span></a>
+          <a href="#documents">▤ <span>Documents</span></a>
+          <a href="#onboarding">✓ <span>Onboarding</span></a>
+          <a href="#audit">◷ <span>Audit</span></a>
+          <a href="#domonique">✦ <span>Domonique</span></a>
+        </nav>
+        <div className="sidebar-bottom">
+          <a href="#settings">⚙ <span>Administration</span></a>
+          <div className="user-card"><div className="avatar">JD</div><div><strong>Founder</strong><small>Administrator</small></div></div>
         </div>
-      </header>
+      </aside>
 
-      <section className="hero">
-        <div className="container hero-grid">
-          <div>
-            <p className="eyebrow">THE ENTERPRISE PEOPLE OPERATING PLATFORM</p>
-            <h1>Connect your people, operations, knowledge, and intelligence.</h1>
-            <p className="hero-copy">
-              PeopleSyncD is being built as a unified enterprise platform for managing organizational data,
-              workflows, knowledge, governance, and AI-assisted operations.
-            </p>
-            <div className="actions">
-              <a className="primary" href="#contact">Explore PeopleSyncD</a>
-              <a className="secondary" href="#platform">See the platform</a>
-            </div>
+      <section className="main-area">
+        <header className="topbar">
+          <div className="breadcrumb">PeopleSyncD / <strong>Dashboard</strong></div>
+          <div className="top-actions"><button aria-label="Search">⌕</button><button aria-label="Notifications">♢</button><div className="mini-avatar">JD</div></div>
+        </header>
+
+        <div className="content" id="dashboard">
+          <div className="welcome"><div><p className="eyebrow">ENTERPRISE COMMAND CENTER</p><h1>Good morning, Founder.</h1><p>Here is the current view of your organization and PeopleSyncD platform.</p></div><a className="primary" href="#people">Manage people →</a></div>
+          <div className="stats">
+            <article><span>PEOPLE</span><strong>128</strong><small>+8 this month</small></article>
+            <article><span>ORGANIZATIONS</span><strong>4</strong><small>All active</small></article>
+            <article><span>DOCUMENTS</span><strong>642</strong><small>18 require review</small></article>
+            <article><span>AUDIT EVENTS</span><strong>2,481</strong><small>Last 30 days</small></article>
           </div>
-          <div className="hero-card">
-            <div className="card-label">PLATFORM STATUS</div>
-            <div className="status"><span /> Foundation build active</div>
-            <div className="metric"><strong>01</strong><span>Unified enterprise foundation</span></div>
-            <div className="metric"><strong>AI</strong><span>Domonique intelligence layer</span></div>
-            <div className="metric"><strong>∞</strong><span>Designed to scale with the organization</span></div>
+          <div className="grid">
+            <section className="panel domonique-panel" id="domonique">
+              <div className="panel-head"><div><p className="eyebrow">DOMONIQUE 2.0</p><h2>What would you like to accomplish?</h2></div><span className="ai-badge">AI</span></div>
+              <p className="muted">Ask about authorized organizational information, workflows, documents, or operational priorities.</p>
+              <div className="prompt"><span>Ask Domonique anything about your organization...</span><button>→</button></div>
+              <div className="suggestions"><button>Give me my founder brief</button><button>Show onboarding activity</button><button>What needs my attention?</button></div>
+            </section>
+            <section className="panel activity"><div className="panel-head"><div><p className="eyebrow">ACTIVITY</p><h2>Recent events</h2></div><a href="#audit">View all</a></div>{["New employee added to Engineering","Document approval completed","Organization policy updated","New onboarding workflow started"].map((x,i)=><div className="event" key={x}><span className="event-dot"/><div><strong>{x}</strong><small>{i+2} hours ago · System</small></div></div>)}</section>
           </div>
+          <section className="modules"><div className="panel-head"><div><p className="eyebrow">PLATFORM</p><h2>Core modules</h2></div></div><div className="module-grid">{modules.map(([name,text])=><a className="module" href={`#${name.toLowerCase()}`} key={name}><span className="module-icon">{name === "Domonique" ? "✦" : "□"}</span><div><h3>{name}</h3><p>{text}</p></div><span>→</span></a>)}</div></section>
         </div>
       </section>
-
-      <section id="platform" className="section">
-        <div className="container">
-          <p className="eyebrow">ONE PLATFORM</p>
-          <h2>Built around the organization—not disconnected applications.</h2>
-          <div className="capabilities">
-            {capabilities.map((item) => (
-              <article className="capability" key={item.title}>
-                <h3>{item.title}</h3>
-                <p>{item.text}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="intelligence" className="dark-section">
-        <div className="container intelligence">
-          <div>
-            <p className="eyebrow">DOMONIQUE</p>
-            <h2>Enterprise intelligence with context, permissions, and accountability.</h2>
-          </div>
-          <p>
-            Domonique is the planned PeopleSyncD intelligence layer: an AI interface capable of working with
-            authorized enterprise knowledge and workflows while preserving organizational controls and auditability.
-          </p>
-        </div>
-      </section>
-
-      <section id="enterprise" className="section">
-        <div className="container enterprise">
-          <p className="eyebrow">ENTERPRISE READY BY DESIGN</p>
-          <h2>Security, governance, integration, and scale belong in the foundation.</h2>
-          <p>
-            The platform is being engineered with multi-tenancy, identity, auditability, observability, API contracts,
-            infrastructure automation, and deployment portability as first-class concerns.
-          </p>
-        </div>
-      </section>
-
-      <section id="contact" className="cta">
-        <div className="container">
-          <p className="eyebrow">PEOPLESYNCD</p>
-          <h2>The enterprise operating platform is being built now.</h2>
-          <p>Follow the platform as the foundation becomes a working product.</p>
-          <a className="primary" href="https://github.com/deaconjason-stack/PeopleSyncD">View the build on GitHub</a>
-        </div>
-      </section>
-
-      <footer>
-        <div className="container footer-inner">
-          <span>© 2026 PeopleSyncD</span>
-          <span>Enterprise Platform · Foundation Build</span>
-        </div>
-      </footer>
     </main>
   );
 }
