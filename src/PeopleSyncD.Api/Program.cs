@@ -1,4 +1,5 @@
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using PeopleSyncD.Api.Endpoints;
+using PeopleSyncD.Infrastructure;
 using PeopleSyncD.ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 builder.Services.AddOpenApi();
 builder.Services.AddHealthChecks();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
@@ -23,6 +25,9 @@ app.MapGet("/version", () => Results.Ok(new
     version = "0.1.0-alpha",
     build = "foundation"
 }));
+
+app.MapOrganizationEndpoints();
+app.MapPeopleEndpoints();
 
 if (app.Environment.IsDevelopment())
 {
