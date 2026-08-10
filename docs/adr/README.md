@@ -16,5 +16,6 @@ Architecture Decision Records preserve why significant technical choices were ma
 | PSD-ADR-000008 | Use Electron for the initial Windows desktop shell | Proposed |
 | PSD-ADR-000009 | Define REST interfaces with OpenAPI | Accepted |
 | PSD-ADR-000010 | Define asynchronous interfaces with AsyncAPI | Accepted |
+| PSD-ADR-000011 | Consolidate the PR 1-9 lineage as the authoritative baseline | Accepted |
 
 Accepted decisions govern future implementation but do not claim that implementation is complete.
