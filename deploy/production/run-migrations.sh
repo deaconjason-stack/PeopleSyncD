@@ -1,11 +1,15 @@
 #!/bin/sh
 set -eu
 
-: "${DATABASE_URL:?DATABASE_URL is required}"
+: "${PGHOST:?PGHOST is required}"
+: "${PGPORT:?PGPORT is required}"
+: "${PGDATABASE:?PGDATABASE is required}"
+: "${PGUSER:?PGUSER is required}"
+: "${PGPASSWORD:?PGPASSWORD is required}"
 
 MIGRATION_DIR="${MIGRATION_DIR:-/migrations}"
 
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
+psql -v ON_ERROR_STOP=1 <<'SQL'
 CREATE TABLE IF NOT EXISTS peoplesyncd_schema_migrations (
     migration text PRIMARY KEY,
     checksum text NOT NULL,
@@ -18,7 +22,7 @@ for migration in "$MIGRATION_DIR"/*.sql; do
 
     name=$(basename "$migration")
     checksum=$(sha256sum "$migration" | awk '{print $1}')
-    existing=$(psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -Atc \
+    existing=$(psql -v ON_ERROR_STOP=1 -Atc \
         "SELECT checksum FROM peoplesyncd_schema_migrations WHERE migration = '$name';")
 
     if [ -n "$existing" ]; then
@@ -37,7 +41,7 @@ for migration in "$MIGRATION_DIR"/*.sql; do
         cat "$migration"
         printf "\nINSERT INTO peoplesyncd_schema_migrations (migration, checksum) VALUES ('%s', '%s');\n" "$name" "$checksum"
         echo "COMMIT;"
-    } | psql "$DATABASE_URL" -v ON_ERROR_STOP=1
+    } | psql -v ON_ERROR_STOP=1
 
 done
 
