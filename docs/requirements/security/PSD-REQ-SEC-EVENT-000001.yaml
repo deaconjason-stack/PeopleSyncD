@@ -1,0 +1,20 @@
+requirement_id: PSD-REQ-SEC-EVENT-000001
+title: Immutable Identity Security Events
+status: Implemented
+priority: High
+specification: PSD-PEP-710
+statement: >-
+  Identity-sensitive operations shall produce tenant-scoped append-only security
+  events that exclude credentials, tokens, authenticators, and recovery material.
+acceptance_criteria:
+  - Session issuance creates a security event.
+  - Session revocation creates a security event.
+  - MFA enrollment initiation creates a security event.
+  - Update and delete operations on security events are rejected by the database.
+  - Security events use correlation identifiers and forced tenant row-level security.
+implementation:
+  - apps/api/src/identity.ts
+  - database/migrations/0003_phase7b_identity_sessions.sql
+tests:
+  - apps/api/src/postgres.integration.test.ts
+release_status: identity-beta-foundation

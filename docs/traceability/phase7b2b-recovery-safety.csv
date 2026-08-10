@@ -1,0 +1,5 @@
+requirement_id,pep,service,api,event,database,test,release_status
+PSD-REQ-MFA-000003,PSD-PEP-730,identity,apps/api/src/server.ts,MFA_TOTP_REPLAY_DENIED,database/migrations/0005_phase7b2b_recovery_replay_founder.sql,apps/api/src/postgres.integration.test.ts,0.4.1-internal-verified
+PSD-REQ-RECOVERY-000001,PSD-PEP-730,identity,apps/api/src/server.ts,MFA_RECOVERY_CODE_USED,database/migrations/0004_phase7b2_totp_rotation_membership.sql,apps/api/src/server.test.ts,0.4.1-internal-verified
+PSD-REQ-FOUNDER-000001,PSD-PEP-730,identity,apps/api/src/server.ts,MEMBERSHIP_UPDATED,database/migrations/0005_phase7b2b_recovery_replay_founder.sql,apps/api/src/postgres.integration.test.ts,0.4.1-internal-verified
+PSD-REQ-DBIDENTITY-000001,PSD-PEP-730,platform,apps/api/src/config.ts,,scripts/database/provision_runtime_login.sql,apps/api/src/config.test.ts,production-boundary-foundation

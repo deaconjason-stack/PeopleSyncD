@@ -1,0 +1,12 @@
+{
+  "product": "PeopleSyncD Genesis",
+  "version": "0.3.0-production-beta-foundation",
+  "phase": "7A",
+  "status": "implemented-not-certified",
+  "storage": "postgresql",
+  "tenantIsolation": "forced-rls-and-runtime-role",
+  "windowsSigned": false,
+  "productionCertified": false,
+  "implementedCommit": "28abee351c28bfeb94c5e291b03d1a8aa7908cae",
+  "remainingProgram": "Phase 7B through Phase 8"
+}

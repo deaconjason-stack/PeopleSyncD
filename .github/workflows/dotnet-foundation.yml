@@ -1,0 +1,111 @@
+name: M1/M2 .NET Platform Foundation
+
+on:
+  pull_request:
+    paths:
+      - 'PeopleSyncD.slnx'
+      - 'global.json'
+      - 'Directory.*.props'
+      - 'NuGet.config'
+      - 'src/PeopleSyncD.**'
+      - 'tests/PeopleSyncD.**'
+      - 'Dockerfile.Api'
+      - 'docker-compose.yml'
+      - 'database/dotnet/**'
+      - 'infrastructure/terraform/**'
+      - 'infrastructure/kubernetes/m1/**'
+      - 'infrastructure/postgres/**'
+      - '.github/workflows/dotnet-foundation.yml'
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  dotnet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: Restore with NuGet audit
+        run: dotnet restore PeopleSyncD.slnx -p:NuGetAudit=true -p:NuGetAuditMode=all
+      - name: Verify formatting
+        run: dotnet format PeopleSyncD.slnx --verify-no-changes --no-restore
+      - name: Build
+        run: dotnet build PeopleSyncD.slnx --configuration Release --no-restore
+      - name: Test with coverage
+        run: dotnet test PeopleSyncD.slnx --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory TestResults
+      - uses: actions/upload-artifact@v4
+        with:
+          name: platform-dotnet-test-results-${{ github.sha }}
+          path: TestResults
+          if-no-files-found: error
+
+  postgres-schema:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: peoplesyncd_dotnet_ci
+          POSTGRES_USER: peoplesyncd
+          POSTGRES_PASSWORD: peoplesyncd-ci-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U peoplesyncd -d peoplesyncd_dotnet_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      PGPASSWORD: peoplesyncd-ci-only
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install --yes postgresql-client
+      - name: Apply .NET migration contract
+        run: |
+          for migration in database/dotnet/*.sql; do
+            psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -v ON_ERROR_STOP=1 -f "$migration"
+          done
+      - name: Verify M2.4 assurance schema
+        run: |
+          test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from information_schema.tables where table_schema='public' and table_name in ('organizations','organization_memberships','organization_invitations','refresh_sessions','security_audit_records','mfa_challenges','mfa_recovery_codes','mfa_totp_states','passkey_credentials','passkey_ceremonies');")" = "10"
+          test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from pg_indexes where schemaname='public' and indexname in ('ux_invitation_token_hash','ux_refresh_token_hash','ux_refresh_parent_session','ux_mfa_challenge_token_hash','ux_mfa_recovery_code_hash','ix_refresh_user_family_active','ux_passkey_credential_id','ix_passkey_user_active','ix_passkey_ceremony_user_purpose_expiry');")" = "9"
+          test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from information_schema.columns where table_schema='public' and table_name='refresh_sessions' and column_name in ('AssuranceLevel','LastSeenAt','DeviceLabel','AuthenticatedAt','AuthenticationMethod');")" = "5"
+          test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from information_schema.columns where table_schema='public' and table_name='passkey_credentials' and column_name in ('CredentialId','PublicKey','UserHandle','SignatureCounter','BackupEligible','BackedUp','RevokedAt');")" = "7"
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/PeopleSyncD.Web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: src/PeopleSyncD.Web/package-lock.json
+      - name: Install deterministic dependencies
+        run: npm ci --no-fund
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Build
+        run: npm run build
+      - name: Audit high-severity vulnerabilities
+        run: npm audit --audit-level=high
+
+  containers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Docker Compose
+        run: docker compose config --quiet
+      - name: Build API image
+        run: docker build --file Dockerfile.Api --tag peoplesyncd-api:m2 .
+      - name: Build web image
+        run: docker build --file src/PeopleSyncD.Web/Dockerfile --tag peoplesyncd-web:m2 src/PeopleSyncD.Web

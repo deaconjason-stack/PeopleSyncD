@@ -1,0 +1,234 @@
+registry:
+  id: PSD-REQ-000001
+  version: 1.8.0
+  status: Approved
+
+requirements:
+  - requirement_id: PSD-REQ-PLATFORM-000001
+    title: Multi-Tenant Architecture
+    status: Approved
+    path: docs/requirements/platform/PSD-REQ-PLATFORM-000001.yaml
+  - requirement_id: PSD-REQ-SEC-000001
+    title: Immutable Audit Logging
+    status: Approved
+    path: docs/requirements/security/PSD-REQ-SEC-000001.yaml
+  - requirement_id: PSD-REQ-IDENTITY-000001
+    title: Strong Authentication and Session Control
+    status: Approved
+    path: docs/requirements/platform/PSD-REQ-IDENTITY-000001.yaml
+  - requirement_id: PSD-REQ-ORG-000001
+    title: Explicit Organization Context
+    status: Approved
+    path: docs/requirements/platform/PSD-REQ-ORG-000001.yaml
+  - requirement_id: PSD-REQ-AI-000001
+    title: Human Approval for High-Impact AI Actions
+    status: Approved
+    path: docs/requirements/platform/PSD-REQ-AI-000001.yaml
+  - requirement_id: PSD-REQ-AI-000002
+    title: Permission-Aware AI Tool Invocation
+    status: Approved
+    path: docs/requirements/platform/PSD-REQ-AI-000002.yaml
+  - requirement_id: PSD-REQ-DATA-000001
+    title: Protected Data Encryption
+    status: Approved
+    path: docs/requirements/security/PSD-REQ-DATA-000001.yaml
+  - requirement_id: PSD-REQ-IDENTITY-000002
+    title: Federated Identity Lifecycle
+    status: Approved
+    path: docs/requirements/platform/PSD-REQ-IDENTITY-000002.yaml
+  - requirement_id: PSD-REQ-ORG-000002
+    title: Governed Organization Hierarchy and Membership
+    status: Approved
+    path: docs/requirements/platform/PSD-REQ-ORG-000002.yaml
+  - requirement_id: PSD-REQ-PERM-000001
+    title: Default-Deny Authorization
+    status: Approved
+    path: docs/requirements/security/PSD-REQ-PERM-000001.yaml
+  - requirement_id: PSD-REQ-AUDIT-000002
+    title: Audit Evidence Integrity
+    status: Approved
+    path: docs/requirements/security/PSD-REQ-AUDIT-000002.yaml
+  - requirement_id: PSD-REQ-DOCUMENT-000001
+    title: Versioned Private Documents
+    status: Approved
+    path: docs/requirements/platform/PSD-REQ-DOCUMENT-000001.yaml
+  - requirement_id: PSD-REQ-WORKFLOW-000001
+    title: Deterministic Workflow Transitions
+    status: Approved
+    path: docs/requirements/platform/PSD-REQ-WORKFLOW-000001.yaml
+  - requirement_id: PSD-REQ-NOTIFY-000001
+    title: Privacy-Safe Notifications
+    status: Approved
+    path: docs/requirements/platform/PSD-REQ-NOTIFY-000001.yaml
+  - requirement_id: PSD-REQ-LICENSE-000001
+    title: Tenant-Scoped Licensing Entitlements
+    status: Approved
+    path: docs/requirements/platform/PSD-REQ-LICENSE-000001.yaml
+  - requirement_id: PSD-REQ-HR-WORKER-000001
+    title: Worker Management
+    status: Approved
+    path: services/worker/requirements.md
+  - requirement_id: PSD-REQ-HR-PERSON-000001
+    title: Tenant-Scoped Person Record
+    status: Approved
+    path: docs/requirements/hr/PSD-REQ-HR-PERSON-000001.yaml
+  - requirement_id: PSD-REQ-HR-EMP-000001
+    title: Employment Relationship Lifecycle
+    status: Approved
+    path: docs/requirements/hr/PSD-REQ-HR-EMP-000001.yaml
+  - requirement_id: PSD-REQ-HR-ONBOARD-000001
+    title: Versioned Onboarding Templates
+    status: Approved
+    path: docs/requirements/hr/PSD-REQ-HR-ONBOARD-000001.yaml
+  - requirement_id: PSD-REQ-HR-CRED-000001
+    title: Credential Verification and Expiration
+    status: Approved
+    path: docs/requirements/hr/PSD-REQ-HR-CRED-000001.yaml
+  - requirement_id: PSD-REQ-HR-TRAIN-000001
+    title: Versioned Training Completion Evidence
+    status: Approved
+    path: docs/requirements/hr/PSD-REQ-HR-TRAIN-000001.yaml
+  - requirement_id: PSD-REQ-HR-CASE-000001
+    title: Restricted HR Case Access
+    status: Approved
+    path: docs/requirements/hr/PSD-REQ-HR-CASE-000001.yaml
+  - requirement_id: PSD-REQ-HR-UI-000001
+    title: Role-Aware HR Workspaces
+    status: Approved
+    path: docs/requirements/hr/PSD-REQ-HR-UI-000001.yaml
+  - requirement_id: PSD-REQ-AI-CONV-000001
+    title: Tenant-Scoped Permission-Aware Conversations
+    status: Approved
+    path: docs/requirements/ai/PSD-REQ-AI-CONV-000001.yaml
+  - requirement_id: PSD-REQ-AI-GROUND-000001
+    title: Source-Grounded Answers With Provenance
+    status: Approved
+    path: docs/requirements/ai/PSD-REQ-AI-GROUND-000001.yaml
+  - requirement_id: PSD-REQ-AI-TOOL-000001
+    title: Versioned Permission-Aware AI Tools
+    status: Approved
+    path: docs/requirements/ai/PSD-REQ-AI-TOOL-000001.yaml
+  - requirement_id: PSD-REQ-AI-APPROVAL-000001
+    title: Human Approval for High-Impact AI Actions
+    status: Approved
+    path: docs/requirements/ai/PSD-REQ-AI-APPROVAL-000001.yaml
+  - requirement_id: PSD-REQ-AI-MEMORY-000001
+    title: Tenant-Isolated Governed AI Memory
+    status: Approved
+    path: docs/requirements/ai/PSD-REQ-AI-MEMORY-000001.yaml
+  - requirement_id: PSD-REQ-AI-FOUNDER-000001
+    title: Source-Linked Founder Brief
+    status: Approved
+    path: docs/requirements/ai/PSD-REQ-AI-FOUNDER-000001.yaml
+  - requirement_id: PSD-REQ-AI-VOICE-000001
+    title: Privacy-Preserving Voice Activation
+    status: Approved
+    path: docs/requirements/ai/PSD-REQ-AI-VOICE-000001.yaml
+  - requirement_id: PSD-REQ-AI-SEC-000001
+    title: Prompt-Injection and Tool-Abuse Defense
+    status: Approved
+    path: docs/requirements/ai/PSD-REQ-AI-SEC-000001.yaml
+  - requirement_id: PSD-REQ-DEPLOY-000001
+    title: Governed Multi-Model Deployment
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-DEPLOY-000001.yaml
+  - requirement_id: PSD-REQ-CONFIG-000001
+    title: Schema-Validated Auditable Configuration
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-CONFIG-000001.yaml
+  - requirement_id: PSD-REQ-SECRET-000001
+    title: Managed Secret and Key Lifecycle
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-SECRET-000001.yaml
+  - requirement_id: PSD-REQ-BACKUP-000001
+    title: Encrypted Restorable Backups
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-BACKUP-000001.yaml
+  - requirement_id: PSD-REQ-DR-000001
+    title: Tested Disaster Recovery
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-DR-000001.yaml
+  - requirement_id: PSD-REQ-OBS-000001
+    title: Correlated Privacy-Safe Observability
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-OBS-000001.yaml
+  - requirement_id: PSD-REQ-SUPPORT-000001
+    title: Sanitized Support Diagnostics
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-SUPPORT-000001.yaml
+  - requirement_id: PSD-REQ-SUPPLY-000001
+    title: Verifiable Software Supply Chain
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-SUPPLY-000001.yaml
+  - requirement_id: PSD-REQ-SBOM-000001
+    title: Machine-Readable Software Bill of Materials
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-SBOM-000001.yaml
+  - requirement_id: PSD-REQ-SIGN-000001
+    title: Checksums and Authorized Release Signatures
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-SIGN-000001.yaml
+  - requirement_id: PSD-REQ-PERF-000001
+    title: Verified Performance Budgets
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-PERF-000001.yaml
+  - requirement_id: PSD-REQ-A11Y-000001
+    title: Release Accessibility Verification
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-A11Y-000001.yaml
+  - requirement_id: PSD-REQ-CERT-000001
+    title: Evidence-Gated Release Certification
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-CERT-000001.yaml
+  - requirement_id: PSD-REQ-INSTALL-000001
+    title: Customer Installation and Upgrade Guidance
+    status: Approved
+    path: docs/requirements/deployment/PSD-REQ-INSTALL-000001.yaml
+  - requirement_id: PSD-REQ-RUNTIME-000001
+    title: Executable TypeScript Platform Monorepo
+    status: Approved
+    path: docs/requirements/runtime/PSD-REQ-RUNTIME-000001.yaml
+  - requirement_id: PSD-REQ-API-000001
+    title: Authenticated Tenant-Scoped Runtime API
+    status: Approved
+    path: docs/requirements/runtime/PSD-REQ-API-000001.yaml
+  - requirement_id: PSD-REQ-WEB-000001
+    title: Accessible Founder Dashboard Shell
+    status: Approved
+    path: docs/requirements/runtime/PSD-REQ-WEB-000001.yaml
+  - requirement_id: PSD-REQ-DESKTOP-000001
+    title: Unsigned Internal Windows Installer
+    status: Approved
+    path: docs/requirements/runtime/PSD-REQ-DESKTOP-000001.yaml
+  - requirement_id: PSD-REQ-TEST-000001
+    title: Executable Runtime Verification
+    status: Approved
+    path: docs/requirements/runtime/PSD-REQ-TEST-000001.yaml
+  - requirement_id: PSD-REQ-MFA-000003
+    title: Monotonic TOTP Replay Prevention
+    status: Implemented
+    path: docs/requirements/security/PSD-REQ-MFA-000003.yaml
+  - requirement_id: PSD-REQ-RECOVERY-000001
+    title: Single-Use MFA Recovery Codes
+    status: Implemented
+    path: docs/requirements/security/PSD-REQ-RECOVERY-000001.yaml
+  - requirement_id: PSD-REQ-FOUNDER-000001
+    title: Final Active Founder Protection
+    status: Implemented
+    path: docs/requirements/security/PSD-REQ-FOUNDER-000001.yaml
+  - requirement_id: PSD-REQ-DBIDENTITY-000001
+    title: Dedicated Deployed Runtime Database Identity
+    status: Implemented Foundation
+    path: docs/requirements/deployment/PSD-REQ-DBIDENTITY-000001.yaml
+  - requirement_id: PSD-REQ-PASSKEY-000001
+    title: Phishing-Resistant WebAuthn Passkeys
+    status: Implemented Foundation
+    path: docs/requirements/security/PSD-REQ-PASSKEY-000001.yaml
+  - requirement_id: PSD-REQ-REAUTH-000001
+    title: Privileged Operation Reauthentication
+    status: Implemented Foundation
+    path: docs/requirements/security/PSD-REQ-REAUTH-000001.yaml
+  - requirement_id: PSD-REQ-AUTHSESSION-000001
+    title: Immutable Authentication Freshness Across Refresh Rotation
+    status: Implemented
+    path: docs/requirements/security/PSD-REQ-AUTHSESSION-000001.yaml

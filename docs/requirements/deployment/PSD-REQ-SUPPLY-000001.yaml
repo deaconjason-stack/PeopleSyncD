@@ -1,0 +1,13 @@
+id: PSD-REQ-SUPPLY-000001
+title: Verifiable Software Supply Chain
+version: 1.0.0
+status: Approved
+hierarchy: Platform
+owner: DevSecOps Office
+priority: Critical
+specification: [PSD-PEP-505]
+acceptance_criteria:
+  - Release artifacts identify their source commit and build workflow.
+  - Dependency, license, vulnerability, and secret checks are recorded.
+  - Production container images are referenced by immutable digest.
+implementation_status: Planned

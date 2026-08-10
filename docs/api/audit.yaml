@@ -1,0 +1,57 @@
+openapi: 3.1.0
+info:
+  title: PeopleSyncD Audit API
+  version: 0.1.0
+  description: Append-only audit evidence contract.
+  license:
+    name: Proprietary
+servers:
+  - url: https://api.peoplesyncd.example
+security:
+  - bearerAuth: []
+paths:
+  /v1/audit/events:
+    get:
+      operationId: searchAuditEvents
+      summary: Search authorized audit events
+      responses:
+        '200':
+          description: Authorized append-only event results
+        '400':
+          description: Invalid audit query
+        '403':
+          description: Audit access denied
+    post:
+      operationId: appendAuditEvent
+      summary: Append an audit event
+      responses:
+        '202':
+          description: Evidence accepted
+        '400':
+          description: Invalid audit evidence
+        '403':
+          description: Audit append access denied
+  /v1/audit/events/{eventId}:
+    get:
+      operationId: getAuditEvent
+      summary: Get one authorized audit event
+      parameters:
+        - in: path
+          name: eventId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Authorized immutable audit event
+        '403':
+          description: Audit access denied
+        '404':
+          description: Audit event not found in authorized scope
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

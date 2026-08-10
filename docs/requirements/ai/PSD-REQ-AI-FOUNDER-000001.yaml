@@ -1,0 +1,13 @@
+id: PSD-REQ-AI-FOUNDER-000001
+title: Source-Linked Founder Brief
+version: 1.0.0
+status: Approved
+hierarchy: Module
+owner: Product Office
+priority: High
+specification: [PSD-PEP-405]
+acceptance_criteria:
+  - Founder Brief includes only authorized organization information.
+  - Material statements link to evidence or are labeled as inference.
+  - Governance summaries use active Board service records.
+implementation_status: Planned

@@ -1,0 +1,55 @@
+name: Windows Internal Installer
+
+on:
+  pull_request:
+    paths:
+      - 'apps/desktop/**'
+      - 'apps/web/**'
+      - 'packages/**'
+      - 'package.json'
+      - 'tsconfig.base.json'
+      - '.github/workflows/windows-internal-installer.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+jobs:
+  package:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Build monorepo
+        run: npm run build
+      - name: Package unsigned Windows installer
+        run: npm run package:windows
+      - name: Create installer evidence
+        shell: pwsh
+        run: |
+          $output = 'apps/desktop/dist-installer'
+          $installer = Get-ChildItem $output -Filter '*.exe' | Select-Object -First 1
+          if (-not $installer) { throw 'Unsigned installer was not produced.' }
+          $hash = (Get-FileHash $installer.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+          @{
+            product = 'PeopleSyncD Genesis Internal Alpha'
+            version = '0.2.0'
+            sourceCommit = '${{ github.sha }}'
+            workflowRun = '${{ github.run_id }}'
+            artifact = $installer.Name
+            sha256 = $hash
+            signed = $false
+            certified = $false
+          } | ConvertTo-Json | Set-Content "$output/build-manifest.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: peoplesyncd-windows-unsigned-${{ github.sha }}
+          path: apps/desktop/dist-installer
+          if-no-files-found: error

@@ -1,0 +1,41 @@
+name: Sign Release Evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version to sign
+        required: true
+        default: 0.1.0
+
+permissions:
+  contents: read
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require protected signing key
+        shell: bash
+        env:
+          SIGNING_KEY_B64: ${{ secrets.PEOPLESYNCD_RELEASE_SIGNING_KEY_B64 }}
+        run: |
+          if [[ -z "$SIGNING_KEY_B64" ]]; then
+            echo "Protected signing key is not configured." >&2
+            exit 1
+          fi
+          printf '%s' "$SIGNING_KEY_B64" | base64 --decode > "$RUNNER_TEMP/release-signing-key.pem"
+          chmod 600 "$RUNNER_TEMP/release-signing-key.pem"
+      - name: Build evidence package
+        run: |
+          cp -R "release/${{ inputs.version }}" release-work
+          python scripts/certification/generate_sbom.py --version "${{ inputs.version }}" --commit "$GITHUB_SHA" --output release-work/SBOM.cdx.json
+          python scripts/certification/generate_checksums.py release-work --output release-work/CHECKSUMS.generated.txt
+      - name: Create detached signature
+        run: openssl dgst -sha256 -sign "$RUNNER_TEMP/release-signing-key.pem" -out release-work/CHECKSUMS.generated.txt.sig release-work/CHECKSUMS.generated.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: peoplesyncd-signed-evidence-${{ inputs.version }}
+          path: release-work
+          if-no-files-found: error

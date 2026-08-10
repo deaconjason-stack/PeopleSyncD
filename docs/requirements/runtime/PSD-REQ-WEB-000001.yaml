@@ -1,0 +1,13 @@
+id: PSD-REQ-WEB-000001
+title: Accessible Founder Dashboard Shell
+version: 1.0.0
+status: Approved
+hierarchy: Application
+owner: Product Office
+priority: High
+specification: [PSD-PEP-600]
+acceptance_criteria:
+  - Founder Dashboard displays authorized workforce, board, and audit summaries.
+  - The active board is Jason Henderson, Domonique Danielle Henderson, and Marietta Jessup only.
+  - Core interactions are keyboard reachable and status does not rely on color alone.
+implementation_status: Internal Alpha

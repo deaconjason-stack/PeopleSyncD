@@ -1,0 +1,108 @@
+name: Software Foundation
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: peoplesyncd_test
+          POSTGRES_USER: peoplesyncd_test
+          POSTGRES_PASSWORD: test-only-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U peoplesyncd_test -d peoplesyncd_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Apply runtime migrations
+        env:
+          PGPASSWORD: test-only-password
+        run: |
+          for migration in database/migrations/*.sql; do
+            psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -v ON_ERROR_STOP=1 -f "$migration"
+          done
+      - name: Verify identity seed and tenant schema
+        env:
+          PGPASSWORD: test-only-password
+        run: |
+          organization_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc 'select count(*) from organizations')"
+          worker_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc 'select count(*) from workers')"
+          founder_user_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from users where id = 'founder-jason' and status = 'active'")"
+          founder_membership_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from organization_memberships where user_id = 'founder-jason' and role_key = 'founder' and status = 'active'")"
+          hardened_permission_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from organization_memberships where user_id = 'founder-jason' and permissions @> '[\"identity.session.rotate\",\"identity.mfa.verify\",\"identity.mfa.recovery.consume\",\"organization.membership.manage\"]'::jsonb")"
+          session_family_column="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from information_schema.columns where table_name = 'identity_sessions' and column_name = 'session_family_id'")"
+          encrypted_secret_column="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from information_schema.columns where table_name = 'mfa_methods' and column_name = 'secret_ciphertext'")"
+          replay_counter_column="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from information_schema.columns where table_name = 'mfa_methods' and column_name = 'last_totp_counter'")"
+          founder_trigger_count="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select count(*) from pg_trigger where tgname = 'organization_memberships_last_founder' and not tgisinternal")"
+          runtime_role_no_login="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select not rolcanlogin from pg_roles where rolname = 'peoplesyncd_runtime'")"
+          test "$organization_count" = "1"
+          test "$worker_count" = "1"
+          test "$founder_user_count" = "1"
+          test "$founder_membership_count" = "1"
+          test "$hardened_permission_count" = "1"
+          test "$session_family_column" = "1"
+          test "$encrypted_secret_column" = "1"
+          test "$replay_counter_column" = "1"
+          test "$founder_trigger_count" = "1"
+          test "$runtime_role_no_login" = "t"
+          for table in persons workers audit_events organization_memberships identity_sessions mfa_methods mfa_recovery_codes security_events; do
+            forced_rls="$(psql -h 127.0.0.1 -U peoplesyncd_test -d peoplesyncd_test -Atc "select relforcerowsecurity from pg_class where relname = '$table'")"
+            test "$forced_rls" = "t"
+          done
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Test
+        env:
+          PEOPLESYNCD_TEST_DATABASE_URL: postgresql://peoplesyncd_test:test-only-password@127.0.0.1:5432/peoplesyncd_test
+          PEOPLESYNCD_MFA_ENCRYPTION_KEY: test-mfa-key-at-least-thirty-two-characters
+        run: npm test
+      - name: Build
+        run: npm run build
+      - name: Build commit-linked evidence
+        shell: bash
+        run: |
+          mkdir -p build-artifacts/api build-artifacts/web
+          cp -R apps/api/dist/. build-artifacts/api/
+          cp -R apps/web/dist/. build-artifacts/web/
+          cat > build-artifacts/build-manifest.json <<JSON
+          {
+            "product": "PeopleSyncD Genesis Recovery and Administrative Safety",
+            "version": "0.4.1",
+            "sourceCommit": "$GITHUB_SHA",
+            "workflowRun": "$GITHUB_RUN_ID",
+            "storage": "dedicated-postgresql-runtime-identity-required-in-production",
+            "identity": "current-membership-authority-revocable-session-families-last-founder-invariant",
+            "mfa": "encrypted-totp-monotonic-replay-control-single-use-recovery-codes",
+            "webauthn": "enrollment-record-foundation-only",
+            "federation": "not-implemented",
+            "signed": false,
+            "certified": false
+          }
+          JSON
+          python scripts/certification/generate_sbom.py --root . --version 0.4.1 --commit "$GITHUB_SHA" --output build-artifacts/SBOM.cdx.json
+          python scripts/certification/generate_checksums.py build-artifacts --output build-artifacts/CHECKSUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: peoplesyncd-recovery-safety-${{ github.sha }}
+          path: build-artifacts
+          if-no-files-found: error

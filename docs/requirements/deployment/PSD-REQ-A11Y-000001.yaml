@@ -1,0 +1,13 @@
+id: PSD-REQ-A11Y-000001
+title: Release Accessibility Verification
+version: 1.0.0
+status: Approved
+hierarchy: Release
+owner: Quality Office
+priority: Critical
+specification: [PSD-PEP-506]
+acceptance_criteria:
+  - Core workflows are keyboard and screen-reader operable.
+  - Verification covers contrast, zoom, focus, errors, motion, captions, and localization.
+  - Findings and exceptions are included in release evidence.
+implementation_status: Planned

@@ -1,0 +1,50 @@
+# .NET
+bin/
+obj/
+TestResults/
+*.user
+*.suo
+*.nupkg
+
+# Node
+node_modules/
+.next/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Local Git worktrees
+.worktrees/
+
+# Local security-token outbox
+.local-email/
+**/.local-email/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.snk
+*.key
+*.pem
+
+# IDE
+.vs/
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+
+# Existing repository generated artifacts
+artifacts/
+*.log

@@ -1,66 +1,36 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
-using OpenTelemetry.Logs;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Trace;
+using Microsoft.Extensions.Hosting;
 
 namespace PeopleSyncD.ServiceDefaults;
 
+/// <summary>
+/// Shared service discovery, resilience, health, and telemetry defaults.
+/// </summary>
 public static class Extensions
 {
-    public static IHostApplicationBuilder AddServiceDefaults(this IHostApplicationBuilder builder)
+    public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder)
+        where TBuilder : IHostApplicationBuilder
     {
+        builder.ConfigureOpenTelemetry();
         builder.AddDefaultHealthChecks();
-        builder.AddDefaultOpenTelemetry();
-        return builder;
-    }
-
-    private static IHostApplicationBuilder AddDefaultOpenTelemetry(this IHostApplicationBuilder builder)
-    {
-        builder.Logging.AddOpenTelemetry(logging =>
+        builder.Services.AddServiceDiscovery();
+        builder.Services.ConfigureHttpClientDefaults(http =>
         {
-            logging.IncludeFormattedMessage = true;
-            logging.IncludeScopes = true;
+            http.AddStandardResilienceHandler();
+            http.AddServiceDiscovery();
         });
-
-        builder.Services.AddOpenTelemetry()
-            .WithMetrics(metrics => metrics.AddRuntimeInstrumentation())
-            .WithTracing(tracing =>
-            {
-                tracing.AddAspNetCoreInstrumentation();
-                tracing.AddHttpClientInstrumentation();
-            });
-
-        builder.AddOpenTelemetryExporters();
         return builder;
     }
 
-    private static IHostApplicationBuilder AddOpenTelemetryExporters(this IHostApplicationBuilder builder)
+    public static WebApplication MapDefaultEndpoints(this WebApplication app)
     {
-        var endpoint = builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
-        if (!string.IsNullOrWhiteSpace(endpoint))
+        app.MapHealthChecks("/health");
+        app.MapHealthChecks("/alive", new HealthCheckOptions
         {
-            builder.Services.Configure<OpenTelemetry.Exporter.OtlpExporterOptions>(options =>
-                options.Endpoint = new Uri(endpoint));
-        }
-
-        return builder;
-    }
-
-    private static IHostApplicationBuilder AddDefaultHealthChecks(this IHostApplicationBuilder builder)
-    {
-        builder.Services.AddHealthChecks();
-        return builder;
-    }
-
-    public static IEndpointRouteBuilder MapDefaultEndpoints(this IEndpointRouteBuilder endpoints)
-    {
-        endpoints.MapHealthChecks("/health");
-        endpoints.MapHealthChecks("/alive", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
-        {
-            Predicate = _ => false
+            Predicate = registration => registration.Tags.Contains("live"),
         });
-
-        return endpoints;
+        return app;
     }
 }

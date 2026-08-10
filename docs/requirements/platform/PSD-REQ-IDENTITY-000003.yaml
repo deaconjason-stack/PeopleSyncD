@@ -1,0 +1,12 @@
+id: PSD-REQ-IDENTITY-000003
+title: Password Authentication and Tenant Token Exchange
+status: Approved
+priority: Critical
+owner: Identity Domain
+specification: PSD-PEP-210
+acceptance_criteria:
+  - Tenant registration atomically creates an owner identity, organization, and active owner membership.
+  - Authentication failures do not disclose whether an email address exists.
+  - A user token cannot access tenant resources until an active organization is selected.
+  - Access tokens are signed, short-lived, issuer-validated, audience-validated, and expiration-validated.
+implementation_status: Implemented Foundation

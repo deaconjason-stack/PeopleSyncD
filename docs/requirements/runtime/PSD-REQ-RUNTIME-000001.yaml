@@ -1,0 +1,13 @@
+id: PSD-REQ-RUNTIME-000001
+title: Executable TypeScript Platform Monorepo
+version: 1.0.0
+status: Approved
+hierarchy: Platform
+owner: Engineering Organization
+priority: Critical
+specification: [PSD-PEP-600]
+acceptance_criteria:
+  - Shared packages, API, web, and desktop workspaces typecheck and build together.
+  - Automated tests run from the repository root.
+  - Build artifacts identify their source commit.
+implementation_status: Internal Alpha

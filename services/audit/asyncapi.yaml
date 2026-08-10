@@ -1,0 +1,19 @@
+asyncapi: 2.6.0
+info:
+  title: PeopleSyncD Audit Events
+  version: 0.1.0
+channels:
+  audit.event_appended.v1:
+    publish:
+      operationId: publishAuditEventAppended
+      message:
+        payload:
+          type: object
+          required: [eventId, organizationId, auditEventId, action, result, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            organizationId: { type: string, format: uuid }
+            auditEventId: { type: string, format: uuid }
+            action: { type: string }
+            result: { type: string }
+            occurredAt: { type: string, format: date-time }

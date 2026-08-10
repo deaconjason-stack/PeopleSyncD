@@ -1,0 +1,32 @@
+openapi: 3.1.0
+info:
+  title: PeopleSyncD Licensing Service API
+  version: 0.1.0
+  description: Subscription, activation, and feature-entitlement contract.
+  license:
+    name: Proprietary
+servers:
+  - url: https://api.peoplesyncd.example
+security:
+  - bearerAuth: []
+paths:
+  /v1/licensing/entitlements/evaluate:
+    post:
+      operationId: evaluateEntitlement
+      summary: Evaluate tenant feature entitlement and limits
+      responses:
+        '200': { description: Entitlement decision returned }
+        '400': { description: Invalid entitlement request }
+        '403': { description: Evaluation denied }
+  /v1/licensing/activations:
+    post:
+      operationId: activateLicense
+      summary: Activate an authorized license grant
+      responses:
+        '201': { description: Activation created }
+        '400': { description: Invalid activation request }
+        '403': { description: Activation denied }
+        '409': { description: Activation limit or license state conflict }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

@@ -1,0 +1,13 @@
+id: PSD-REQ-API-000001
+title: Authenticated Tenant-Scoped Runtime API
+version: 1.0.0
+status: Approved
+hierarchy: Service
+owner: Platform Team
+priority: Critical
+specification: [PSD-PEP-600]
+acceptance_criteria:
+  - Protected routes require a valid signed session.
+  - Organization context must be explicitly authorized.
+  - Person, Worker, Audit, Dashboard, and AI tool routes enforce permissions.
+implementation_status: Internal Alpha

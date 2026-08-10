@@ -1,0 +1,24 @@
+name: API Contracts
+
+on:
+  pull_request:
+    paths:
+      - 'docs/api/**'
+      - 'services/**/api.yaml'
+      - '.github/workflows/openapi.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/api/**'
+      - 'services/**/api.yaml'
+
+permissions:
+  contents: read
+
+jobs:
+  lint-openapi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint OpenAPI contracts
+        run: npx --yes @redocly/cli lint docs/api/*.yaml services/*/api.yaml

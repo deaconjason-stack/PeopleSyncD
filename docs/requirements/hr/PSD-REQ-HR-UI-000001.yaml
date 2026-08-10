@@ -1,0 +1,14 @@
+id: PSD-REQ-HR-UI-000001
+title: Role-Aware HR Workspaces
+version: 1.0.0
+status: Approved
+hierarchy: Module
+owner: Product Office
+priority: High
+specification:
+  - PSD-PEP-306
+acceptance_criteria:
+  - Founder, HR, Manager, and Employee workspaces display only authorized information.
+  - Core workflows are keyboard accessible and screen-reader labeled.
+  - Restricted information is not exposed through summaries, counts, URLs, or notifications.
+implementation_status: Planned

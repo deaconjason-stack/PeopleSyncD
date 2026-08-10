@@ -1,0 +1,30 @@
+asyncapi: 2.6.0
+info:
+  title: PeopleSyncD AI Platform Events
+  version: 0.1.0
+channels:
+  ai.action_approval_requested.v1:
+    subscribe:
+      operationId: consumeAiActionApprovalRequested
+      message:
+        payload:
+          type: object
+          required: [eventId, organizationId, actionId, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            organizationId: { type: string, format: uuid }
+            actionId: { type: string, format: uuid }
+            occurredAt: { type: string, format: date-time }
+  ai.memory_changed.v1:
+    subscribe:
+      operationId: consumeAiMemoryChanged
+      message:
+        payload:
+          type: object
+          required: [eventId, organizationId, memoryId, changeType, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            organizationId: { type: string, format: uuid }
+            memoryId: { type: string, format: uuid }
+            changeType: { type: string }
+            occurredAt: { type: string, format: date-time }

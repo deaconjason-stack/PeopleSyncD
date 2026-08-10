@@ -1,0 +1,14 @@
+id: PSD-REQ-HR-TRAIN-000001
+title: Versioned Training Completion Evidence
+version: 1.0.0
+status: Approved
+hierarchy: Service
+owner: HR Domain
+priority: High
+specification:
+  - PSD-PEP-304
+acceptance_criteria:
+  - Training completion records the course version and completion evidence.
+  - Completion cannot be asserted without authorized evidence.
+  - Workers can view their own permitted training history.
+implementation_status: Planned

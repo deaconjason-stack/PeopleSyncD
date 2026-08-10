@@ -1,0 +1,11 @@
+id: PSD-REQ-PERM-000001
+title: Default-Deny Authorization
+status: Approved
+priority: Critical
+owner: Security Office
+specification: PSD-PEP-230
+acceptance_criteria:
+  - Missing or ambiguous policy inputs result in denial.
+  - Decisions include reason, scope, policy version, and correlation identifier.
+  - Temporary grants expire and cannot silently become permanent.
+implementation_status: Planned

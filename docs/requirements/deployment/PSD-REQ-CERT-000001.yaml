@@ -1,0 +1,13 @@
+id: PSD-REQ-CERT-000001
+title: Evidence-Gated Release Certification
+version: 1.0.0
+status: Approved
+hierarchy: Release
+owner: Release Management Office
+priority: Critical
+specification: [PSD-PEP-507]
+acceptance_criteria:
+  - Certification binds one source commit to one artifact and evidence set.
+  - Missing, placeholder, stale, or contradictory evidence blocks certification.
+  - The certification decision names the authorized approver.
+implementation_status: Planned

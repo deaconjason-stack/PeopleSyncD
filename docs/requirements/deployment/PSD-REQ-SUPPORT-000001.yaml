@@ -1,0 +1,13 @@
+id: PSD-REQ-SUPPORT-000001
+title: Sanitized Support Diagnostics
+version: 1.0.0
+status: Approved
+hierarchy: Platform
+owner: Customer Success Office
+priority: High
+specification: [PSD-PEP-504]
+acceptance_criteria:
+  - Support bundles contain allowlisted diagnostics only.
+  - Secrets and unrestricted workforce content are excluded.
+  - Support access is time-bounded and audited.
+implementation_status: Planned

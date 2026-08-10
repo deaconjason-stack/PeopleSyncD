@@ -1,0 +1,13 @@
+id: PSD-REQ-AI-APPROVAL-000001
+title: Human Approval for High-Impact AI Actions
+version: 1.0.0
+status: Approved
+hierarchy: Platform
+owner: Security Office
+priority: Critical
+specification: [PSD-PEP-403]
+acceptance_criteria:
+  - High-impact actions remain pending until an authorized human approves.
+  - Approval shows the exact action and consequences.
+  - Execution revalidates authorization and stale state.
+implementation_status: Planned

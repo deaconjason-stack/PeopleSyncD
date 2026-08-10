@@ -1,0 +1,25 @@
+requirement_id: PSD-REQ-SESSION-000002
+title: Atomic Session-Family Rotation
+status: Implemented Increment
+priority: Critical
+specification: PSD-PEP-720
+statement: >-
+  PeopleSyncD shall rotate authenticated sessions atomically, preserve an
+  auditable session-family identifier, and invalidate the replaced session
+  immediately.
+acceptance_criteria:
+  - Every new session has a non-null session-family identifier.
+  - Rotation locks and validates the current active session.
+  - The current session is revoked and linked to exactly one replacement.
+  - The replacement belongs to the same user, organization, and session family.
+  - The prior signed token is denied immediately after rotation.
+  - Rotation creates correlated append-only security evidence.
+  - Session rows are tenant protected by forced row-level security.
+implementation:
+  - apps/api/src/identity.ts
+  - apps/api/src/server.ts
+  - database/migrations/0004_phase7b2_totp_rotation_membership.sql
+tests:
+  - apps/api/src/server.test.ts
+  - apps/api/src/postgres.integration.test.ts
+release_status: identity-hardening-implemented

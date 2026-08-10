@@ -1,0 +1,15 @@
+flowchart TD
+  Identity[Identity] --> HR[PeopleSyncD HR]
+  Organization[Organization] --> HR
+  Permissions[Permissions] --> HR
+  HR --> Person[Person]
+  HR --> Employment[Employment and Worker]
+  Employment --> Onboarding[Onboarding]
+  Employment --> Credentials[Credentials and Training]
+  HR --> Cases[HR Cases]
+  Documents[Documents] --> Onboarding
+  Workflow[Workflow] --> Onboarding
+  Audit[Audit] --> HR
+  Notifications[Notifications] --> HR
+  AI[Domonique 2.0] --> HR
+  Board[Board Service] -. governance reference only .-> HR

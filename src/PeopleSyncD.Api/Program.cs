@@ -1,56 +1,53 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using PeopleSyncD.Api.Endpoints;
-using PeopleSyncD.Api.Identity;
-using PeopleSyncD.Application.Identity;
+using System.Globalization;
+using System.Text.Json.Serialization;
+using PeopleSyncD.Api.Authentication;
+using PeopleSyncD.Api.Configuration;
+using PeopleSyncD.Api.Middleware;
+using PeopleSyncD.Application;
 using PeopleSyncD.Infrastructure;
+using PeopleSyncD.Infrastructure.Configuration;
+using PeopleSyncD.Infrastructure.Persistence;
 using PeopleSyncD.ServiceDefaults;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+builder.Host.UseSerilog((context, services, logger) => logger
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext()
+    .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture));
+
+var allowEphemeralSigningKey = !builder.Environment.IsProduction();
+var jwtOptions = JwtOptions.Create(builder.Configuration, allowEphemeralSigningKey);
+builder.Services.Configure<ApiOptions>(builder.Configuration.GetSection(ApiOptions.SectionName));
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration, jwtOptions);
+builder.Services.AddPlatformAuthentication(jwtOptions);
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddOpenApi();
-builder.Services.AddHealthChecks();
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<ICurrentUserAccessor, HttpCurrentUserAccessor>();
-builder.Services.AddAuthorization();
-
-var authentication = builder.Configuration.GetSection("Authentication").Get<PeopleSyncD.Api.Identity.AuthenticationConfiguration>() ?? new();
-if (!string.IsNullOrWhiteSpace(authentication.Authority) && !string.IsNullOrWhiteSpace(authentication.Audience))
-{
-    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
-        {
-            options.Authority = authentication.Authority;
-            options.Audience = authentication.Audience;
-            options.RequireHttpsMetadata = authentication.RequireHttpsMetadata;
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true
-            };
-        });
-}
-
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
+app.UseExceptionHandler();
+app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseSerilogRequestLogging();
 app.UseAuthentication();
+app.UseMiddleware<AccountSecurityValidationMiddleware>();
+app.UseMiddleware<TenantMembershipValidationMiddleware>();
 app.UseAuthorization();
+app.MapOpenApi();
+app.MapControllers();
 app.MapDefaultEndpoints();
 
-app.MapGet("/api", () => Results.Ok(new { name = "PeopleSyncD Enterprise Platform", version = "0.1.0-alpha", status = "operational" }));
-app.MapGet("/version", () => Results.Ok(new { version = "0.1.0-alpha", build = "foundation" }));
-
-app.MapAuthenticationEndpoints();
-app.MapCurrentUserEndpoints();
-app.MapOrganizationEndpoints();
-app.MapPeopleEndpoints();
-
-if (app.Environment.IsDevelopment()) app.MapOpenApi();
+if (allowEphemeralSigningKey)
+{
+    await app.Services.InitializeDevelopmentDatabaseAsync();
+}
 
 app.Run();
 

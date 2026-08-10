@@ -1,0 +1,47 @@
+openapi: 3.1.0
+info:
+  title: PeopleSyncD Organization API
+  version: 0.1.0
+  description: Organization and tenant-context contract.
+  license:
+    name: Proprietary
+servers:
+  - url: https://api.peoplesyncd.example
+security:
+  - bearerAuth: []
+paths:
+  /v1/organizations:
+    get:
+      operationId: listOrganizations
+      summary: List organizations authorized for the caller
+      responses:
+        '200':
+          description: Organizations authorized for the authenticated user
+        '400':
+          description: Invalid organization query
+        '403':
+          description: Organization access denied
+  /v1/organizations/{organizationId}:
+    get:
+      operationId: getOrganization
+      summary: Get one authorized organization
+      parameters:
+        - in: path
+          name: organizationId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Organization detail
+        '403':
+          description: Organization access denied
+        '404':
+          description: Organization not found in authorized scope
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

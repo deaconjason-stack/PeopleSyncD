@@ -1,0 +1,26 @@
+requirement_id: PSD-REQ-DBIDENTITY-000001
+title: Dedicated Deployed Runtime Database Identity
+status: Implemented Foundation
+priority: Critical
+specification: PSD-PEP-730
+statement: >-
+  PeopleSyncD production APIs shall connect with a dedicated LOGIN identity that
+  inherits only the NOLOGIN peoplesyncd_runtime capability role and shall not
+  receive migration-authorized credentials.
+acceptance_criteria:
+  - peoplesyncd_runtime remains NOLOGIN.
+  - A controlled provisioning script creates a separate application LOGIN role.
+  - Production requires PEOPLESYNCD_RUNTIME_DATABASE_URL.
+  - Production requires PEOPLESYNCD_DATABASE_ROLE_MODE=direct.
+  - Migration credentials are documented as separate and prohibited from runtime use.
+  - Development and CI may use assume-role mode only outside production.
+implementation:
+  - apps/api/src/config.ts
+  - apps/api/src/identity-postgres.ts
+  - scripts/database/provision_runtime_login.sql
+  - config/environments/phase7b2b-recovery-safety.env.example
+  - database/migrations/0005_phase7b2b_recovery_replay_founder.sql
+tests:
+  - apps/api/src/config.test.ts
+  - .github/workflows/build.yml
+release_status: production-credential-boundary-foundation

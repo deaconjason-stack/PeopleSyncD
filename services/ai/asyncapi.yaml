@@ -1,0 +1,43 @@
+asyncapi: 2.6.0
+info:
+  title: PeopleSyncD Domonique 2.0 AI Events
+  version: 0.1.0
+channels:
+  ai.action_approval_requested.v1:
+    publish:
+      operationId: publishAiActionApprovalRequested
+      message:
+        payload:
+          type: object
+          required: [eventId, organizationId, actionId, riskClass, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            organizationId: { type: string, format: uuid }
+            actionId: { type: string, format: uuid }
+            riskClass: { type: string }
+            occurredAt: { type: string, format: date-time }
+  ai.action_executed.v1:
+    publish:
+      operationId: publishAiActionExecuted
+      message:
+        payload:
+          type: object
+          required: [eventId, organizationId, actionId, result, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            organizationId: { type: string, format: uuid }
+            actionId: { type: string, format: uuid }
+            result: { type: string }
+            occurredAt: { type: string, format: date-time }
+  ai.safety_event.v1:
+    publish:
+      operationId: publishAiSafetyEvent
+      message:
+        payload:
+          type: object
+          required: [eventId, organizationId, category, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            organizationId: { type: string, format: uuid }
+            category: { type: string }
+            occurredAt: { type: string, format: date-time }

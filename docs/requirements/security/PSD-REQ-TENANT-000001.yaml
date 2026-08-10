@@ -1,0 +1,12 @@
+id: PSD-REQ-TENANT-000001
+title: Tenant-Bound Permission Enforcement
+status: Approved
+priority: Critical
+owner: Security Office
+specification: PSD-PEP-230
+acceptance_criteria:
+  - Every tenant API requires an authenticated token containing a selected tenant identifier.
+  - Permission claims are derived from the active organization membership role.
+  - A valid permission claim cannot authorize access to a different organization identifier.
+  - Suspended or revoked memberships cannot receive a new tenant-scoped access token.
+implementation_status: Implemented Foundation

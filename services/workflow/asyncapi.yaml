@@ -1,0 +1,32 @@
+asyncapi: 2.6.0
+info:
+  title: PeopleSyncD Workflow Events
+  version: 0.1.0
+channels:
+  workflow.transitioned.v1:
+    publish:
+      operationId: publishWorkflowTransitioned
+      message:
+        payload:
+          type: object
+          required: [eventId, organizationId, workflowId, previousState, newState, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            organizationId: { type: string, format: uuid }
+            workflowId: { type: string, format: uuid }
+            previousState: { type: string }
+            newState: { type: string }
+            occurredAt: { type: string, format: date-time }
+  workflow.approval_requested.v1:
+    publish:
+      operationId: publishApprovalRequested
+      message:
+        payload:
+          type: object
+          required: [eventId, organizationId, workflowId, approvalId, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            organizationId: { type: string, format: uuid }
+            workflowId: { type: string, format: uuid }
+            approvalId: { type: string, format: uuid }
+            occurredAt: { type: string, format: date-time }

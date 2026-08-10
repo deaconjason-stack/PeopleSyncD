@@ -1,0 +1,26 @@
+requirement_id: PSD-REQ-RECOVERY-000001
+title: Single-Use MFA Recovery Codes
+status: Implemented
+priority: Critical
+specification: PSD-PEP-730
+statement: >-
+  PeopleSyncD shall store only keyed hashes of recovery codes, permit each code
+  to be consumed once, rotate the authenticated session after use, and record
+  privacy-safe evidence.
+acceptance_criteria:
+  - Plaintext recovery codes are displayed only at initial TOTP activation.
+  - Only keyed hashes are stored.
+  - Consumption requires current tenant, permission, user, and session context.
+  - The matched record is marked used in the same transaction as session rotation.
+  - Reuse of the same code is denied.
+  - The replacement session records recovery_code as an authentication method.
+implementation:
+  - apps/api/src/identity-contract.ts
+  - apps/api/src/identity-memory.ts
+  - apps/api/src/identity-postgres.ts
+  - apps/api/src/server.ts
+  - database/migrations/0004_phase7b2_totp_rotation_membership.sql
+tests:
+  - apps/api/src/server.test.ts
+  - apps/api/src/postgres.integration.test.ts
+release_status: 0.4.1-internal-verified

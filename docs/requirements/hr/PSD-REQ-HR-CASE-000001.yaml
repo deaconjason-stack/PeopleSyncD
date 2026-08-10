@@ -1,0 +1,14 @@
+id: PSD-REQ-HR-CASE-000001
+title: Restricted HR Case Access
+version: 1.0.0
+status: Approved
+hierarchy: Service
+owner: HR Domain
+priority: Critical
+specification:
+  - PSD-PEP-305
+acceptance_criteria:
+  - HR cases are accessible only through explicit assignment and permission.
+  - Highly confidential access requires fresh authentication.
+  - Search, notifications, telemetry, and audit minimize case narrative.
+implementation_status: Planned

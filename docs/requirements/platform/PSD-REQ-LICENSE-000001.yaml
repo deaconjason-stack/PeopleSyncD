@@ -1,0 +1,11 @@
+id: PSD-REQ-LICENSE-000001
+title: Tenant-Scoped Feature Entitlements
+status: Approved
+priority: High
+owner: Licensing Domain
+specification: PSD-PEP-280
+acceptance_criteria:
+  - Entitlements are versioned, tenant-scoped, and auditable.
+  - Expiration does not delete customer data.
+  - Authorized retrieval of legally important records remains available.
+implementation_status: Planned

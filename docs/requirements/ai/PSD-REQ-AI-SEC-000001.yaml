@@ -1,0 +1,13 @@
+id: PSD-REQ-AI-SEC-000001
+title: Prompt-Injection and Tool-Abuse Defense
+version: 1.0.0
+status: Approved
+hierarchy: Platform
+owner: Security Office
+priority: Critical
+specification: [PSD-PEP-407]
+acceptance_criteria:
+  - Retrieved content is isolated from authoritative instructions.
+  - Tool calls require allowlisting, schema validation, and permission checks.
+  - Red-team tests cover direct and indirect prompt injection.
+implementation_status: Planned

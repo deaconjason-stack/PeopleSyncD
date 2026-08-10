@@ -1,0 +1,4 @@
+requirement_id,pep,service,api,event,database,test,release_status
+PSD-REQ-MFA-000002,PSD-PEP-720,identity,apps/api/src/server.ts,MFA_TOTP_ENROLLMENT_STARTED|MFA_TOTP_VERIFICATION_FAILED|MFA_TOTP_VERIFIED,database/migrations/0004_phase7b2_totp_rotation_membership.sql,packages/auth/src/index.test.ts|apps/api/src/server.test.ts|apps/api/src/postgres.integration.test.ts,identity-hardening-implemented
+PSD-REQ-SESSION-000002,PSD-PEP-720,identity,apps/api/src/server.ts,SESSION_ROTATED,database/migrations/0004_phase7b2_totp_rotation_membership.sql,apps/api/src/server.test.ts|apps/api/src/postgres.integration.test.ts,identity-hardening-implemented
+PSD-REQ-ORG-000003,PSD-PEP-720,organization,apps/api/src/server.ts,MEMBERSHIP_UPDATED,database/migrations/0004_phase7b2_totp_rotation_membership.sql,apps/api/src/server.test.ts|apps/api/src/postgres.integration.test.ts,identity-hardening-implemented

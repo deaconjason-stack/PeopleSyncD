@@ -1,0 +1,141 @@
+openapi: 3.1.0
+info:
+  title: PeopleSyncD Domonique 2.0 AI Service API
+  version: 0.1.0
+  description: Permission-aware conversation, grounding, approval, and memory contract.
+  license:
+    name: PeopleSyncD Proprietary License
+    url: https://github.com/deaconjason-stack/PeopleSyncD/blob/main/LICENSE
+servers:
+  - url: https://api.peoplesyncd.example
+security:
+  - bearerAuth: []
+paths:
+  /v1/ai/conversations:
+    post:
+      operationId: startAiConversation
+      summary: Start a tenant-scoped AI conversation
+      responses:
+        '201':
+          description: Conversation started
+        '400':
+          description: Invalid conversation request
+        '403':
+          description: AI access denied
+  /v1/ai/conversations/{conversationId}/messages:
+    post:
+      operationId: sendAiMessage
+      summary: Send a message and receive a governed response
+      parameters:
+        - in: path
+          name: conversationId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Grounded response, refusal, or approval-required action
+        '400':
+          description: Invalid message request
+        '403':
+          description: Requested context or capability is denied
+        '404':
+          description: Conversation not found in authorized scope
+  /v1/ai/responses/{responseId}/sources:
+    get:
+      operationId: listAiResponseSources
+      summary: List authorized source references for a response
+      parameters:
+        - in: path
+          name: responseId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Authorized source references
+        '403':
+          description: Source access denied
+        '404':
+          description: Response not found in authorized scope
+  /v1/ai/actions/{actionId}/approve:
+    post:
+      operationId: approveAiAction
+      summary: Approve and execute an AI-prepared action
+      parameters:
+        - in: path
+          name: actionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Action revalidated, executed, and audited
+        '403':
+          description: Approval authority denied
+        '409':
+          description: Action is stale, expired, canceled, or already resolved
+  /v1/ai/actions/{actionId}/cancel:
+    post:
+      operationId: cancelAiAction
+      summary: Cancel a pending AI-prepared action
+      parameters:
+        - in: path
+          name: actionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Pending action canceled
+        '403':
+          description: Cancellation denied
+        '409':
+          description: Action can no longer be canceled
+  /v1/ai/memory:
+    get:
+      operationId: listMyAiMemory
+      summary: List memory records visible to the caller
+      responses:
+        '200':
+          description: Authorized memory records
+        '403':
+          description: Memory access denied
+    post:
+      operationId: createAiMemory
+      summary: Create a governed AI memory record
+      responses:
+        '201':
+          description: Memory record created
+        '400':
+          description: Invalid or prohibited memory request
+        '403':
+          description: Memory creation denied
+  /v1/ai/memory/{memoryId}:
+    delete:
+      operationId: deleteAiMemory
+      summary: Delete an authorized memory record
+      parameters:
+        - in: path
+          name: memoryId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Memory deleted or scheduled for governed deletion
+        '403':
+          description: Memory deletion denied
+        '409':
+          description: Legal hold or retention policy prevents deletion
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

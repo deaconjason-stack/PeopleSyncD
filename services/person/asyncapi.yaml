@@ -1,0 +1,15 @@
+asyncapi: 2.6.0
+info: { title: PeopleSyncD Person Events, version: 0.1.0 }
+channels:
+  person.created.v1:
+    publish:
+      operationId: publishPersonCreated
+      message:
+        payload:
+          type: object
+          required: [eventId, organizationId, personId, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            organizationId: { type: string, format: uuid }
+            personId: { type: string, format: uuid }
+            occurredAt: { type: string, format: date-time }

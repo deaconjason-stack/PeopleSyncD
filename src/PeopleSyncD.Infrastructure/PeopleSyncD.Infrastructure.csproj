@@ -1,16 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>PeopleSyncD.Infrastructure</RootNamespace>
+    <AssemblyName>PeopleSyncD.Infrastructure</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../PeopleSyncD.Application/PeopleSyncD.Application.csproj" />
+    <ProjectReference Include="../PeopleSyncD.Domain/PeopleSyncD.Domain.csproj" />
+    <ProjectReference Include="../PeopleSyncD.SharedKernel/PeopleSyncD.SharedKernel.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Fido2" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>
 </Project>

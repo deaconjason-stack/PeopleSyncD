@@ -1,0 +1,13 @@
+id: PSD-REQ-DEPLOY-000001
+title: Governed Multi-Model Deployment
+version: 1.0.0
+status: Approved
+hierarchy: Platform
+owner: DevSecOps Office
+priority: Critical
+specification: [PSD-PEP-500]
+acceptance_criteria:
+  - Cloud, private-cloud, on-premises, and hybrid packages use one governed release identity.
+  - Deployment-specific configuration does not require source-code forks.
+  - Production artifacts are immutable and verifiable.
+implementation_status: Planned

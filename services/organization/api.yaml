@@ -1,0 +1,35 @@
+openapi: 3.1.0
+info:
+  title: PeopleSyncD Organization Service API
+  version: 0.1.0
+  description: Tenant, hierarchy, membership, and context contract.
+  license:
+    name: Proprietary
+servers:
+  - url: https://api.peoplesyncd.example
+security:
+  - bearerAuth: []
+paths:
+  /v1/organizations:
+    get:
+      operationId: listAuthorizedOrganizations
+      summary: List organizations available to the caller
+      responses:
+        '200': { description: Authorized organizations }
+        '403': { description: Access denied }
+  /v1/organizations/{organizationId}/context:
+    post:
+      operationId: activateOrganizationContext
+      summary: Activate a verified organization context
+      parameters:
+        - in: path
+          name: organizationId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Organization context activated }
+        '403': { description: Membership invalid or access denied }
+        '404': { description: Organization not found }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

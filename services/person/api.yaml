@@ -1,0 +1,44 @@
+openapi: 3.1.0
+info:
+  title: PeopleSyncD Person API
+  version: 0.1.0
+  description: Tenant-scoped Person record contract.
+  license:
+    name: PeopleSyncD Proprietary License
+    url: https://github.com/deaconjason-stack/PeopleSyncD/blob/main/LICENSE
+servers:
+  - url: https://api.peoplesyncd.example
+security:
+  - bearerAuth: []
+paths:
+  /v1/persons:
+    get:
+      operationId: listPersons
+      summary: List authorized Person summaries
+      responses:
+        '200': { description: Authorized Person summaries }
+        '403': { description: Access denied }
+    post:
+      operationId: createPerson
+      summary: Create a tenant-scoped Person record
+      responses:
+        '201': { description: Person created }
+        '400': { description: Invalid Person request }
+        '403': { description: Creation denied }
+        '409': { description: Potential duplicate requires review }
+  /v1/persons/{personId}:
+    get:
+      operationId: getPerson
+      summary: Get one authorized Person record
+      parameters:
+        - in: path
+          name: personId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Authorized Person record }
+        '403': { description: Access denied }
+        '404': { description: Person not found in authorized scope }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

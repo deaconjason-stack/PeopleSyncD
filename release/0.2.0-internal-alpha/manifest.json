@@ -1,0 +1,21 @@
+{
+  "release": "0.2.0",
+  "channel": "internal-alpha",
+  "status": "buildable",
+  "certified": false,
+  "signed": false,
+  "sourceCommit": "generated-by-ci",
+  "artifacts": {
+    "api": "generated-by-ci",
+    "web": "generated-by-ci",
+    "windowsInstaller": "generated-by-windows-ci",
+    "sbom": "generated-by-ci",
+    "checksums": "generated-by-ci"
+  },
+  "knownLimitations": [
+    "Development authentication only",
+    "In-memory application repository",
+    "Unsigned Windows installer",
+    "No production certification"
+  ]
+}

@@ -1,0 +1,184 @@
+registry:
+  version: 1.11.0
+  status: Approved
+
+specifications:
+  - id: PSD-PEP-100
+    title: Product Charter
+    status: Approved
+    path: docs/specifications/PSD-PEP-100-product-charter.md
+  - id: PSD-PEP-110
+    title: Domain Ontology
+    status: Approved
+    path: docs/specifications/PSD-PEP-110-domain-ontology.md
+  - id: PSD-PEP-120
+    title: Security Architecture
+    status: Approved
+    path: docs/specifications/PSD-PEP-120-security-architecture.md
+  - id: PSD-PEP-130
+    title: Multi-Tenant Architecture
+    status: Approved
+    path: docs/specifications/PSD-PEP-130-tenant-architecture.md
+  - id: PSD-PEP-140
+    title: Identity Architecture
+    status: Approved
+    path: docs/specifications/PSD-PEP-140-identity-architecture.md
+  - id: PSD-PEP-150
+    title: Domonique 2.0 AI Governance
+    status: Approved
+    path: docs/specifications/PSD-PEP-150-ai-governance.md
+  - id: PSD-PEP-200
+    title: System Architecture
+    status: Planned
+  - id: PSD-PEP-210
+    title: Identity Service
+    status: Approved
+    path: docs/specifications/PSD-PEP-210-identity-service.md
+  - id: PSD-PEP-220
+    title: Organization Service
+    status: Approved
+    path: docs/specifications/PSD-PEP-220-organization-service.md
+  - id: PSD-PEP-230
+    title: Permissions Service
+    status: Approved
+    path: docs/specifications/PSD-PEP-230-permissions-service.md
+  - id: PSD-PEP-240
+    title: Audit Service
+    status: Approved
+    path: docs/specifications/PSD-PEP-240-audit-service.md
+  - id: PSD-PEP-250
+    title: Documents Service
+    status: Approved
+    path: docs/specifications/PSD-PEP-250-documents-service.md
+  - id: PSD-PEP-260
+    title: Workflow Service
+    status: Approved
+    path: docs/specifications/PSD-PEP-260-workflow-service.md
+  - id: PSD-PEP-270
+    title: Notification Service
+    status: Approved
+    path: docs/specifications/PSD-PEP-270-notification-service.md
+  - id: PSD-PEP-280
+    title: Licensing Service
+    status: Approved
+    path: docs/specifications/PSD-PEP-280-licensing-service.md
+  - id: PSD-PEP-300
+    title: HR Domain
+    status: Approved
+    path: docs/specifications/PSD-PEP-300-hr-domain.md
+  - id: PSD-PEP-301
+    title: Person Service
+    status: Approved
+    path: docs/specifications/PSD-PEP-301-person-service.md
+  - id: PSD-PEP-302
+    title: Employment and Assignment Service
+    status: Approved
+    path: docs/specifications/PSD-PEP-302-employment-service.md
+  - id: PSD-PEP-303
+    title: Onboarding Service
+    status: Approved
+    path: docs/specifications/PSD-PEP-303-onboarding-service.md
+  - id: PSD-PEP-304
+    title: Credentials and Training
+    status: Approved
+    path: docs/specifications/PSD-PEP-304-credentials-training.md
+  - id: PSD-PEP-305
+    title: HR Cases and Concerns
+    status: Approved
+    path: docs/specifications/PSD-PEP-305-hr-cases.md
+  - id: PSD-PEP-306
+    title: HR User Experience and Dashboards
+    status: Approved
+    path: docs/specifications/PSD-PEP-306-hr-experience.md
+  - id: PSD-PEP-400
+    title: Domonique 2.0 AI Platform
+    status: Approved
+    path: docs/specifications/PSD-PEP-400-domonique-ai-platform.md
+  - id: PSD-PEP-401
+    title: Conversation Engine and Prompt Builder
+    status: Approved
+    path: docs/specifications/PSD-PEP-401-conversation-prompt-engine.md
+  - id: PSD-PEP-402
+    title: Knowledge Retrieval, Grounding, and Policy Engine
+    status: Approved
+    path: docs/specifications/PSD-PEP-402-retrieval-grounding-policy.md
+  - id: PSD-PEP-403
+    title: AI Tool Registry and Approval Framework
+    status: Approved
+    path: docs/specifications/PSD-PEP-403-tools-approvals.md
+  - id: PSD-PEP-404
+    title: Domonique 2.0 Memory Vault
+    status: Approved
+    path: docs/specifications/PSD-PEP-404-memory-vault.md
+  - id: PSD-PEP-405
+    title: Assistant Modes and Founder Brief
+    status: Approved
+    path: docs/specifications/PSD-PEP-405-assistant-modes.md
+  - id: PSD-PEP-406
+    title: Voice and Wake-Phrase
+    status: Approved
+    path: docs/specifications/PSD-PEP-406-voice-interface.md
+  - id: PSD-PEP-407
+    title: AI Security, Safety, and Evaluation
+    status: Approved
+    path: docs/specifications/PSD-PEP-407-ai-security-evaluation.md
+  - id: PSD-PEP-500
+    title: Enterprise Deployment Architecture
+    status: Approved
+    path: docs/specifications/PSD-PEP-500-enterprise-deployment.md
+  - id: PSD-PEP-501
+    title: Environment and Configuration Management
+    status: Approved
+    path: docs/specifications/PSD-PEP-501-environment-configuration.md
+  - id: PSD-PEP-502
+    title: Secrets and Key Management
+    status: Approved
+    path: docs/specifications/PSD-PEP-502-secrets-key-management.md
+  - id: PSD-PEP-503
+    title: Backup, Restoration, and Disaster Recovery
+    status: Approved
+    path: docs/specifications/PSD-PEP-503-backup-disaster-recovery.md
+  - id: PSD-PEP-504
+    title: Observability, Alerting, and Support Diagnostics
+    status: Approved
+    path: docs/specifications/PSD-PEP-504-observability-support.md
+  - id: PSD-PEP-505
+    title: Software Supply Chain and Release Security
+    status: Approved
+    path: docs/specifications/PSD-PEP-505-supply-chain-release-security.md
+  - id: PSD-PEP-506
+    title: Performance and Accessibility Verification
+    status: Approved
+    path: docs/specifications/PSD-PEP-506-performance-accessibility.md
+  - id: PSD-PEP-507
+    title: Release Certification and Customer Operations
+    status: Approved
+    path: docs/specifications/PSD-PEP-507-certification-customer-operations.md
+  - id: PSD-PEP-600
+    title: First Executable Platform Build
+    status: Approved
+    path: docs/specifications/PSD-PEP-600-first-executable-platform.md
+  - id: PSD-PEP-700
+    title: Production Beta Hardening
+    status: Active
+    path: docs/specifications/PSD-PEP-700-production-beta-hardening.md
+  - id: PSD-PEP-710
+    title: Identity and Session Hardening
+    status: Implemented Foundation
+    path: docs/specifications/PSD-PEP-710-identity-session-hardening.md
+  - id: PSD-PEP-720
+    title: MFA and Session Lifecycle Hardening
+    status: Implemented Increment
+    path: docs/specifications/PSD-PEP-720-mfa-session-lifecycle.md
+  - id: PSD-PEP-730
+    title: Recovery, Replay, and Administrative Safety
+    status: Implemented Increment
+    path: docs/specifications/PSD-PEP-730-recovery-replay-administrative-safety.md
+  - id: PSD-PEP-740
+    title: Passkeys and Privileged Reauthentication
+    status: Implemented Foundation
+    path: docs/specifications/PSD-PEP-740-passkeys-privileged-reauthentication.md
+  - id: PSD-PEP-3010
+    title: Worker Service Specification
+    status: Foundation
+    path: services/worker/README.md

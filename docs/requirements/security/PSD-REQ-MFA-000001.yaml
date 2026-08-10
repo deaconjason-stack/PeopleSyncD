@@ -1,0 +1,22 @@
+requirement_id: PSD-REQ-MFA-000001
+title: Governed MFA Enrollment Records
+status: Implemented Foundation
+priority: High
+specification: PSD-PEP-710
+statement: >-
+  PeopleSyncD shall create tenant-scoped pending MFA enrollment records without
+  exposing authenticator secret material or representing an enrollment as verified.
+acceptance_criteria:
+  - Only TOTP and WebAuthn method identifiers are accepted in this increment.
+  - New enrollment records begin in pending status.
+  - API responses contain no TOTP secret, WebAuthn private material, or recovery code.
+  - MFA records are tenant protected by forced row-level security.
+  - Verification and recovery remain blocked until separately implemented and tested.
+implementation:
+  - apps/api/src/identity.ts
+  - apps/api/src/server.ts
+  - database/migrations/0003_phase7b_identity_sessions.sql
+tests:
+  - apps/api/src/server.test.ts
+  - apps/api/src/postgres.integration.test.ts
+release_status: identity-beta-foundation

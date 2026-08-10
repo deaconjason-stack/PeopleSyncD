@@ -1,0 +1,42 @@
+openapi: 3.1.0
+info:
+  title: PeopleSyncD Identity API
+  version: 0.1.0
+  description: Authentication and session foundation contract.
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
+servers:
+  - url: https://api.peoplesyncd.example
+paths:
+  /v1/identity/sessions:
+    post:
+      operationId: createSession
+      summary: Authenticate and create a session
+      security: []
+      responses:
+        '201': { description: Session created or MFA challenge returned }
+        '400': { description: Invalid authentication request }
+        '401': { description: Authentication failed }
+        '423': { description: Account locked or disabled }
+  /v1/identity/sessions/{sessionId}/revoke:
+    post:
+      operationId: revokeSession
+      summary: Revoke an active session
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Session revoked }
+        '403': { description: Revocation denied }
+        '404': { description: Session not found }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

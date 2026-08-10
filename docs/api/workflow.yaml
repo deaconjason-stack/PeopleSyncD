@@ -1,0 +1,47 @@
+openapi: 3.1.0
+info:
+  title: PeopleSyncD Workflow API
+  version: 0.1.0
+  description: Governed workflow and transition contract.
+  license:
+    name: Proprietary
+servers:
+  - url: https://api.peoplesyncd.example
+security:
+  - bearerAuth: []
+paths:
+  /v1/workflows:
+    post:
+      operationId: startWorkflow
+      summary: Start a governed workflow instance
+      responses:
+        '201':
+          description: Workflow started
+        '400':
+          description: Invalid workflow request
+        '403':
+          description: Workflow creation denied
+  /v1/workflows/{workflowId}/transitions:
+    post:
+      operationId: transitionWorkflow
+      summary: Apply a valid workflow transition
+      parameters:
+        - in: path
+          name: workflowId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Valid transition committed
+        '403':
+          description: Transition denied
+        '409':
+          description: Invalid or stale transition
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

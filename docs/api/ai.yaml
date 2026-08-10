@@ -1,0 +1,75 @@
+openapi: 3.1.0
+info:
+  title: PeopleSyncD Domonique 2.0 API
+  version: 0.1.0
+  description: Platform-facing permission-aware AI orchestration contract.
+  license:
+    name: PeopleSyncD Proprietary License
+    url: https://github.com/deaconjason-stack/PeopleSyncD/blob/main/LICENSE
+servers:
+  - url: https://api.peoplesyncd.example
+security:
+  - bearerAuth: []
+paths:
+  /v1/ai/conversations:
+    post:
+      operationId: startAiConversation
+      summary: Start a permission-aware AI conversation
+      responses:
+        '201':
+          description: Conversation started
+        '400':
+          description: Invalid request
+        '403':
+          description: AI access denied
+  /v1/ai/conversations/{conversationId}/messages:
+    post:
+      operationId: sendAiMessage
+      summary: Send a message to Domonique 2.0
+      parameters:
+        - in: path
+          name: conversationId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Governed response, refusal, or approval-required action
+        '403':
+          description: Requested capability or context denied
+        '404':
+          description: Conversation not found in authorized scope
+  /v1/ai/actions/{actionId}/approve:
+    post:
+      operationId: approveAiPreparedAction
+      summary: Approve an AI-prepared action
+      parameters:
+        - in: path
+          name: actionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Authorized action executed and audited
+        '403':
+          description: Approval denied
+        '409':
+          description: Approval is missing, expired, canceled, or stale
+  /v1/ai/memory:
+    get:
+      operationId: listMyAiMemory
+      summary: List governed memory visible to the caller
+      responses:
+        '200':
+          description: Authorized memory records
+        '403':
+          description: Memory access denied
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

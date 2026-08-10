@@ -1,0 +1,13 @@
+id: PSD-REQ-SBOM-000001
+title: Machine-Readable Software Bill of Materials
+version: 1.0.0
+status: Approved
+hierarchy: Release
+owner: Release Management Office
+priority: Critical
+specification: [PSD-PEP-505, PSD-PEP-507]
+acceptance_criteria:
+  - The release package contains a machine-readable SBOM.
+  - The SBOM identifies the release version and source commit.
+  - Generation is automated and repeatable.
+implementation_status: Planned

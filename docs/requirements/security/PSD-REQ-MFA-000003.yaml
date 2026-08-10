@@ -1,0 +1,24 @@
+requirement_id: PSD-REQ-MFA-000003
+title: Monotonic TOTP Replay Prevention
+status: Implemented
+priority: Critical
+specification: PSD-PEP-730
+statement: >-
+  PeopleSyncD shall persist the highest accepted TOTP moving-factor counter for
+  each active method and deny any later verification that does not advance it.
+acceptance_criteria:
+  - A valid TOTP code returns its matched moving-factor counter.
+  - The accepted counter is persisted in the tenant-scoped MFA record.
+  - A counter less than or equal to the persisted counter is denied.
+  - Replay denial emits an append-only security event without the supplied code.
+  - Counter update, method activation, and session rotation share one transaction.
+implementation:
+  - packages/auth/src/index.ts
+  - apps/api/src/identity-memory.ts
+  - apps/api/src/identity-postgres.ts
+  - database/migrations/0005_phase7b2b_recovery_replay_founder.sql
+tests:
+  - packages/auth/src/index.test.ts
+  - apps/api/src/server.test.ts
+  - apps/api/src/postgres.integration.test.ts
+release_status: 0.4.1-internal-verified

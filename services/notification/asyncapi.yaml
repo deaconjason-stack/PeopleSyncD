@@ -1,0 +1,19 @@
+asyncapi: 2.6.0
+info:
+  title: PeopleSyncD Notification Events
+  version: 0.1.0
+channels:
+  notification.delivery_status.v1:
+    publish:
+      operationId: publishDeliveryStatus
+      message:
+        payload:
+          type: object
+          required: [eventId, organizationId, notificationId, status, channel, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            organizationId: { type: string, format: uuid }
+            notificationId: { type: string, format: uuid }
+            status: { type: string }
+            channel: { type: string }
+            occurredAt: { type: string, format: date-time }

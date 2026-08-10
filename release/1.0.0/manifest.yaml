@@ -1,0 +1,19 @@
+release:
+  version: 1.0.0
+  status: reserved
+  certified: false
+  commit: null
+  buildId: null
+requirements:
+  implemented: null
+tests:
+  passed: null
+  coverage: null
+security:
+  reportGenerated: false
+accessibility:
+  reportGenerated: false
+sbom:
+  generated: false
+signing:
+  signed: false

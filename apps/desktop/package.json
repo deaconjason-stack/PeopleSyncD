@@ -1,0 +1,43 @@
+{
+  "name": "@peoplesyncd/desktop",
+  "version": "0.4.1",
+  "private": true,
+  "description": "PeopleSyncD Genesis unsigned recovery and administrative safety build for internal verification",
+  "author": "MediSyncD Technologies, LLC",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "npm run build && electron .",
+    "package:windows": "npm run build && electron-builder --win nsis --publish never"
+  },
+  "devDependencies": {
+    "app-builder-bin": "4.2.0",
+    "electron": "34.0.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "com.medisyncd.peoplesyncd",
+    "productName": "PeopleSyncD Genesis",
+    "electronVersion": "34.0.0",
+    "artifactName": "PeopleSyncD-Genesis-${version}-unsigned.${ext}",
+    "directories": {
+      "output": "dist-installer"
+    },
+    "files": ["dist/**/*", "package.json"],
+    "extraResources": [
+      {"from": "../web/dist", "to": "web", "filter": ["**/*"]}
+    ],
+    "win": {
+      "target": ["nsis"],
+      "forceCodeSigning": false,
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}

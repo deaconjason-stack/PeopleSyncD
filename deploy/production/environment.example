@@ -1,0 +1,31 @@
+# Public HTTPS identity
+PEOPLESYNCD_DOMAIN=peoplesyncd.example.com
+PEOPLESYNCD_ACME_EMAIL=operations@example.com
+
+# Application images must be immutable digest references emitted by Publish GHCR Containers.
+PEOPLESYNCD_API_IMAGE=ghcr.io/deaconjason-stack/peoplesyncd-api@sha256:REPLACE_WITH_API_DIGEST
+PEOPLESYNCD_WEB_IMAGE=ghcr.io/deaconjason-stack/peoplesyncd-web@sha256:REPLACE_WITH_WEB_DIGEST
+
+# Infrastructure images must also be pinned by digest before deployment.
+PEOPLESYNCD_GATEWAY_IMAGE=caddy@sha256:REPLACE_WITH_CADDY_DIGEST
+PEOPLESYNCD_POSTGRES_CLIENT_IMAGE=postgres@sha256:REPLACE_WITH_POSTGRES_CLIENT_DIGEST
+
+# Managed PostgreSQL migration credential. Keep separate from the runtime credential.
+PEOPLESYNCD_DB_HOST=db.example.invalid
+PEOPLESYNCD_DB_PORT=5432
+PEOPLESYNCD_DB_NAME=peoplesyncd
+PEOPLESYNCD_DB_MIGRATION_USER=peoplesyncd_migrator
+PEOPLESYNCD_DB_MIGRATION_PASSWORD=REPLACE_IN_SECRET_STORE
+PEOPLESYNCD_DB_SSLMODE=require
+
+# Runtime PostgreSQL connection string. Use a constrained non-migration application user.
+PEOPLESYNCD_DATABASE_CONNECTION_STRING=Host=db.example.invalid;Port=5432;Database=peoplesyncd;Username=peoplesyncd_runtime;Password=REPLACE_IN_SECRET_STORE;SSL Mode=Require;Trust Server Certificate=false
+
+# JWT signing material must come from a protected secret store. Never commit a real value.
+PEOPLESYNCD_JWT_ISSUER=PeopleSyncD
+PEOPLESYNCD_JWT_AUDIENCE=PeopleSyncD.Clients
+PEOPLESYNCD_JWT_SIGNING_KEY=REPLACE_WITH_AT_LEAST_256_BITS_OF_RANDOM_SECRET_MATERIAL
+PEOPLESYNCD_ACCESS_TOKEN_MINUTES=15
+
+# Optional OpenTelemetry collector endpoint.
+PEOPLESYNCD_OTEL_ENDPOINT=

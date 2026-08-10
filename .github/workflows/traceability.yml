@@ -1,0 +1,43 @@
+name: Traceability
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate requirement evidence paths
+        shell: python
+        run: |
+          import csv
+          from pathlib import Path
+          matrix = Path('docs/traceability/requirements.csv')
+          rows = list(csv.DictReader(matrix.open(encoding='utf-8')))
+          if not rows:
+              raise SystemExit('Traceability matrix contains no requirements')
+          seen = set()
+          errors = []
+          for row in rows:
+              rid = row['requirement_id'].strip()
+              if not rid or rid in seen:
+                  errors.append(f'duplicate or missing requirement id: {rid!r}')
+              seen.add(rid)
+              for field in ('service', 'api', 'event', 'database', 'test'):
+                  value = row[field].strip()
+                  if not value:
+                      continue
+                  path = Path(value)
+                  if field == 'service':
+                      path = Path('services') / value
+                  if not path.exists():
+                      errors.append(f'{rid}: missing {field} reference {path}')
+          if errors:
+              raise SystemExit('\n'.join(errors))
+          print(f'Validated {len(rows)} unique requirements.')

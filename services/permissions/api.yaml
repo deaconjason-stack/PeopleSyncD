@@ -1,0 +1,31 @@
+openapi: 3.1.0
+info:
+  title: PeopleSyncD Permissions API
+  version: 0.1.0
+  description: Central authorization decision contract.
+  license:
+    name: Proprietary
+servers:
+  - url: https://api.peoplesyncd.example
+security:
+  - bearerAuth: []
+paths:
+  /v1/permissions/evaluate:
+    post:
+      operationId: evaluatePermission
+      summary: Evaluate a tenant-scoped authorization request
+      responses:
+        '200': { description: Allow or deny decision with reason and policy version }
+        '400': { description: Invalid or incomplete policy input }
+        '403': { description: Caller cannot request this evaluation }
+  /v1/permissions/grants:
+    post:
+      operationId: createPermissionGrant
+      summary: Create an authorized time-bounded grant
+      responses:
+        '201': { description: Grant created }
+        '400': { description: Invalid grant }
+        '403': { description: Grant creation denied }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

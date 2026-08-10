@@ -1,0 +1,23 @@
+openapi: 3.1.0
+info:
+  title: PeopleSyncD HR API
+  version: 0.1.0
+  description: Aggregate discovery contract for PeopleSyncD HR services.
+  license:
+    name: PeopleSyncD Proprietary License
+    url: https://github.com/deaconjason-stack/PeopleSyncD/blob/main/LICENSE
+servers:
+  - url: https://api.peoplesyncd.example
+security:
+  - bearerAuth: []
+paths:
+  /v1/hr/capabilities:
+    get:
+      operationId: listHrCapabilities
+      summary: List HR capabilities available to the caller
+      responses:
+        '200': { description: Authorized HR capability links }
+        '403': { description: HR access denied }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

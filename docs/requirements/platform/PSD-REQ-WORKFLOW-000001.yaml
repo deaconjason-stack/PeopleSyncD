@@ -1,0 +1,11 @@
+id: PSD-REQ-WORKFLOW-000001
+title: Deterministic Workflow State Transitions
+status: Approved
+priority: High
+owner: Workflow Domain
+specification: PSD-PEP-260
+acceptance_criteria:
+  - Invalid and stale transitions are rejected.
+  - High-impact transitions require authorized approval.
+  - Retry and failure handling preserve the last valid state.
+implementation_status: Planned

@@ -1,0 +1,30 @@
+asyncapi: 2.6.0
+info:
+  title: PeopleSyncD HR Domain Events
+  version: 0.1.0
+channels:
+  hr.employment_changed.v1:
+    subscribe:
+      operationId: consumeEmploymentChanged
+      message:
+        payload:
+          type: object
+          required: [eventId, organizationId, employmentId, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            organizationId: { type: string, format: uuid }
+            employmentId: { type: string, format: uuid }
+            occurredAt: { type: string, format: date-time }
+  hr.onboarding_readiness_changed.v1:
+    subscribe:
+      operationId: consumeOnboardingReadinessChanged
+      message:
+        payload:
+          type: object
+          required: [eventId, organizationId, onboardingInstanceId, readinessPercent, occurredAt]
+          properties:
+            eventId: { type: string, format: uuid }
+            organizationId: { type: string, format: uuid }
+            onboardingInstanceId: { type: string, format: uuid }
+            readinessPercent: { type: number, minimum: 0, maximum: 100 }
+            occurredAt: { type: string, format: date-time }

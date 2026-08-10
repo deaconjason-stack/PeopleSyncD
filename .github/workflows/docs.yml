@@ -1,0 +1,35 @@
+name: Governance Documentation
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  required-structure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify required governance files
+        shell: python
+        run: |
+          from pathlib import Path
+          required = [
+              'CODEOWNERS', 'SECURITY.md', 'SUPPORT.md', 'CONTRIBUTING.md',
+              'docs/pep/PEP-0000-enterprise-governance.md',
+              'docs/pep/PEP-1200-security.md',
+              'docs/pep/PEP-1280-ai-security.md',
+              'docs/pep/PEP-2090-release-certification.md',
+              'docs/governance/security-review-template.md',
+              'docs/governance/architecture-review-template.md',
+              'docs/governance/release-certification-template.md',
+              'docs/traceability/requirements.csv',
+              'platform.yaml'
+          ]
+          missing = [p for p in required if not Path(p).is_file()]
+          if missing:
+              raise SystemExit('Missing required files: ' + ', '.join(missing))
+          print(f'Validated {len(required)} required governance files.')
