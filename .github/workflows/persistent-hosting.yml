@@ -1,0 +1,132 @@
+name: Persistent Hosting Contract
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/persistent-hosting.yml'
+      - '.github/workflows/publish-containers.yml'
+      - 'docker-compose.production.yml'
+      - 'deploy/production/**'
+      - 'database/dotnet/**'
+  push:
+    branches:
+      - deployment/persistent-ghcr
+    paths:
+      - '.github/workflows/persistent-hosting.yml'
+      - '.github/workflows/publish-containers.yml'
+      - 'docker-compose.production.yml'
+      - 'deploy/production/**'
+      - 'database/dotnet/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: peoplesyncd_persistent_ci
+          POSTGRES_USER: peoplesyncd_migrator
+          POSTGRES_PASSWORD: persistent-ci-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U peoplesyncd_migrator -d peoplesyncd_persistent_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
+      PGDATABASE: peoplesyncd_persistent_ci
+      PGUSER: peoplesyncd_migrator
+      PGPASSWORD: persistent-ci-only
+      PGSSLMODE: disable
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate migration runner shell
+        run: sh -n deploy/production/run-migrations.sh
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install --yes postgresql-client
+
+      - name: Apply migration contract first time
+        run: MIGRATION_DIR=database/dotnet sh deploy/production/run-migrations.sh | tee /tmp/migrations-first.log
+
+      - name: Verify migration ledger
+        run: |
+          ledger_count=$(psql -Atc "select count(*) from peoplesyncd_schema_migrations;")
+          schema_count=$(psql -Atc "select count(*) from information_schema.tables where table_schema='public' and table_name in ('organizations','organization_memberships','organization_invitations','refresh_sessions','security_audit_records','mfa_challenges','mfa_recovery_codes','mfa_totp_states','passkey_credentials','passkey_ceremonies');")
+          test "$ledger_count" = "4"
+          test "$schema_count" = "10"
+
+      - name: Reapply migration contract safely
+        run: |
+          MIGRATION_DIR=database/dotnet sh deploy/production/run-migrations.sh | tee /tmp/migrations-second.log
+          test "$(grep -c 'Migration already applied:' /tmp/migrations-second.log)" = "4"
+
+      - name: Reject modified historical migration
+        run: |
+          cp -R database/dotnet /tmp/peoplesyncd-dotnet-migrations
+          printf '\n-- deliberate CI checksum mismatch\n' >> /tmp/peoplesyncd-dotnet-migrations/0001_m21_identity_foundation.sql
+          if MIGRATION_DIR=/tmp/peoplesyncd-dotnet-migrations sh deploy/production/run-migrations.sh; then
+            echo 'Checksum mismatch was not rejected.' >&2
+            exit 1
+          fi
+
+      - name: Validate production Compose contract
+        env:
+          PEOPLESYNCD_DOMAIN: peoplesyncd.example.com
+          PEOPLESYNCD_ACME_EMAIL: operations@example.com
+          PEOPLESYNCD_API_IMAGE: ghcr.io/deaconjason-stack/peoplesyncd-api@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          PEOPLESYNCD_WEB_IMAGE: ghcr.io/deaconjason-stack/peoplesyncd-web@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+          PEOPLESYNCD_GATEWAY_IMAGE: caddy@sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          PEOPLESYNCD_POSTGRES_CLIENT_IMAGE: postgres@sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+          PEOPLESYNCD_DB_HOST: db.example.invalid
+          PEOPLESYNCD_DB_PORT: 5432
+          PEOPLESYNCD_DB_NAME: peoplesyncd
+          PEOPLESYNCD_DB_MIGRATION_USER: peoplesyncd_migrator
+          PEOPLESYNCD_DB_MIGRATION_PASSWORD: ci-placeholder-only
+          PEOPLESYNCD_DB_SSLMODE: require
+          PEOPLESYNCD_DATABASE_CONNECTION_STRING: Host=db.example.invalid;Port=5432;Database=peoplesyncd;Username=peoplesyncd_runtime;Password=ci-placeholder-only;SSL Mode=Require;Trust Server Certificate=false
+          PEOPLESYNCD_JWT_SIGNING_KEY: ci-placeholder-signing-material-that-is-not-a-production-secret-0123456789
+        run: |
+          docker compose -f docker-compose.production.yml config --quiet
+          docker compose -f docker-compose.production.yml config --format json > /tmp/production-compose.json
+          test "$(jq '.services.gateway.ports | length' /tmp/production-compose.json)" = "3"
+          for service in migrate api web; do
+            test "$(jq --arg service "$service" '(.services[$service].ports // []) | length' /tmp/production-compose.json)" = "0"
+          done
+          for service in migrate api web gateway; do
+            jq -e --arg service "$service" '.services[$service].image | contains("@sha256:")' /tmp/production-compose.json >/dev/null
+          done
+          test "$(jq -r '.services.api.environment.ASPNETCORE_ENVIRONMENT' /tmp/production-compose.json)" = "Production"
+
+      - name: Validate production gateway
+        run: |
+          docker run --rm \
+            -e PEOPLESYNCD_DOMAIN=peoplesyncd.example.com \
+            -e ACME_EMAIL=operations@example.com \
+            -v "$PWD/deploy/production/Caddyfile:/etc/caddy/Caddyfile:ro" \
+            caddy:2-alpine \
+            caddy validate --config /etc/caddy/Caddyfile
+
+      - name: Upload persistent-hosting evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: peoplesyncd-persistent-hosting-${{ github.sha }}
+          path: |
+            /tmp/migrations-first.log
+            /tmp/migrations-second.log
+            /tmp/production-compose.json
+          if-no-files-found: warn
+          retention-days: 90

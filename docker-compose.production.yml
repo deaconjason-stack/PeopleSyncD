@@ -1,0 +1,78 @@
+services:
+  migrate:
+    image: ${PEOPLESYNCD_POSTGRES_CLIENT_IMAGE:?Set a digest-pinned PostgreSQL client image}
+    restart: "no"
+    environment:
+      PGHOST: ${PEOPLESYNCD_DB_HOST:?Set database host}
+      PGPORT: ${PEOPLESYNCD_DB_PORT:-5432}
+      PGDATABASE: ${PEOPLESYNCD_DB_NAME:?Set database name}
+      PGUSER: ${PEOPLESYNCD_DB_MIGRATION_USER:?Set migration user}
+      PGPASSWORD: ${PEOPLESYNCD_DB_MIGRATION_PASSWORD:?Set migration password}
+      PGSSLMODE: ${PEOPLESYNCD_DB_SSLMODE:-require}
+      MIGRATION_DIR: /migrations
+    volumes:
+      - ./database/dotnet:/migrations:ro
+      - ./deploy/production/run-migrations.sh:/run-migrations.sh:ro
+    entrypoint: ["/bin/sh", "/run-migrations.sh"]
+    networks:
+      - backend
+
+  api:
+    image: ${PEOPLESYNCD_API_IMAGE:?Set the digest-pinned API image}
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__peoplesyncd: ${PEOPLESYNCD_DATABASE_CONNECTION_STRING:?Set the runtime database connection string}
+      Jwt__Issuer: ${PEOPLESYNCD_JWT_ISSUER:-PeopleSyncD}
+      Jwt__Audience: ${PEOPLESYNCD_JWT_AUDIENCE:-PeopleSyncD.Clients}
+      Jwt__SigningKey: ${PEOPLESYNCD_JWT_SIGNING_KEY:?Set a protected JWT signing key}
+      Jwt__AccessTokenMinutes: ${PEOPLESYNCD_ACCESS_TOKEN_MINUTES:-15}
+      WebAuthn__RelyingPartyId: ${PEOPLESYNCD_DOMAIN:?Set the public domain}
+      WebAuthn__RelyingPartyName: PeopleSyncD
+      WebAuthn__Origins__0: https://${PEOPLESYNCD_DOMAIN:?Set the public domain}
+      WebAuthn__CeremonyMinutes: 5
+      OTEL_SERVICE_NAME: peoplesyncd-api
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${PEOPLESYNCD_OTEL_ENDPOINT:-}
+    expose:
+      - "8080"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - backend
+
+  web:
+    image: ${PEOPLESYNCD_WEB_IMAGE:?Set the digest-pinned web image}
+    restart: unless-stopped
+    expose:
+      - "3000"
+    networks:
+      - backend
+
+  gateway:
+    image: ${PEOPLESYNCD_GATEWAY_IMAGE:?Set a digest-pinned Caddy image}
+    restart: unless-stopped
+    environment:
+      PEOPLESYNCD_DOMAIN: ${PEOPLESYNCD_DOMAIN:?Set the public domain}
+      ACME_EMAIL: ${PEOPLESYNCD_ACME_EMAIL:?Set the ACME contact email}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/production/Caddyfile:/etc/caddy/Caddyfile:ro
+      - peoplesyncd-caddy-data:/data
+      - peoplesyncd-caddy-config:/config
+    depends_on:
+      - api
+      - web
+    networks:
+      - backend
+
+networks:
+  backend:
+    internal: false
+
+volumes:
+  peoplesyncd-caddy-data:
+  peoplesyncd-caddy-config:
