@@ -63,8 +63,10 @@ jobs:
 
       - name: Verify migration ledger
         run: |
-          test "$(psql -Atc 'select count(*) from peoplesyncd_schema_migrations;')" = "4"
-          test "$(psql -Atc \"select count(*) from information_schema.tables where table_schema='public' and table_name in ('organizations','organization_memberships','organization_invitations','refresh_sessions','security_audit_records','mfa_challenges','mfa_recovery_codes','mfa_totp_states','passkey_credentials','passkey_ceremonies');\")" = "10"
+          ledger_count=$(psql -Atc "select count(*) from peoplesyncd_schema_migrations;")
+          schema_count=$(psql -Atc "select count(*) from information_schema.tables where table_schema='public' and table_name in ('organizations','organization_memberships','organization_invitations','refresh_sessions','security_audit_records','mfa_challenges','mfa_recovery_codes','mfa_totp_states','passkey_credentials','passkey_ceremonies');")
+          test "$ledger_count" = "4"
+          test "$schema_count" = "10"
 
       - name: Reapply migration contract safely
         run: |
