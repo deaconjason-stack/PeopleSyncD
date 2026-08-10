@@ -1,0 +1,20 @@
+{
+    email {$ACME_EMAIL}
+}
+
+{$PEOPLESYNCD_DOMAIN} {
+    encode zstd gzip
+
+    header {
+        -Server
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "camera=(), microphone=(), geolocation=(), publickey-credentials-get=(self), publickey-credentials-create=(self)"
+    }
+
+    @api path /api/* /health /alive /openapi/*
+    reverse_proxy @api api:8080
+    reverse_proxy web:3000
+}
