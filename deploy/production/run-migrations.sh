@@ -36,13 +36,9 @@ for migration in "$MIGRATION_DIR"/*.sql; do
     fi
 
     echo "Applying migration: $name"
-    {
-        echo "BEGIN;"
-        cat "$migration"
-        printf "\nINSERT INTO peoplesyncd_schema_migrations (migration, checksum) VALUES ('%s', '%s');\n" "$name" "$checksum"
-        echo "COMMIT;"
-    } | psql -v ON_ERROR_STOP=1
-
+    psql -v ON_ERROR_STOP=1 -f "$migration"
+    psql -v ON_ERROR_STOP=1 -c \
+        "INSERT INTO peoplesyncd_schema_migrations (migration, checksum) VALUES ('$name', '$checksum');"
 done
 
 echo "PeopleSyncD database migration contract is current."
