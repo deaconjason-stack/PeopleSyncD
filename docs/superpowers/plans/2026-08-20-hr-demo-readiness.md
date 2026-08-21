@@ -26,7 +26,8 @@
 
 ## File Structure Map
 
-**Domain**
+### Domain
+
 - Modify `src/PeopleSyncD.Domain/Employees/Employee.cs`.
 - Create `src/PeopleSyncD.Domain/Employees/EmploymentStatus.cs`, `EmploymentType.cs`.
 - Create `src/PeopleSyncD.Domain/Onboarding/OnboardingTemplate.cs`, `OnboardingTemplateTask.cs`, `EmployeeOnboarding.cs`, `OnboardingTask.cs`, `OnboardingTaskStatus.cs`.
@@ -35,12 +36,14 @@
 - Create `src/PeopleSyncD.Domain/HrCases/HrCase.cs`, `HrCaseStatus.cs`, `HrCasePriority.cs`.
 - Modify `src/PeopleSyncD.Domain/Permissions/Permission.cs`, `PermissionCatalog.cs`.
 
-**Application**
+### Application
+
 - Create focused folders/files under `Employees`, `Onboarding`, `Credentials`, `Documents`, `HrCases`, and `Hr`.
 - Create repository contracts under `src/PeopleSyncD.Application/Interfaces/`.
 - Modify `src/PeopleSyncD.Application/DependencyInjection.cs`.
 
-**Infrastructure**
+### Infrastructure
+
 - Modify `src/PeopleSyncD.Infrastructure/Persistence/ApplicationDbContext.cs` and `DatabaseInitializer.cs`.
 - Modify `Persistence/Configurations/EmployeeConfiguration.cs`; create focused configurations for onboarding, credentials, documents, and HR cases.
 - Create repositories under `src/PeopleSyncD.Infrastructure/Repositories/`.
@@ -48,10 +51,12 @@
 - Modify `src/PeopleSyncD.Infrastructure/DependencyInjection.cs`.
 - Add one EF migration under `src/PeopleSyncD.Infrastructure/Migrations/`.
 
-**API**
+### API
+
 - Create controllers: `EmployeesController`, `OnboardingController`, `CredentialsController`, `EmployeeDocumentsController`, `EmployeeActivityController`, `HrCasesController`, `HrDashboardController`, `HrReportsController`.
 
-**Web**
+### Web
+
 - Keep `src/PeopleSyncD.Web/lib/api.ts` as the HTTP primitive.
 - Create `src/PeopleSyncD.Web/lib/hr-api.ts`.
 - Create pages under `app/dashboard`, `app/people`, `app/people/[employeeId]`, `app/onboarding`, `app/credentials`, `app/hr-cases`, `app/reports`.
@@ -62,6 +67,7 @@
 ### Task 1: Employee Core Vertical Slice
 
 **Files:**
+
 - Modify: `src/PeopleSyncD.Domain/Employees/Employee.cs`
 - Create: `src/PeopleSyncD.Domain/Employees/EmploymentStatus.cs`
 - Create: `src/PeopleSyncD.Domain/Employees/EmploymentType.cs`
@@ -197,6 +203,7 @@ git commit -m "feat: add tenant-safe employee HR workflow"
 ### Task 2: Versioned Onboarding and Executive Dashboard
 
 **Files:**
+
 - Create: `src/PeopleSyncD.Domain/Onboarding/OnboardingTemplate.cs`
 - Create: `src/PeopleSyncD.Domain/Onboarding/OnboardingTemplateTask.cs`
 - Create: `src/PeopleSyncD.Domain/Onboarding/EmployeeOnboarding.cs`
@@ -286,6 +293,7 @@ git commit -m "feat: add versioned onboarding and HR dashboard"
 ### Task 3: Credentials, Training, and Expiration Risk
 
 **Files:**
+
 - Create: `src/PeopleSyncD.Domain/Credentials/CredentialRisk.cs`
 - Create: `src/PeopleSyncD.Domain/Credentials/EmployeeCredential.cs`
 - Create: `src/PeopleSyncD.Application/Interfaces/ICredentialRepository.cs`
@@ -361,6 +369,7 @@ git commit -m "feat: add credential and training risk tracking"
 ### Task 4: Restricted HR Cases and Permission Boundaries
 
 **Files:**
+
 - Modify: `src/PeopleSyncD.Domain/Permissions/Permission.cs`
 - Modify: `src/PeopleSyncD.Domain/Permissions/PermissionCatalog.cs`
 - Create: `src/PeopleSyncD.Domain/HrCases/HrCase.cs`
@@ -424,6 +433,7 @@ git commit -m "feat: add restricted HR case workflow"
 ### Task 5: Document Metadata and Persisted Employee Activity
 
 **Files:**
+
 - Create: `src/PeopleSyncD.Domain/Documents/EmployeeDocumentRecord.cs`
 - Create: `src/PeopleSyncD.Application/Interfaces/IEmployeeDocumentRepository.cs`
 - Create: `src/PeopleSyncD.Application/Interfaces/IEmployeeActivityReader.cs`
@@ -478,6 +488,7 @@ git commit -m "feat: add HR document metadata and activity timeline"
 ### Task 6: Reports, Additive Migration, and Deterministic Demo Seed
 
 **Files:**
+
 - Modify: `src/PeopleSyncD.Infrastructure/Persistence/ApplicationDbContext.cs`
 - Modify: `src/PeopleSyncD.Infrastructure/Persistence/DatabaseInitializer.cs`
 - Create: `src/PeopleSyncD.Infrastructure/Persistence/DemoDataSeeder.cs`
@@ -535,6 +546,7 @@ git commit -m "feat: add HR reports schema and demo dataset"
 ### Task 7: Demo Shell, Rehearsal, and Release Evidence
 
 **Files:**
+
 - Modify: `src/PeopleSyncD.Web/app/page.tsx`
 - Modify: `src/PeopleSyncD.Web/app/layout.tsx`
 - Modify: `src/PeopleSyncD.Web/app/globals.css`
