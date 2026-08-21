@@ -60,7 +60,7 @@ export default function EmployeeWorkspace({ employeeId }: { employeeId: string }
       email: field(form, 'email'),
       title: field(form, 'title'),
       department: field(form, 'department'),
-      managerEmployeeId: null,
+      managerEmployeeId: employee.managerEmployeeId ?? null,
       location: field(form, 'location'),
       employmentType: field(form, 'employmentType') as EmploymentType,
     }).then((updated) => {
@@ -150,14 +150,14 @@ export default function EmployeeWorkspace({ employeeId }: { employeeId: string }
               />
             </label>
             <div className="actions">
-              {employee.status === 'Onboarding' && <button disabled={busy} onClick={() => transition('Active')}>Activate</button>}
-              {employee.status === 'Active' && <button disabled={busy} onClick={() => transition('Leave')}>Place on leave</button>}
-              {employee.status === 'Leave' && <button disabled={busy} onClick={() => transition('Active')}>Return from leave</button>}
-              {employee.status === 'Active' && <button disabled={busy} className="secondary" onClick={() => transition('Suspended')}>Suspend</button>}
+              {employee.status === 'Onboarding' && <button type="button" disabled={busy} onClick={() => transition('Active')}>Activate</button>}
+              {employee.status === 'Active' && <button type="button" disabled={busy} onClick={() => transition('Leave')}>Place on leave</button>}
+              {employee.status === 'Leave' && <button type="button" disabled={busy} onClick={() => transition('Active')}>Return from leave</button>}
+              {employee.status === 'Active' && <button type="button" disabled={busy} className="secondary" onClick={() => transition('Suspended')}>Suspend</button>}
               {!['Separated', 'Archived'].includes(employee.status) && (
-                <button disabled={busy} className="danger" onClick={() => transition('Separated')}>Separate</button>
+                <button type="button" disabled={busy} className="danger" onClick={() => transition('Separated')}>Separate</button>
               )}
-              {employee.status === 'Separated' && <button disabled={busy} className="secondary" onClick={() => transition('Archived')}>Archive</button>}
+              {employee.status === 'Separated' && <button type="button" disabled={busy} className="secondary" onClick={() => transition('Archived')}>Archive</button>}
             </div>
           </article>
 
