@@ -9,6 +9,7 @@ public sealed class EmployeeTests
     public void CreateDefaultsToOnboardingAndPreservesTenant()
     {
         var tenantId = Guid.NewGuid();
+        var startDate = new DateOnly(2026, 8, 24);
 
         var result = Employee.Create(
             tenantId,
@@ -20,11 +21,19 @@ public sealed class EmployeeTests
             null,
             "St. Louis",
             EmploymentType.FullTime,
-            new DateOnly(2026, 8, 24));
+            startDate);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(tenantId, result.Value.OrganizationId);
         Assert.Equal("EFM-1001", result.Value.EmployeeNumber);
+        Assert.Equal("Jordan Carter", result.Value.DisplayName);
+        Assert.Equal("jordan@example.test", result.Value.Email.Value);
+        Assert.Equal("STEM Instructor", result.Value.Title);
+        Assert.Equal("Education", result.Value.Department);
+        Assert.Null(result.Value.ManagerEmployeeId);
+        Assert.Equal("St. Louis", result.Value.Location);
+        Assert.Equal(EmploymentType.FullTime, result.Value.EmploymentType);
+        Assert.Equal(startDate, result.Value.StartDate);
         Assert.Equal(EmploymentStatus.Onboarding, result.Value.Status);
         Assert.Null(result.Value.SeparationDate);
     }
@@ -118,6 +127,7 @@ public sealed class EmployeeTests
             "St. Louis",
             EmploymentType.FullTime).IsSuccess);
 
+        Assert.Equal("Manager", employee.Title);
         Assert.Equal(EmploymentStatus.Separated, employee.Status);
     }
 
