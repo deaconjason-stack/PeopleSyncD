@@ -4,7 +4,7 @@
 
 **Goal:** Deliver a persistent, tenant-safe PeopleSyncD HR demo that proves the complete path from authenticated HR dashboard through employee creation, onboarding, credentials, documents, HR cases, lifecycle changes, audit history, and management reporting.
 
-**Architecture:** Extend the existing .NET 9 Clean Architecture modular monolith rather than creating a separate demo application. New HR aggregates live in `PeopleSyncD.Domain`, application services/repository contracts in `PeopleSyncD.Application`, PostgreSQL mappings and repositories in `PeopleSyncD.Infrastructure`, REST endpoints in `PeopleSyncD.Api`, and the presentation workflow in the existing Next.js 16 application. Every tenant-bound query accepts the authenticated tenant identifier and filters by it before returning records.
+**Architecture:** Extend the existing .NET 9 Clean Architecture modular monolith. New HR aggregates live in `PeopleSyncD.Domain`; services and repository contracts in `PeopleSyncD.Application`; PostgreSQL mappings/repositories in `PeopleSyncD.Infrastructure`; REST endpoints in `PeopleSyncD.Api`; and the presentation workflow in the existing Next.js 16 application. Every tenant-bound repository method accepts `tenantId` and filters by it before returning a row.
 
 **Tech Stack:** .NET 9, ASP.NET Core, EF Core, PostgreSQL 16, xUnit, FluentValidation, Next.js 16.3.0, React 19.2.8, TypeScript 5.9.3, Docker Compose/Caddy, existing GitHub Actions and Codespaces deployment foundation.
 
@@ -12,55 +12,50 @@
 
 ## Global Constraints
 
-- Preserve existing MFA, WebAuthn/passkey, session-assurance, permission, tenant-isolation, and audit behavior.
-- Use persisted PostgreSQL-backed records for the core demo workflows; client-only state is not acceptable.
-- Use synthetic demo data only; never seed real employee, confidential, regulated, or production data.
-- Keep `hr_cases.read` / `hr_cases.write` separate from general employee permissions.
-- Credential risk uses a 30-day warning window calculated from persisted expiration dates.
-- Document binary storage is not required; metadata-only records must be visibly labeled when no protected storage reference exists.
-- Allowed employee statuses: `Onboarding`, `Active`, `Leave`, `Suspended`, `Separated`, `Archived`.
-- Existing repository CI gates must remain green before the branch is called demo-ready.
+- Preserve existing MFA, WebAuthn/passkey, session-assurance, authorization, tenant-isolation, and audit behavior.
+- Core demo workflows must persist to PostgreSQL; client-only state is not acceptable.
+- Seed synthetic demo data only; never seed real employee, confidential, regulated, or production data.
+- Keep `hr_cases.read` and `hr_cases.write` separate from general employee permissions.
+- Credential risk is calculated from persisted dates using a 30-day warning window.
+- Document binary storage is deferred; metadata-only records must return `hasBinary=false` and the UI must label them `Metadata record only`.
+- Employee statuses are exactly `Onboarding`, `Active`, `Leave`, `Suspended`, `Separated`, `Archived`.
+- Onboarding task statuses are exactly `NotStarted`, `InProgress`, `Completed`, `Waived`.
+- HR case statuses are exactly `Open`, `Investigating`, `Pending`, `Resolved`, `Closed`.
+- Do not edit historical migrations. Add one new additive migration for the HR demo schema.
+- Existing required CI gates must remain green before the branch is called demo-ready.
 
 ## File Structure Map
 
-The implementation should keep one responsibility per file and follow the repository's existing controller/service/repository/configuration patterns.
-
 **Domain**
-- Modify `src/PeopleSyncD.Domain/Employees/Employee.cs` for employment profile and lifecycle behavior.
-- Create `src/PeopleSyncD.Domain/Employees/EmploymentStatus.cs` and `EmploymentType.cs`.
-- Create `src/PeopleSyncD.Domain/Onboarding/EmployeeOnboarding.cs`, `OnboardingTask.cs`, `OnboardingTaskStatus.cs`.
-- Create `src/PeopleSyncD.Domain/Credentials/EmployeeCredential.cs`.
+- Modify `src/PeopleSyncD.Domain/Employees/Employee.cs`.
+- Create `src/PeopleSyncD.Domain/Employees/EmploymentStatus.cs`, `EmploymentType.cs`.
+- Create `src/PeopleSyncD.Domain/Onboarding/OnboardingTemplate.cs`, `OnboardingTemplateTask.cs`, `EmployeeOnboarding.cs`, `OnboardingTask.cs`, `OnboardingTaskStatus.cs`.
+- Create `src/PeopleSyncD.Domain/Credentials/EmployeeCredential.cs`, `CredentialRisk.cs`.
 - Create `src/PeopleSyncD.Domain/Documents/EmployeeDocumentRecord.cs`.
 - Create `src/PeopleSyncD.Domain/HrCases/HrCase.cs`, `HrCaseStatus.cs`, `HrCasePriority.cs`.
-- Modify `src/PeopleSyncD.Domain/Permissions/Permission.cs` and `PermissionCatalog.cs`.
+- Modify `src/PeopleSyncD.Domain/Permissions/Permission.cs`, `PermissionCatalog.cs`.
 
 **Application**
-- Create `src/PeopleSyncD.Application/Employees/EmployeeContracts.cs`, `EmployeeService.cs`, `EmployeeValidators.cs`.
-- Create `src/PeopleSyncD.Application/Onboarding/OnboardingService.cs` and contracts.
-- Create `src/PeopleSyncD.Application/Credentials/CredentialService.cs` and contracts.
-- Create `src/PeopleSyncD.Application/Documents/DocumentRecordService.cs` and contracts.
-- Create `src/PeopleSyncD.Application/HrCases/HrCaseService.cs` and contracts.
-- Create `src/PeopleSyncD.Application/Hr/HrDashboardService.cs`, `HrReportingService.cs`, and contracts.
-- Create repository contracts under `src/PeopleSyncD.Application/Interfaces/` for each new aggregate/query family.
+- Create focused folders/files under `Employees`, `Onboarding`, `Credentials`, `Documents`, `HrCases`, and `Hr`.
+- Create repository contracts under `src/PeopleSyncD.Application/Interfaces/`.
 - Modify `src/PeopleSyncD.Application/DependencyInjection.cs`.
 
 **Infrastructure**
-- Modify `src/PeopleSyncD.Infrastructure/Persistence/ApplicationDbContext.cs`.
-- Modify `src/PeopleSyncD.Infrastructure/Persistence/Configurations/EmployeeConfiguration.cs`.
-- Create focused EF configurations for onboarding, credentials, documents, and HR cases.
+- Modify `src/PeopleSyncD.Infrastructure/Persistence/ApplicationDbContext.cs` and `DatabaseInitializer.cs`.
+- Modify `Persistence/Configurations/EmployeeConfiguration.cs`; create focused configurations for onboarding, credentials, documents, and HR cases.
 - Create repositories under `src/PeopleSyncD.Infrastructure/Repositories/`.
+- Create `src/PeopleSyncD.Infrastructure/Persistence/DemoDataSeeder.cs`.
 - Modify `src/PeopleSyncD.Infrastructure/DependencyInjection.cs`.
-- Add one additive EF migration for the HR demo schema; never edit an already-applied historical migration.
-- Add deterministic development/demo seeding through a new `DemoDataSeeder` called only in the approved demo/development path.
+- Add one EF migration under `src/PeopleSyncD.Infrastructure/Migrations/`.
 
 **API**
-- Create `EmployeesController.cs`, `OnboardingController.cs`, `CredentialsController.cs`, `EmployeeDocumentsController.cs`, `HrCasesController.cs`, `HrDashboardController.cs`, and `HrReportsController.cs` under `src/PeopleSyncD.Api/Controllers/`.
+- Create controllers: `EmployeesController`, `OnboardingController`, `CredentialsController`, `EmployeeDocumentsController`, `EmployeeActivityController`, `HrCasesController`, `HrDashboardController`, `HrReportsController`.
 
 **Web**
-- Keep `src/PeopleSyncD.Web/lib/api.ts` as the transport primitive.
-- Create `src/PeopleSyncD.Web/lib/hr-api.ts` for HR DTOs and calls.
-- Create authenticated pages under `app/dashboard`, `app/people`, `app/people/[employeeId]`, `app/onboarding`, `app/credentials`, `app/hr-cases`, and `app/reports`.
-- Modify `app/page.tsx`, `app/layout.tsx`, and `app/globals.css` for the demo shell/navigation without replacing current auth/security pages.
+- Keep `src/PeopleSyncD.Web/lib/api.ts` as the HTTP primitive.
+- Create `src/PeopleSyncD.Web/lib/hr-api.ts`.
+- Create pages under `app/dashboard`, `app/people`, `app/people/[employeeId]`, `app/onboarding`, `app/credentials`, `app/hr-cases`, `app/reports`.
+- Modify `app/page.tsx`, `app/layout.tsx`, `app/globals.css` without removing current auth/security routes.
 
 ---
 
@@ -76,8 +71,8 @@ The implementation should keep one responsibility per file and follow the reposi
 - Create: `src/PeopleSyncD.Application/Interfaces/IEmployeeRepository.cs`
 - Modify: `src/PeopleSyncD.Infrastructure/Persistence/Configurations/EmployeeConfiguration.cs`
 - Create: `src/PeopleSyncD.Infrastructure/Repositories/EmployeeRepository.cs`
-- Modify: `src/PeopleSyncD.Infrastructure/DependencyInjection.cs`
 - Modify: `src/PeopleSyncD.Application/DependencyInjection.cs`
+- Modify: `src/PeopleSyncD.Infrastructure/DependencyInjection.cs`
 - Create: `src/PeopleSyncD.Api/Controllers/EmployeesController.cs`
 - Create: `tests/PeopleSyncD.Domain.Tests/EmployeeTests.cs`
 - Create: `tests/PeopleSyncD.Api.Tests/EmployeeApiTests.cs`
@@ -86,19 +81,33 @@ The implementation should keep one responsibility per file and follow the reposi
 - Create: `src/PeopleSyncD.Web/app/people/[employeeId]/page.tsx`
 
 **Interfaces:**
-- Produces `EmployeeDto`, `CreateEmployeeRequest`, `UpdateEmployeeRequest`, `ChangeEmploymentStatusRequest`.
-- Produces `IEmployeeRepository.GetAsync(Guid tenantId, Guid employeeId, CancellationToken)`, `ListAsync(Guid tenantId, string? search, EmploymentStatus? status, CancellationToken)`, `AddAsync(Employee employee, CancellationToken)`, `SaveChangesAsync(CancellationToken)`.
 
-- [ ] **Step 1: Write failing domain tests for creation and lifecycle rules.**
+```csharp
+public sealed record CreateEmployeeRequest(
+    string EmployeeNumber, string DisplayName, string WorkEmail, string Title,
+    string Department, Guid? ManagerEmployeeId, string Location,
+    EmploymentType EmploymentType, DateOnly StartDate);
+
+public sealed record UpdateEmployeeRequest(
+    string DisplayName, string WorkEmail, string Title, string Department,
+    Guid? ManagerEmployeeId, string Location, EmploymentType EmploymentType);
+
+public sealed record ChangeEmploymentStatusRequest(EmploymentStatus Status, DateOnly? EffectiveDate);
+```
+
+`IEmployeeRepository` must expose `GetAsync(Guid tenantId, Guid employeeId, CancellationToken)`, `ListAsync(Guid tenantId, string? search, EmploymentStatus? status, CancellationToken)`, `AddAsync(Employee employee, CancellationToken)`, and `SaveChangesAsync(CancellationToken)`.
+
+- [ ] **Step 1: Write failing employee domain tests.**
 
 ```csharp
 [Fact]
 public void Create_defaults_to_onboarding_and_preserves_tenant()
 {
     var tenantId = Guid.NewGuid();
-    var result = Employee.Create(tenantId, "EFM-1001", "Jordan Carter", "jordan@example.test",
-        "STEM Instructor", "Education", null, "St. Louis", EmploymentType.FullTime,
-        new DateOnly(2026, 8, 24));
+    var result = Employee.Create(
+        tenantId, "PSD-1001", "Jordan Carter", "jordan@example.test",
+        "HR Specialist", "People Operations", null, "St. Louis",
+        EmploymentType.FullTime, new DateOnly(2026, 8, 24));
 
     Assert.True(result.IsSuccess);
     Assert.Equal(tenantId, result.Value.OrganizationId);
@@ -106,24 +115,28 @@ public void Create_defaults_to_onboarding_and_preserves_tenant()
 }
 
 [Fact]
-public void Separated_employee_cannot_be_reactivated_by_generic_profile_update()
+public void Separated_employee_stays_separated_after_profile_edit()
 {
-    var employee = CreateEmployee();
+    var employee = TestEmployees.CreateOnboarding();
     Assert.True(employee.Activate().IsSuccess);
     Assert.True(employee.Separate(new DateOnly(2026, 8, 31)).IsSuccess);
-    Assert.True(employee.UpdateProfile("Jordan Carter", "jordan@example.test", "Manager", "Education", null, "St. Louis", EmploymentType.FullTime).IsSuccess);
+    Assert.True(employee.UpdateProfile(
+        "Jordan Carter", "jordan@example.test", "Manager", "People Operations",
+        null, "St. Louis", EmploymentType.FullTime).IsSuccess);
     Assert.Equal(EmploymentStatus.Separated, employee.Status);
 }
 ```
 
-- [ ] **Step 2: Run the domain test and verify failure.**
+Create `tests/PeopleSyncD.Domain.Tests/TestEmployees.cs` with a concrete `CreateOnboarding()` factory that calls the public `Employee.Create(...)` signature above; do not add test-only methods to production entities.
+
+- [ ] **Step 2: Run the test to verify failure.**
 
 Run: `dotnet test tests/PeopleSyncD.Domain.Tests/PeopleSyncD.Domain.Tests.csproj --filter EmployeeTests`
-Expected: FAIL because the expanded employee model and status transitions do not exist.
+Expected: FAIL because the expanded employee model does not exist.
 
-- [ ] **Step 3: Implement the employee aggregate and explicit lifecycle methods.**
+- [ ] **Step 3: Implement the employee aggregate and explicit transitions.**
 
-Required public methods:
+Required methods:
 
 ```csharp
 Result UpdateProfile(string displayName, string email, string title, string department,
@@ -136,11 +149,11 @@ Result Separate(DateOnly separationDate);
 Result Archive();
 ```
 
-Reject invalid transitions with stable domain-error codes such as `employee.invalid_transition`; never accept status as a free-form generic edit field.
+Rules: Onboarding may activate; Active may go to Leave/Suspended/Separated; Leave may return to Active or separate; Suspended may return to Active or separate; Separated may archive; Archived is terminal. Generic profile editing never changes status.
 
-- [ ] **Step 4: Implement tenant-filtered repository, service contracts, validators, API endpoints, and permission checks.**
+- [ ] **Step 4: Implement repository, service, validation, controller, and permission enforcement.**
 
-Controller routes:
+Routes:
 
 ```text
 GET    /api/v1/employees?search=&status=
@@ -150,18 +163,16 @@ PUT    /api/v1/employees/{employeeId}
 POST   /api/v1/employees/{employeeId}/status
 ```
 
-Every action must read `User.TryGetTenantId(out var tenantId)` before repository access. `employees.read` protects reads and `employees.write` protects mutations.
+All actions read `User.TryGetTenantId(out var tenantId)` before repository access. Reads require `employees.read`; mutations require `employees.write`. A manager reference is valid only if the manager exists in the same tenant.
 
-- [ ] **Step 5: Write API tests proving persistence intent, permissions, and cross-tenant denial.**
-
-At minimum assert: owner can create/list/read; member without `employees.write` cannot create; a token for tenant B cannot retrieve tenant A's employee ID.
+- [ ] **Step 5: Write API tests for create/list/read/update/status and cross-tenant denial.**
 
 Run: `dotnet test tests/PeopleSyncD.Api.Tests/PeopleSyncD.Api.Tests.csproj --filter EmployeeApiTests`
 Expected: PASS.
 
-- [ ] **Step 6: Add the first HR web flow.**
+- [ ] **Step 6: Add typed web API functions and People directory/profile pages.**
 
-`hr-api.ts` must expose typed `listEmployees`, `getEmployee`, `createEmployee`, `updateEmployee`, and `changeEmploymentStatus` functions using existing `apiRequest<T>()`. The People page must support name/email/title/department search and status filter; the profile page must show employment fields and explicit status actions.
+`hr-api.ts` exports `listEmployees`, `getEmployee`, `createEmployee`, `updateEmployee`, `changeEmploymentStatus`. Directory supports search by name/email/title/department and status filter. Profile shows employee number, title, department, manager, location, type, start/separation dates, and explicit status actions.
 
 Run:
 
@@ -172,7 +183,7 @@ npm run typecheck
 npm run build
 ```
 
-Expected: both commands PASS.
+Expected: PASS.
 
 - [ ] **Step 7: Commit.**
 
@@ -183,16 +194,20 @@ git commit -m "feat: add tenant-safe employee HR workflow"
 
 ---
 
-### Task 2: Onboarding and Executive Dashboard
+### Task 2: Versioned Onboarding and Executive Dashboard
 
 **Files:**
-- Create: `src/PeopleSyncD.Domain/Onboarding/OnboardingTaskStatus.cs`
-- Create: `src/PeopleSyncD.Domain/Onboarding/OnboardingTask.cs`
+- Create: `src/PeopleSyncD.Domain/Onboarding/OnboardingTemplate.cs`
+- Create: `src/PeopleSyncD.Domain/Onboarding/OnboardingTemplateTask.cs`
 - Create: `src/PeopleSyncD.Domain/Onboarding/EmployeeOnboarding.cs`
+- Create: `src/PeopleSyncD.Domain/Onboarding/OnboardingTask.cs`
+- Create: `src/PeopleSyncD.Domain/Onboarding/OnboardingTaskStatus.cs`
 - Create: `src/PeopleSyncD.Application/Interfaces/IOnboardingRepository.cs`
 - Create: `src/PeopleSyncD.Application/Onboarding/OnboardingContracts.cs`
 - Create: `src/PeopleSyncD.Application/Onboarding/OnboardingService.cs`
+- Create: `src/PeopleSyncD.Application/Hr/HrDashboardContracts.cs`
 - Create: `src/PeopleSyncD.Application/Hr/HrDashboardService.cs`
+- Create: `src/PeopleSyncD.Infrastructure/Persistence/Configurations/OnboardingTemplateConfiguration.cs`
 - Create: `src/PeopleSyncD.Infrastructure/Persistence/Configurations/EmployeeOnboardingConfiguration.cs`
 - Create: `src/PeopleSyncD.Infrastructure/Repositories/OnboardingRepository.cs`
 - Create: `src/PeopleSyncD.Api/Controllers/OnboardingController.cs`
@@ -203,16 +218,22 @@ git commit -m "feat: add tenant-safe employee HR workflow"
 - Create: `src/PeopleSyncD.Web/app/onboarding/page.tsx`
 
 **Interfaces:**
-- `EmployeeOnboarding.CreateDefault(Guid organizationId, Guid employeeId, DateOnly startDate)` creates seven deterministic demo tasks.
-- `HrDashboardDto` returns `TotalEmployees`, `ActiveEmployees`, `OnboardingEmployees`, `LeaveEmployees`, `CredentialsExpiringSoon`, `OverdueOnboardingTasks`, `OpenHrCases`, and recent activity.
 
-- [ ] **Step 1: Write failing tests for task transitions and progress.**
+`OnboardingTemplate` has `OrganizationId`, `Name`, integer `Version`, `IsActive`, and ordered template tasks. Seed one active template named `Standard Employee Onboarding`, version `1`, containing Employment Paperwork, Orientation, Policy Acknowledgement, Required Credentials, Required Training, Equipment/Access, and Manager Introduction.
+
+`EmployeeOnboarding.Instantiate(OnboardingTemplate template, Guid employeeId, DateOnly startDate)` copies the template version and task definitions into persisted employee task state. Existing employee onboarding instances do not mutate when a future template version is created.
+
+- [ ] **Step 1: Write failing template/version/progress tests.**
 
 ```csharp
 [Fact]
-public void Completed_tasks_drive_progress_percentage()
+public void Instance_keeps_template_version_and_progress()
 {
-    var onboarding = EmployeeOnboarding.CreateDefault(Guid.NewGuid(), Guid.NewGuid(), new DateOnly(2026, 8, 24));
+    var template = OnboardingTemplate.CreateStandard(Guid.NewGuid(), 1).Value;
+    var onboarding = EmployeeOnboarding.Instantiate(template, Guid.NewGuid(), new DateOnly(2026, 8, 24)).Value;
+    Assert.Equal(1, onboarding.TemplateVersion);
+    Assert.Equal(7, onboarding.Tasks.Count);
+
     var first = onboarding.Tasks.First();
     Assert.True(onboarding.CompleteTask(first.Id, DateTimeOffset.UtcNow, "Done").IsSuccess);
     Assert.Equal(1, onboarding.CompletedTaskCount);
@@ -225,11 +246,13 @@ public void Completed_tasks_drive_progress_percentage()
 Run: `dotnet test tests/PeopleSyncD.Domain.Tests/PeopleSyncD.Domain.Tests.csproj --filter OnboardingTests`
 Expected: FAIL.
 
-- [ ] **Step 3: Implement persisted onboarding and dashboard queries.**
+- [ ] **Step 3: Implement template persistence, employee instances, and dashboard query.**
 
-Statuses are exactly `NotStarted`, `InProgress`, `Completed`, `Waived`. Overdue means due date is before the current UTC date and status is neither Completed nor Waived.
+Overdue means due date is before the current UTC date and status is neither Completed nor Waived. Dashboard DTO fields: total employees, active, onboarding, leave, credentials expiring soon, overdue onboarding tasks, open HR cases, recently changed employees.
 
-- [ ] **Step 4: Add API endpoints.**
+- [ ] **Step 4: Add permissions and routes.**
+
+Add `onboarding.read` and `onboarding.write` to `PermissionNames` and role catalog. Owner/Administrator/Manager get both; Member/Auditor get read only if existing role semantics permit employee operational visibility, otherwise no onboarding grant.
 
 ```text
 GET /api/v1/employees/{employeeId}/onboarding
@@ -237,20 +260,25 @@ PUT /api/v1/employees/{employeeId}/onboarding/tasks/{taskId}
 GET /api/v1/hr/dashboard
 ```
 
-Use `onboarding.read` / `onboarding.write` permissions introduced in Task 4's permission update if not yet present; if implementing sequentially, add those constants here and add Owner/Administrator/Manager grants now, then Task 4 adds case-specific permissions only.
+Completing all non-waived tasks makes the employee eligible for `Activate()` but does not silently change employment status; the explicit status action remains auditable.
 
-- [ ] **Step 5: Add dashboard and onboarding web pages using live API data.**
+- [ ] **Step 5: Add dashboard/onboarding pages and API tests.**
 
-Dashboard cards and lists must render zero-state values rather than throw when the organization has no HR rows.
-
-- [ ] **Step 6: Run targeted and web gates, then commit.**
+Run:
 
 ```bash
 dotnet test tests/PeopleSyncD.Api.Tests/PeopleSyncD.Api.Tests.csproj --filter OnboardingDashboardApiTests
 cd src/PeopleSyncD.Web && npm run typecheck && npm run build
+```
+
+Expected: PASS.
+
+- [ ] **Step 6: Commit.**
+
+```bash
 cd ../..
 git add src tests
-git commit -m "feat: add onboarding and HR dashboard"
+git commit -m "feat: add versioned onboarding and HR dashboard"
 ```
 
 ---
@@ -258,6 +286,7 @@ git commit -m "feat: add onboarding and HR dashboard"
 ### Task 3: Credentials, Training, and Expiration Risk
 
 **Files:**
+- Create: `src/PeopleSyncD.Domain/Credentials/CredentialRisk.cs`
 - Create: `src/PeopleSyncD.Domain/Credentials/EmployeeCredential.cs`
 - Create: `src/PeopleSyncD.Application/Interfaces/ICredentialRepository.cs`
 - Create: `src/PeopleSyncD.Application/Credentials/CredentialContracts.cs`
@@ -270,25 +299,39 @@ git commit -m "feat: add onboarding and HR dashboard"
 - Create: `src/PeopleSyncD.Web/app/credentials/page.tsx`
 
 **Interfaces:**
-- `CredentialRisk EvaluateRisk(DateOnly today)` returns `Current`, `ExpiringSoon`, or `Expired` without persisting the computed risk flag.
-- ExpiringSoon is `expirationDate >= today && expirationDate <= today.AddDays(30)`.
 
-- [ ] **Step 1: Write failing expiration tests.**
+```csharp
+public static Result<EmployeeCredential> Create(
+    Guid organizationId, Guid employeeId, string category, string name,
+    string issuer, DateOnly? issuedDate, DateOnly? expirationDate,
+    string? referenceNumber, string? note);
+
+public CredentialRisk EvaluateRisk(DateOnly today);
+```
+
+`EvaluateRisk`: no expiration date => Current; date before today => Expired; date from today through today+30 inclusive => ExpiringSoon; later => Current.
+
+- [ ] **Step 1: Write failing risk tests using only public production APIs.**
 
 ```csharp
 [Theory]
-[InlineData(0, "ExpiringSoon")]
-[InlineData(30, "ExpiringSoon")]
-[InlineData(31, "Current")]
-[InlineData(-1, "Expired")]
-public void Expiration_risk_is_calculated_from_dates(int days, string expected)
+[InlineData(-1, CredentialRisk.Expired)]
+[InlineData(0, CredentialRisk.ExpiringSoon)]
+[InlineData(30, CredentialRisk.ExpiringSoon)]
+[InlineData(31, CredentialRisk.Current)]
+public void Risk_is_derived_from_expiration_date(int days, CredentialRisk expected)
 {
-    var credential = EmployeeCredential.CreateForTest(new DateOnly(2026, 8, 20).AddDays(days));
-    Assert.Equal(expected, credential.EvaluateRisk(new DateOnly(2026, 8, 20)).ToString());
+    var today = new DateOnly(2026, 8, 20);
+    var credential = EmployeeCredential.Create(
+        Guid.NewGuid(), Guid.NewGuid(), "License", "Demo Credential",
+        "Synthetic Board", today.AddYears(-1), today.AddDays(days), "DEMO-1", null).Value;
+    Assert.Equal(expected, credential.EvaluateRisk(today));
 }
 ```
 
-- [ ] **Step 2: Implement domain, persistence, tenant-safe CRUD, and endpoints.**
+- [ ] **Step 2: Implement domain, tenant-safe repository/service, permissions, and routes.**
+
+Add `credentials.read` / `credentials.write` to permissions. Owner/Administrator/Manager get both; read-only roles receive only what current employee visibility policy supports.
 
 ```text
 GET  /api/v1/employees/{employeeId}/credentials
@@ -296,11 +339,11 @@ POST /api/v1/employees/{employeeId}/credentials
 PUT  /api/v1/employees/{employeeId}/credentials/{credentialId}
 ```
 
-Update dashboard aggregation to count ExpiringSoon credentials.
+Dashboard `credentialsExpiringSoon` uses the same `EvaluateRisk` rule.
 
-- [ ] **Step 3: Add credentials UI with badges for Expired and Expiring soon.**
+- [ ] **Step 3: Add credentials page with API-provided risk badges.**
 
-The web must not recompute risk differently from the API; consume the API's derived `risk` field.
+The browser must not recalculate risk differently from the API.
 
 - [ ] **Step 4: Verify and commit.**
 
@@ -334,10 +377,10 @@ git commit -m "feat: add credential and training risk tracking"
 - Create: `src/PeopleSyncD.Web/app/hr-cases/page.tsx`
 
 **Interfaces:**
-- Add constants: `onboarding.read`, `onboarding.write`, `credentials.read`, `credentials.write`, `documents.read`, `documents.write`, `hr_cases.read`, `hr_cases.write`, `hr_reports.read` if not already introduced sequentially.
-- Owner/Administrator receive all demo HR permissions. Manager receives employee/onboarding/credential permissions but **not** HR-case write by default. Member and Auditor do not gain HR-case access merely from employee read access.
 
-- [ ] **Step 1: Write permission and status-transition tests first.**
+Add `hr_cases.read`, `hr_cases.write`. Owner/Administrator receive both. Manager receives neither by default. Member/Auditor receive neither. Employee read never implies case access.
+
+- [ ] **Step 1: Write failing permission and transition tests.**
 
 ```csharp
 [Fact]
@@ -348,11 +391,9 @@ public void Employee_read_does_not_imply_hr_case_read()
 }
 ```
 
-- [ ] **Step 2: Implement HR case workflow.**
+Allowed normal transitions: Open->Investigating, Open->Pending, Investigating->Pending, Investigating->Resolved, Pending->Investigating, Pending->Resolved, Resolved->Closed. Closed is terminal.
 
-Statuses: `Open -> Investigating -> Pending -> Resolved -> Closed`; allow return from Pending to Investigating; reject Closed to Open through the normal status endpoint. Store summary and optional resolution note; do not place highly sensitive narrative data into audit metadata.
-
-- [ ] **Step 3: Add protected endpoints and cross-tenant tests.**
+- [ ] **Step 2: Implement HR case aggregate, tenant filtering, services, and routes.**
 
 ```text
 GET  /api/v1/hr-cases
@@ -362,15 +403,18 @@ PUT  /api/v1/hr-cases/{caseId}
 POST /api/v1/hr-cases/{caseId}/status
 ```
 
-- [ ] **Step 4: Add HR Cases page with permission-aware error state.**
+Audit metadata may contain case ID/category/status but must not copy sensitive case narrative or resolution text.
 
-A 403 must render a clear access message; do not hide authorization failures as generic browser errors.
+- [ ] **Step 3: Prove dedicated authorization and cross-tenant denial in API tests.**
 
-- [ ] **Step 5: Run and commit.**
+Run: `dotnet test tests/PeopleSyncD.Api.Tests/PeopleSyncD.Api.Tests.csproj --filter HrCaseAuthorizationApiTests`
+Expected: PASS.
+
+- [ ] **Step 4: Add HR Cases page; render 403 as an explicit access message.**
+
+- [ ] **Step 5: Commit.**
 
 ```bash
-dotnet test tests/PeopleSyncD.Api.Tests/PeopleSyncD.Api.Tests.csproj --filter HrCaseAuthorizationApiTests
-dotnet test tests/PeopleSyncD.Domain.Tests/PeopleSyncD.Domain.Tests.csproj --filter HrCaseTests
 git add src tests
 git commit -m "feat: add restricted HR case workflow"
 ```
@@ -382,25 +426,25 @@ git commit -m "feat: add restricted HR case workflow"
 **Files:**
 - Create: `src/PeopleSyncD.Domain/Documents/EmployeeDocumentRecord.cs`
 - Create: `src/PeopleSyncD.Application/Interfaces/IEmployeeDocumentRepository.cs`
+- Create: `src/PeopleSyncD.Application/Interfaces/IEmployeeActivityReader.cs`
 - Create: `src/PeopleSyncD.Application/Documents/DocumentContracts.cs`
 - Create: `src/PeopleSyncD.Application/Documents/DocumentRecordService.cs`
+- Create: `src/PeopleSyncD.Application/Hr/EmployeeActivityService.cs`
 - Create: `src/PeopleSyncD.Infrastructure/Persistence/Configurations/EmployeeDocumentRecordConfiguration.cs`
 - Create: `src/PeopleSyncD.Infrastructure/Repositories/EmployeeDocumentRepository.cs`
+- Create: `src/PeopleSyncD.Infrastructure/Repositories/EmployeeActivityReader.cs`
 - Create: `src/PeopleSyncD.Api/Controllers/EmployeeDocumentsController.cs`
-- Create: `src/PeopleSyncD.Application/Hr/EmployeeActivityService.cs`
 - Create: `src/PeopleSyncD.Api/Controllers/EmployeeActivityController.cs`
 - Create: `tests/PeopleSyncD.Api.Tests/DocumentActivityApiTests.cs`
+- Modify: `src/PeopleSyncD.Web/app/people/[employeeId]/page.tsx`
 
 **Interfaces:**
-- Categories: `Employment`, `Credential`, `Training`, `Policy`, `Other`.
-- Confidentiality values: `Standard`, `Restricted`.
-- Activity query reads existing `SecurityAuditRecord` data through a new read-only application abstraction rather than exposing the persistence type directly.
 
-- [ ] **Step 1: Write failing API tests for tenant-safe document metadata and activity.**
+Document categories: `Employment`, `Credential`, `Training`, `Policy`, `Other`. Confidentiality: `Standard`, `Restricted`. Add `documents.read` / `documents.write`; Owner/Administrator get both, Manager gets read/write only if the demo's employee-management role is intended to maintain records, while Restricted document records still require the higher permission decision implemented in the service.
 
-Assert a document record persists category/display name/confidentiality/storage reference, and that a foreign tenant cannot list it. Assert employee creation/status/credential/onboarding/case actions appear in chronological activity results after their services call `IAuditRecorder.RecordAsync`.
+- [ ] **Step 1: Write failing API tests for metadata persistence, `hasBinary`, activity, and tenant isolation.**
 
-- [ ] **Step 2: Implement document metadata CRUD.**
+- [ ] **Step 2: Implement metadata routes and activity reader.**
 
 ```text
 GET  /api/v1/employees/{employeeId}/documents
@@ -409,11 +453,17 @@ PUT  /api/v1/employees/{employeeId}/documents/{documentId}
 GET  /api/v1/employees/{employeeId}/activity
 ```
 
-If `storageReference` is null, return `hasBinary=false`; the web must display `Metadata record only`.
+`hasBinary` is `storageReference is not null`. Activity is read from existing persisted `SecurityAuditRecord` rows through `IEmployeeActivityReader`; do not expose the infrastructure type to the API.
 
-- [ ] **Step 3: Add Documents and Activity sections to `app/people/[employeeId]/page.tsx`.**
+- [ ] **Step 3: Ensure EmployeeService, OnboardingService, CredentialService, DocumentRecordService, and HrCaseService call `IAuditRecorder.RecordAsync` for demo-visible changes.**
 
-- [ ] **Step 4: Verify and commit.**
+Event types are stable strings: `employee.created`, `employee.profile_updated`, `employee.status_changed`, `onboarding.task_changed`, `credential.created`, `credential.updated`, `document.created`, `document.updated`, `hr_case.created`, `hr_case.status_changed`.
+
+- [ ] **Step 4: Add Documents and Activity sections to employee profile.**
+
+Metadata without binary shows `Metadata record only`.
+
+- [ ] **Step 5: Verify and commit.**
 
 ```bash
 dotnet test tests/PeopleSyncD.Api.Tests/PeopleSyncD.Api.Tests.csproj --filter DocumentActivityApiTests
@@ -425,56 +475,51 @@ git commit -m "feat: add HR document metadata and activity timeline"
 
 ---
 
-### Task 6: Reporting, Deterministic Demo Data, and HR Schema Migration
+### Task 6: Reports, Additive Migration, and Deterministic Demo Seed
 
 **Files:**
-- Create: `src/PeopleSyncD.Application/Hr/HrReportingService.cs`
-- Create: `src/PeopleSyncD.Application/Hr/HrReportingContracts.cs`
-- Create: `src/PeopleSyncD.Api/Controllers/HrReportsController.cs`
-- Create: `src/PeopleSyncD.Infrastructure/Persistence/DemoDataSeeder.cs`
-- Modify: `src/PeopleSyncD.Infrastructure/Persistence/DatabaseInitializer.cs`
 - Modify: `src/PeopleSyncD.Infrastructure/Persistence/ApplicationDbContext.cs`
-- Create: new additive migration under `src/PeopleSyncD.Infrastructure/Migrations/`
+- Modify: `src/PeopleSyncD.Infrastructure/Persistence/DatabaseInitializer.cs`
+- Create: `src/PeopleSyncD.Infrastructure/Persistence/DemoDataSeeder.cs`
+- Create: additive migration in `src/PeopleSyncD.Infrastructure/Migrations/`
+- Create: `src/PeopleSyncD.Application/Hr/HrReportingContracts.cs`
+- Create: `src/PeopleSyncD.Application/Hr/HrReportingService.cs`
+- Create: `src/PeopleSyncD.Api/Controllers/HrReportsController.cs`
 - Create: `tests/PeopleSyncD.Integration.Tests/HrDemoSchemaTests.cs`
 - Create: `tests/PeopleSyncD.Api.Tests/HrReportingApiTests.cs`
 - Create: `src/PeopleSyncD.Web/app/reports/page.tsx`
 
 **Interfaces:**
-- `WorkforceSummaryDto` groups counts by status, department, and location.
-- `CredentialRiskReportDto` lists expired and expiring-within-30-days credentials.
-- Seeder is idempotent by a fixed synthetic organization marker/seed key and must not run in Production.
+
+Add `hr_reports.read`; Owner/Administrator/Manager/Auditor receive it, Member does not by default. `WorkforceSummaryDto` groups by status, department, location. `CredentialRiskReportDto` lists expired and 30-day expiring credentials.
 
 - [ ] **Step 1: Add DbSets/configurations and generate one additive migration.**
-
-Run from repository root:
 
 ```bash
 dotnet ef migrations add HrDemoReadiness --project src/PeopleSyncD.Infrastructure --startup-project src/PeopleSyncD.Api
 ```
 
-Expected: one new timestamped migration plus updated model snapshot; no existing migration changes.
+Expected: one new migration plus model snapshot changes; historical migration files remain byte-for-byte unchanged.
 
-- [ ] **Step 2: Write clean-database integration assertions before accepting the migration.**
+- [ ] **Step 2: Write clean PostgreSQL schema tests.**
 
-Test that tables/indexes/FKs exist for employees, onboarding, credentials, documents, and HR cases and that required organization/employee relationships reject invalid references.
+Assert tables/indexes/FKs for employees, onboarding templates/instances/tasks, credentials, document records, and HR cases. Assert invalid employee/organization relationships fail at persistence boundaries.
 
 Run: `dotnet test tests/PeopleSyncD.Integration.Tests/PeopleSyncD.Integration.Tests.csproj --filter HrDemoSchemaTests`
-Expected: PASS against PostgreSQL test infrastructure.
+Expected: PASS.
 
-- [ ] **Step 3: Implement deterministic synthetic seed data.**
+- [ ] **Step 3: Implement idempotent demo seed data, disabled in Production.**
 
-Seed 16 fictional workers across at least 4 departments, 2 locations, 2 managers, and Active/Onboarding/Leave/Separated statuses; include 2 credentials expiring within 30 days, 1 expired credential, 2 incomplete onboarding records, 2 open HR cases, document metadata, and audit activity. Use `.test` email addresses and names clearly marked as synthetic in the seed source.
+Seed exactly 16 fictional workers, 4 departments, 2 locations, at least 2 managers, status mix across Active/Onboarding/Leave/Separated, 2 credentials expiring within 30 days, 1 expired credential, 2 incomplete onboarding instances, 2 open HR cases, document metadata, and audit activity. Use `.test` email addresses. Gate the seeder with `IHostEnvironment.IsDevelopment()` or an explicit demo environment flag that is false in Production.
 
-- [ ] **Step 4: Implement reports and live reports page.**
+- [ ] **Step 4: Implement report endpoints and reports page.**
 
 ```text
 GET /api/v1/hr/reports/workforce-summary
 GET /api/v1/hr/reports/credential-risk
 ```
 
-Protect both with `hr_reports.read`.
-
-- [ ] **Step 5: Run reporting/integration/web checks and commit.**
+- [ ] **Step 5: Verify and commit.**
 
 ```bash
 dotnet test tests/PeopleSyncD.Api.Tests/PeopleSyncD.Api.Tests.csproj --filter HrReportingApiTests
@@ -482,29 +527,31 @@ dotnet test tests/PeopleSyncD.Integration.Tests/PeopleSyncD.Integration.Tests.cs
 cd src/PeopleSyncD.Web && npm run typecheck && npm run build
 cd ../..
 git add src tests
-git commit -m "feat: add HR reporting schema and demo dataset"
+git commit -m "feat: add HR reports schema and demo dataset"
 ```
 
 ---
 
-### Task 7: Demo Shell, End-to-End Rehearsal, and Release Evidence
+### Task 7: Demo Shell, Rehearsal, and Release Evidence
 
 **Files:**
 - Modify: `src/PeopleSyncD.Web/app/page.tsx`
 - Modify: `src/PeopleSyncD.Web/app/layout.tsx`
 - Modify: `src/PeopleSyncD.Web/app/globals.css`
 - Create: `docs/demo/PEOPLESYNCD-HR-DEMO-RUNBOOK.md`
-- Create: `tests/acceptance/hr-demo-smoke.md` or the repository's accepted executable smoke-test equivalent if an established acceptance runner exists.
+- Create: `tests/acceptance/hr-demo-smoke.md`
 
 **Interfaces:**
-- Primary navigation order: Dashboard, People, Onboarding, Credentials, HR Cases, Reports, Security/Account.
-- Rehearsal path: sign in -> dashboard -> create employee -> profile -> onboarding task -> credential -> document metadata -> HR case -> status change -> activity -> reports.
 
-- [ ] **Step 1: Replace the M2.1-centric home presentation with a demo launch shell without removing auth/security routes.**
+Navigation order: Dashboard, People, Onboarding, Credentials, HR Cases, Reports, Security/Account.
 
-The landing copy must identify the environment as a non-production PeopleSyncD HR demo and provide direct navigation to the authenticated HR workspace.
+Rehearsal path: sign in -> dashboard -> create employee -> employee profile -> onboarding task -> credential -> document metadata -> HR case -> employment status -> activity -> reports.
 
-- [ ] **Step 2: Run all .NET and web quality gates locally.**
+- [ ] **Step 1: Build a clear non-production HR demo shell.**
+
+Landing page copy must identify the environment as `PeopleSyncD HR Demo — Non-Production` and link into the authenticated HR workspace. Keep current auth/security routes intact.
+
+- [ ] **Step 2: Run complete local quality gates.**
 
 ```bash
 dotnet test PeopleSyncD.slnx --configuration Release
@@ -515,21 +562,21 @@ npm run build
 npm audit --audit-level=high
 ```
 
-Expected: zero failing tests, successful typecheck/build, and no high-severity npm audit failure.
+Expected: zero failing tests; successful typecheck/build; no high-severity npm audit failure.
 
-- [ ] **Step 3: Validate the container/deployment contract.**
+- [ ] **Step 3: Validate existing Codespaces or persistent Compose deployment path.**
 
-Use the repository's existing Codespaces or persistent Compose path. Do not create another hosting architecture. Confirm API, web, gateway, and PostgreSQL start with the demo seed enabled only in the demo environment and that the app is reachable through one HTTPS origin.
+Do not invent a new hosting architecture. Confirm API, web, gateway, and PostgreSQL start; demo seed executes only in the demo/development environment; browser reaches one HTTPS origin.
 
 - [ ] **Step 4: Execute the complete rehearsal twice from a clean browser session.**
 
-Pass criteria: no database editing, no code changes, no broken navigation, no cross-tenant leakage, and the employee created during rehearsal remains present after reload.
+Pass criteria: no database editing, no code changes, no broken navigation, no cross-tenant leakage, and the employee created during rehearsal remains after reload.
 
-- [ ] **Step 5: Write the runbook with exact launch, sign-in, reset/seed, rehearsal, and fallback steps.**
+- [ ] **Step 5: Write the demo runbook.**
 
-The runbook must explicitly say `Demo / Non-Production` and identify synthetic data expectations.
+Include exact launch command/path, environment label, sign-in procedure, deterministic seed/reset procedure, primary rehearsal path, expected screens, and fallback launch steps using the repository's existing deployment modes.
 
-- [ ] **Step 6: Commit final demo polish and push for CI.**
+- [ ] **Step 6: Commit and push final head.**
 
 ```bash
 git add src tests docs/demo
@@ -537,25 +584,26 @@ git commit -m "feat: finalize PeopleSyncD HR demo readiness"
 git push origin demo/hr-mvp-readiness
 ```
 
-- [ ] **Step 7: Do not declare demo-ready until GitHub Actions are green on the final head.**
+- [ ] **Step 7: Require green GitHub Actions before declaring readiness.**
 
-Required evidence includes the existing .NET platform, API contracts, security, governance/traceability, Markdown, build/container, and applicable deployment workflows. If any required job fails, fix the cause on this branch and rerun; do not bypass or disable a quality gate to meet the presentation date.
+Do not disable or bypass failing .NET platform, API contracts, security, governance/traceability, Markdown, build/container, or applicable deployment gates. Fix failures on this branch and rerun them.
 
 ## Final Acceptance Checklist
 
-- [ ] Existing authentication, MFA/passkeys, tenant selection, and session security still pass.
-- [ ] Executive HR dashboard is populated from real persisted rows.
-- [ ] Employee create/edit/status operations persist and survive reload.
-- [ ] Invalid employment lifecycle transitions are rejected.
-- [ ] Onboarding progress updates dashboard and employee view.
-- [ ] Credential expiration risk is date-derived and consistent in dashboard/report.
+- [ ] Existing authentication, MFA/passkeys, tenant selection, and session security pass.
+- [ ] Executive dashboard is populated from persisted HR rows.
+- [ ] Employee create/edit/status changes persist and survive reload.
+- [ ] Invalid employment transitions are rejected.
+- [ ] Versioned onboarding template v1 instantiates seven persisted tasks.
+- [ ] Onboarding progress updates employee and dashboard views.
+- [ ] Credential risk is date-derived and consistent in dashboard/report.
 - [ ] HR cases require dedicated permissions and reject cross-tenant access.
-- [ ] Document metadata persists and metadata-only records are clearly labeled.
-- [ ] Employee activity is persisted through audit records.
-- [ ] Workforce Summary and Credential Risk reports reflect current records.
-- [ ] Demo seed is deterministic, fictional, idempotent, and disabled in Production.
+- [ ] Document metadata persists and metadata-only records are labeled.
+- [ ] Employee activity is backed by persisted audit records.
+- [ ] Workforce Summary and Credential Risk reports reflect stored data.
+- [ ] Demo seed is fictional, deterministic, idempotent, and disabled in Production.
 - [ ] Clean PostgreSQL migration test passes.
 - [ ] Next.js typecheck/build pass.
-- [ ] Full `.NET` solution tests pass.
-- [ ] Final required GitHub Actions are green.
-- [ ] Complete demo path succeeds twice without manual intervention.
+- [ ] Full .NET solution tests pass.
+- [ ] Required GitHub Actions are green on the final head.
+- [ ] Complete demo path succeeds twice without manual database intervention.
