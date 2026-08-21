@@ -27,7 +27,11 @@ export default function PeopleWorkspace() {
   const [message, setMessage] = useState('Loading PeopleSyncD workforce…');
   const [busy, setBusy] = useState(false);
 
-  const load = useCallback(async (accessToken: string, nextSearch = search, nextStatus = statusFilter) => {
+  const load = useCallback(async (
+    accessToken: string,
+    nextSearch = '',
+    nextStatus: EmploymentStatus | '' = '',
+  ) => {
     setBusy(true);
     try {
       const data = await listEmployees(accessToken, {
@@ -41,7 +45,7 @@ export default function PeopleWorkspace() {
     } finally {
       setBusy(false);
     }
-  }, [search, statusFilter]);
+  }, []);
 
   useEffect(() => {
     const accessToken = readAccessToken();
@@ -50,12 +54,12 @@ export default function PeopleWorkspace() {
       setMessage('Sign in and select an organization to open the People workspace.');
       return;
     }
-    void load(accessToken, '', '');
+    void load(accessToken);
   }, [load]);
 
   function applyFilters(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (token) void load(token);
+    if (token) void load(token, search, statusFilter);
   }
 
   function create(event: FormEvent<HTMLFormElement>) {
@@ -76,8 +80,10 @@ export default function PeopleWorkspace() {
       startDate: field(form, 'startDate'),
     }).then(async (created) => {
       formElement.reset();
+      setSearch('');
+      setStatusFilter('');
       setMessage(`${created.displayName} was added to PeopleSyncD.`);
-      await load(token, '', '');
+      await load(token);
     }).catch((error: unknown) => {
       setMessage(error instanceof ApiError ? error.message : 'Unable to create the employee.');
     }).finally(() => setBusy(false));
