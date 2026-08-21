@@ -39,6 +39,44 @@ public sealed class EmployeeTests
     }
 
     [Fact]
+    public void CreateRejectsMissingEmployeeNumber()
+    {
+        var result = Employee.Create(
+            Guid.NewGuid(),
+            " ",
+            "Jordan Carter",
+            "jordan@example.test",
+            "STEM Instructor",
+            "Education",
+            null,
+            "St. Louis",
+            EmploymentType.FullTime,
+            new DateOnly(2026, 8, 24));
+
+        Assert.True(result.IsFailure);
+        Assert.Equal("employee.invalid", result.Error.Code);
+    }
+
+    [Fact]
+    public void CreateRejectsMissingStartDate()
+    {
+        var result = Employee.Create(
+            Guid.NewGuid(),
+            "EFM-1001",
+            "Jordan Carter",
+            "jordan@example.test",
+            "STEM Instructor",
+            "Education",
+            null,
+            "St. Louis",
+            EmploymentType.FullTime,
+            default);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal("employee.start_date_required", result.Error.Code);
+    }
+
+    [Fact]
     public void OnboardingEmployeeCanActivate()
     {
         var employee = CreateEmployee();
