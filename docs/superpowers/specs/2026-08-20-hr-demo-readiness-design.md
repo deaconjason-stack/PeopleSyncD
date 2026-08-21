@@ -28,12 +28,15 @@ Primary demo path:
 ## 3. Demo Personas
 
 ### Founder / HR Administrator
+
 Can view workforce metrics, create and update employees, manage onboarding, credentials, document metadata, HR cases, employment status, and reports.
 
 ### Manager
+
 Can view permitted workers in the selected organization and inspect appropriate employee and onboarding information. Restricted HR cases remain limited by authorization.
 
 ### Worker
+
 Worker self-service is not required for the first demo. The domain and API should avoid assumptions that prevent a future worker workspace.
 
 ## 4. Functional Modules
@@ -333,6 +336,7 @@ Seed data must be unmistakably fictional.
 The demo branch is not complete until the following are covered:
 
 ### Domain tests
+
 - employee creation and validation;
 - lifecycle transition rules;
 - onboarding task state transitions;
@@ -340,6 +344,7 @@ The demo branch is not complete until the following are covered:
 - HR case status transitions.
 
 ### Application/API tests
+
 - create/read/update employee;
 - organization isolation;
 - permission enforcement;
@@ -350,12 +355,14 @@ The demo branch is not complete until the following are covered:
 - report aggregation.
 
 ### Persistence tests
+
 - migrations apply to a clean PostgreSQL database;
 - organization/employee relationships are enforced;
 - required indexes/constraints exist;
 - no cross-tenant query path is introduced accidentally.
 
 ### Web tests
+
 - core demo navigation renders;
 - employee creation/edit flow works;
 - onboarding updates reflect in progress;
@@ -364,6 +371,7 @@ The demo branch is not complete until the following are covered:
 - dashboard uses live API data.
 
 ### Build/deployment gates
+
 Existing repository quality gates must remain green. Demo readiness must not be claimed solely from local execution.
 
 ## 12. Demo Deployment
