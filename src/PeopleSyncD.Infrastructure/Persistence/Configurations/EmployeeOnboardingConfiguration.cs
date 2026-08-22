@@ -35,6 +35,7 @@ internal sealed class OnboardingTaskConfiguration : IEntityTypeConfiguration<Onb
     {
         builder.ToTable("onboarding_tasks");
         builder.HasKey(task => task.Id);
+        builder.Property<Guid>("EmployeeOnboardingId").IsRequired();
         builder.Property(task => task.Title).HasMaxLength(200).IsRequired();
         builder.Property(task => task.Category).HasMaxLength(80).IsRequired();
         builder.Property(task => task.Order).HasColumnName("SortOrder").IsRequired();
@@ -42,7 +43,7 @@ internal sealed class OnboardingTaskConfiguration : IEntityTypeConfiguration<Onb
         builder.Property(task => task.Status).HasConversion<string>().HasMaxLength(32).IsRequired();
         builder.Property(task => task.CompletedAt);
         builder.Property(task => task.Note).HasMaxLength(1000);
-        builder.HasIndex("EmployeeOnboardingId", "SortOrder").IsUnique();
-        builder.HasIndex("EmployeeOnboardingId", "Status", "DueDate");
+        builder.HasIndex("EmployeeOnboardingId", nameof(OnboardingTask.Order)).IsUnique();
+        builder.HasIndex("EmployeeOnboardingId", nameof(OnboardingTask.Status), nameof(OnboardingTask.DueDate));
     }
 }
