@@ -21,15 +21,15 @@ internal sealed class OnboardingRepository(ApplicationDbContext database) : IOnb
         Guid tenantId,
         CancellationToken cancellationToken = default) =>
         database.OnboardingTemplates
-            .Include(template => template.Tasks)
-            .Where(template => template.OrganizationId == tenantId && template.IsActive)
-            .OrderByDescending(template => template.Version)
+            .Include(onboardingTemplate => onboardingTemplate.Tasks)
+            .Where(onboardingTemplate => onboardingTemplate.OrganizationId == tenantId && onboardingTemplate.IsActive)
+            .OrderByDescending(onboardingTemplate => onboardingTemplate.Version)
             .FirstOrDefaultAsync(cancellationToken);
 
     public async Task AddTemplateAsync(
-        OnboardingTemplate template,
+        OnboardingTemplate onboardingTemplate,
         CancellationToken cancellationToken = default) =>
-        await database.OnboardingTemplates.AddAsync(template, cancellationToken);
+        await database.OnboardingTemplates.AddAsync(onboardingTemplate, cancellationToken);
 
     public async Task AddOnboardingAsync(
         EmployeeOnboarding onboarding,
