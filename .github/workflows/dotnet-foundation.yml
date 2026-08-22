@@ -20,39 +20,9 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  repair-web-lockfile:
-    if: github.event_name == 'pull_request' && github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          fetch-depth: 2
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-          cache-dependency-path: src/PeopleSyncD.Web/package-lock.json
-      - name: Regenerate patched nanoid lock entry
-        working-directory: src/PeopleSyncD.Web
-        run: npm update nanoid --package-lock-only --ignore-scripts --no-fund
-      - name: Verify package manifest stayed unchanged
-        run: git diff --exit-code -- src/PeopleSyncD.Web/package.json
-      - name: Commit generated lockfile
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/PeopleSyncD.Web/package-lock.json
-          if git diff --cached --quiet; then
-            echo 'No lockfile update was required.'
-            exit 0
-          fi
-          git commit -m 'fix: regenerate patched web dependency lockfile'
-          git push origin HEAD:${GITHUB_HEAD_REF}
-
   dotnet:
     runs-on: ubuntu-latest
     steps:
