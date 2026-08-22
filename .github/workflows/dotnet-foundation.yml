@@ -71,12 +71,17 @@ jobs:
           for migration in database/dotnet/*.sql; do
             psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -v ON_ERROR_STOP=1 -f "$migration"
           done
-      - name: Verify M2.4 assurance schema
+      - name: Verify M2.4 assurance and HR demo schema
         run: |
           test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from information_schema.tables where table_schema='public' and table_name in ('organizations','organization_memberships','organization_invitations','refresh_sessions','security_audit_records','mfa_challenges','mfa_recovery_codes','mfa_totp_states','passkey_credentials','passkey_ceremonies');")" = "10"
           test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from pg_indexes where schemaname='public' and indexname in ('ux_invitation_token_hash','ux_refresh_token_hash','ux_refresh_parent_session','ux_mfa_challenge_token_hash','ux_mfa_recovery_code_hash','ix_refresh_user_family_active','ux_passkey_credential_id','ix_passkey_user_active','ix_passkey_ceremony_user_purpose_expiry');")" = "9"
           test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from information_schema.columns where table_schema='public' and table_name='refresh_sessions' and column_name in ('AssuranceLevel','LastSeenAt','DeviceLabel','AuthenticatedAt','AuthenticationMethod');")" = "5"
           test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from information_schema.columns where table_schema='public' and table_name='passkey_credentials' and column_name in ('CredentialId','PublicKey','UserHandle','SignatureCounter','BackupEligible','BackedUp','RevokedAt');")" = "7"
+          test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from information_schema.tables where table_schema='public' and table_name='employees';")" = "1"
+          test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from information_schema.columns where table_schema='public' and table_name='employees' and column_name in ('Id','OrganizationId','EmployeeNumber','DisplayName','email','Title','Department','ManagerEmployeeId','Location','EmploymentType','Status','StartDate','SeparationDate');")" = "13"
+          test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from pg_indexes where schemaname='public' and indexname in ('ux_employees_organization_number','ux_employees_organization_email','ix_employees_organization_status','ix_employees_organization_manager');")" = "4"
+          test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from information_schema.tables where table_schema='public' and table_name in ('onboarding_templates','onboarding_template_tasks','employee_onboarding','onboarding_tasks');")" = "4"
+          test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from pg_indexes where schemaname='public' and indexname in ('ux_onboarding_templates_organization_version','ix_onboarding_templates_organization_active','ux_onboarding_template_tasks_template_order','ux_employee_onboarding_organization_employee','ix_employee_onboarding_organization_start','ux_onboarding_tasks_onboarding_order','ix_onboarding_tasks_onboarding_status_due');")" = "7"
 
   web:
     runs-on: ubuntu-latest

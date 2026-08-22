@@ -82,6 +82,8 @@ public static class DependencyInjection
         services.AddScoped<IOrganizationRepository, OrganizationRepository>();
         services.AddScoped<IOrganizationMembershipRepository, OrganizationMembershipRepository>();
         services.AddScoped<IOrganizationInvitationRepository, OrganizationInvitationRepository>();
+        services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+        services.AddScoped<IOnboardingRepository, OnboardingRepository>();
         services.AddScoped<IIdentityGateway, IdentityGateway>();
         services.AddScoped<IIdentityAdministrationGateway, IdentityAdministrationGateway>();
         services.AddScoped<IMfaSecurityGateway, MfaSecurityGateway>();

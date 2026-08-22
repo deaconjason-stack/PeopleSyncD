@@ -64,14 +64,14 @@ jobs:
       - name: Verify migration ledger
         run: |
           ledger_count=$(psql -Atc "select count(*) from peoplesyncd_schema_migrations;")
-          schema_count=$(psql -Atc "select count(*) from information_schema.tables where table_schema='public' and table_name in ('organizations','organization_memberships','organization_invitations','refresh_sessions','security_audit_records','mfa_challenges','mfa_recovery_codes','mfa_totp_states','passkey_credentials','passkey_ceremonies');")
-          test "$ledger_count" = "4"
-          test "$schema_count" = "10"
+          schema_count=$(psql -Atc "select count(*) from information_schema.tables where table_schema='public' and table_name in ('organizations','organization_memberships','organization_invitations','refresh_sessions','security_audit_records','mfa_challenges','mfa_recovery_codes','mfa_totp_states','passkey_credentials','passkey_ceremonies','employees');")
+          test "$ledger_count" = "5"
+          test "$schema_count" = "11"
 
       - name: Reapply migration contract safely
         run: |
           MIGRATION_DIR=database/dotnet sh deploy/production/run-migrations.sh | tee /tmp/migrations-second.log
-          test "$(grep -c 'Migration already applied:' /tmp/migrations-second.log)" = "4"
+          test "$(grep -c 'Migration already applied:' /tmp/migrations-second.log)" = "5"
 
       - name: Reject modified historical migration
         run: |
