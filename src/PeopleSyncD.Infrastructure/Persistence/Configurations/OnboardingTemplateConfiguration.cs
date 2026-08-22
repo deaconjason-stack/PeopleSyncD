@@ -9,19 +9,19 @@ internal sealed class OnboardingTemplateConfiguration : IEntityTypeConfiguration
     public void Configure(EntityTypeBuilder<OnboardingTemplate> builder)
     {
         builder.ToTable("onboarding_templates");
-        builder.HasKey(template => template.Id);
-        builder.Property(template => template.OrganizationId).IsRequired();
-        builder.Property(template => template.Name).HasMaxLength(200).IsRequired();
-        builder.Property(template => template.Version).IsRequired();
-        builder.Property(template => template.IsActive).IsRequired();
-        builder.HasIndex(template => new { template.OrganizationId, template.Version }).IsUnique();
-        builder.HasIndex(template => new { template.OrganizationId, template.IsActive });
-        builder.HasMany(template => template.Tasks)
+        builder.HasKey(onboardingTemplate => onboardingTemplate.Id);
+        builder.Property(onboardingTemplate => onboardingTemplate.OrganizationId).IsRequired();
+        builder.Property(onboardingTemplate => onboardingTemplate.Name).HasMaxLength(200).IsRequired();
+        builder.Property(onboardingTemplate => onboardingTemplate.Version).IsRequired();
+        builder.Property(onboardingTemplate => onboardingTemplate.IsActive).IsRequired();
+        builder.HasIndex(onboardingTemplate => new { onboardingTemplate.OrganizationId, onboardingTemplate.Version }).IsUnique();
+        builder.HasIndex(onboardingTemplate => new { onboardingTemplate.OrganizationId, onboardingTemplate.IsActive });
+        builder.HasMany(onboardingTemplate => onboardingTemplate.Tasks)
             .WithOne()
             .HasForeignKey("TemplateId")
             .OnDelete(DeleteBehavior.Cascade);
-        builder.Navigation(template => template.Tasks).UsePropertyAccessMode(PropertyAccessMode.Field);
-        builder.Ignore(template => template.DomainEvents);
+        builder.Navigation(onboardingTemplate => onboardingTemplate.Tasks).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Ignore(onboardingTemplate => onboardingTemplate.DomainEvents);
     }
 }
 
@@ -31,10 +31,11 @@ internal sealed class OnboardingTemplateTaskConfiguration : IEntityTypeConfigura
     {
         builder.ToTable("onboarding_template_tasks");
         builder.HasKey(task => task.Id);
+        builder.Property<Guid>("TemplateId").IsRequired();
         builder.Property(task => task.Title).HasMaxLength(200).IsRequired();
         builder.Property(task => task.Category).HasMaxLength(80).IsRequired();
         builder.Property(task => task.Order).HasColumnName("SortOrder").IsRequired();
         builder.Property(task => task.DueOffsetDays).IsRequired();
-        builder.HasIndex("TemplateId", "SortOrder").IsUnique();
+        builder.HasIndex("TemplateId", nameof(OnboardingTemplateTask.Order)).IsUnique();
     }
 }
