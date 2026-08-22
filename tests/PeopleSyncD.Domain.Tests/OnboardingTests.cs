@@ -1,3 +1,4 @@
+using PeopleSyncD.Domain.Onboarding;
 using Xunit;
 
 namespace PeopleSyncD.Domain.Tests;
