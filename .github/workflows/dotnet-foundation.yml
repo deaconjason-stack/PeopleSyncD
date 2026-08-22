@@ -80,6 +80,8 @@ jobs:
           test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from information_schema.tables where table_schema='public' and table_name='employees';")" = "1"
           test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from information_schema.columns where table_schema='public' and table_name='employees' and column_name in ('Id','OrganizationId','EmployeeNumber','DisplayName','email','Title','Department','ManagerEmployeeId','Location','EmploymentType','Status','StartDate','SeparationDate');")" = "13"
           test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from pg_indexes where schemaname='public' and indexname in ('ux_employees_organization_number','ux_employees_organization_email','ix_employees_organization_status','ix_employees_organization_manager');")" = "4"
+          test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from information_schema.tables where table_schema='public' and table_name in ('onboarding_templates','onboarding_template_tasks','employee_onboarding','onboarding_tasks');")" = "4"
+          test "$(psql -h 127.0.0.1 -U peoplesyncd -d peoplesyncd_dotnet_ci -Atc "select count(*) from pg_indexes where schemaname='public' and indexname in ('ux_onboarding_templates_organization_version','ix_onboarding_templates_organization_active','ux_onboarding_template_tasks_template_order','ux_employee_onboarding_organization_employee','ix_employee_onboarding_organization_start','ux_onboarding_tasks_onboarding_order','ix_onboarding_tasks_onboarding_status_due');")" = "7"
 
   web:
     runs-on: ubuntu-latest
