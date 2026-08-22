@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using PeopleSyncD.Application.Interfaces;
 using PeopleSyncD.Domain.Employees;
 using PeopleSyncD.Domain.Identity;
+using PeopleSyncD.Domain.Onboarding;
 using PeopleSyncD.Domain.Organizations;
 using PeopleSyncD.Infrastructure.Identity;
 
@@ -19,6 +20,10 @@ public sealed class ApplicationDbContext(
     public DbSet<Organization> Organizations => Set<Organization>();
 
     public DbSet<Employee> Employees => Set<Employee>();
+
+    public DbSet<OnboardingTemplate> OnboardingTemplates => Set<OnboardingTemplate>();
+
+    public DbSet<EmployeeOnboarding> EmployeeOnboardings => Set<EmployeeOnboarding>();
 
     public DbSet<OrganizationMembership> OrganizationMemberships => Set<OrganizationMembership>();
 

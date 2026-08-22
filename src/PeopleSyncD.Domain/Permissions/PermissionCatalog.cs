@@ -15,6 +15,8 @@ public static class PermissionCatalog
         PermissionNames.MembershipsWrite,
         PermissionNames.EmployeesRead,
         PermissionNames.EmployeesWrite,
+        PermissionNames.OnboardingRead,
+        PermissionNames.OnboardingWrite,
     ]);
 
     private static readonly IReadOnlyCollection<string> AdministratorPermissions = Array.AsReadOnly(
@@ -25,6 +27,8 @@ public static class PermissionCatalog
         PermissionNames.MembershipsWrite,
         PermissionNames.EmployeesRead,
         PermissionNames.EmployeesWrite,
+        PermissionNames.OnboardingRead,
+        PermissionNames.OnboardingWrite,
     ]);
 
     private static readonly IReadOnlyCollection<string> ManagerPermissions = Array.AsReadOnly(
@@ -33,12 +37,15 @@ public static class PermissionCatalog
         PermissionNames.MembershipsRead,
         PermissionNames.EmployeesRead,
         PermissionNames.EmployeesWrite,
+        PermissionNames.OnboardingRead,
+        PermissionNames.OnboardingWrite,
     ]);
 
     private static readonly IReadOnlyCollection<string> MemberPermissions = Array.AsReadOnly(
     [
         PermissionNames.OrganizationsRead,
         PermissionNames.EmployeesRead,
+        PermissionNames.OnboardingRead,
     ]);
 
     private static readonly IReadOnlyCollection<string> AuditorPermissions = Array.AsReadOnly(
@@ -46,6 +53,7 @@ public static class PermissionCatalog
         PermissionNames.OrganizationsRead,
         PermissionNames.MembershipsRead,
         PermissionNames.EmployeesRead,
+        PermissionNames.OnboardingRead,
     ]);
 
     private static readonly IReadOnlyCollection<string> NoPermissions = Array.Empty<string>();

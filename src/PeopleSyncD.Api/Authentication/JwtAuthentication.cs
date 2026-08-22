@@ -50,6 +50,8 @@ public static class JwtAuthentication
             AddPermissionPolicy(authorization, PermissionNames.MembershipsWrite);
             AddPermissionPolicy(authorization, PermissionNames.EmployeesRead);
             AddPermissionPolicy(authorization, PermissionNames.EmployeesWrite);
+            AddPermissionPolicy(authorization, PermissionNames.OnboardingRead);
+            AddPermissionPolicy(authorization, PermissionNames.OnboardingWrite);
         });
         return services;
     }
