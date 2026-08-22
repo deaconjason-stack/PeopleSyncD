@@ -14,7 +14,7 @@ public interface IOnboardingRepository
         CancellationToken cancellationToken = default);
 
     Task AddTemplateAsync(
-        OnboardingTemplate template,
+        OnboardingTemplate onboardingTemplate,
         CancellationToken cancellationToken = default);
 
     Task AddOnboardingAsync(
