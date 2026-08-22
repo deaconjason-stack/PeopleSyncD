@@ -5,6 +5,17 @@ namespace PeopleSyncD.Domain.Tests;
 
 public sealed class OnboardingTests
 {
+    private static readonly string[] StandardTaskTitles =
+    [
+        "Employment Paperwork",
+        "Orientation",
+        "Policy Acknowledgement",
+        "Required Credentials",
+        "Required Training",
+        "Equipment/Access",
+        "Manager Introduction",
+    ];
+
     [Fact]
     public void StandardTemplateHasStableVersionAndSevenOrderedTasks()
     {
@@ -19,16 +30,7 @@ public sealed class OnboardingTests
         Assert.True(result.Value.IsActive);
         Assert.Equal(7, result.Value.Tasks.Count);
         Assert.Equal(
-            new[]
-            {
-                "Employment Paperwork",
-                "Orientation",
-                "Policy Acknowledgement",
-                "Required Credentials",
-                "Required Training",
-                "Equipment/Access",
-                "Manager Introduction",
-            },
+            StandardTaskTitles,
             result.Value.Tasks.OrderBy(task => task.Order).Select(task => task.Title));
     }
 
