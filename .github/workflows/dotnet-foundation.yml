@@ -1,23 +1,7 @@
 name: M1/M2 .NET Platform Foundation
 
 on:
-  pull_request:
-    paths:
-      - 'PeopleSyncD.slnx'
-      - 'global.json'
-      - 'Directory.*.props'
-      - 'NuGet.config'
-      - 'src/PeopleSyncD.**'
-      - 'tests/PeopleSyncD.**'
-      - 'Dockerfile.Api'
-      - 'docker-compose.yml'
-      - 'database/dotnet/**'
-      - 'infrastructure/terraform/**'
-      - 'infrastructure/kubernetes/m1/**'
-      - 'infrastructure/postgres/**'
-      - '.github/workflows/dotnet-foundation.yml'
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
