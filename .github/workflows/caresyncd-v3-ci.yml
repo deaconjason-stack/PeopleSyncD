@@ -1,0 +1,39 @@
+name: CareSyncD v3 CI
+
+on:
+  push:
+    branches:
+      - caresyncd-v3-hospital-shift
+  pull_request:
+    branches:
+      - caresyncd-v3-hospital-shift
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Extract tested CareSyncD release
+        run: |
+          rm -rf .caresyncd-ci
+          mkdir .caresyncd-ci
+          unzip -q releases/CareSyncD-v3-HOSPITAL-SHIFT.zip -d .caresyncd-ci
+
+      - name: Run CareSyncD automated tests
+        working-directory: .caresyncd-ci/CareSyncD
+        run: npm test
+
+      - name: Run CareSyncD project integrity check
+        working-directory: .caresyncd-ci/CareSyncD
+        run: npm run check
