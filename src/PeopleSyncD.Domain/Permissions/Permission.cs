@@ -11,4 +11,6 @@ public static class PermissionNames
     public const string MembershipsWrite = "memberships.write";
     public const string EmployeesRead = "employees.read";
     public const string EmployeesWrite = "employees.write";
+    public const string OnboardingRead = "onboarding.read";
+    public const string OnboardingWrite = "onboarding.write";
 }
